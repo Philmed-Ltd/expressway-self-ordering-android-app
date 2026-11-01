@@ -10,7 +10,7 @@ import com.clicks.app.feature.auth.model.VerificationCode
 import com.clicks.app.feature.auth.repository.AuthenticationDao
 import com.clicks.app.feature.auth.repository.VerificationCodeDao
 
-@Database(entities = [Authentication::class, VerificationCode::class], version = 1, exportSchema = false)
+@Database(entities = [Authentication::class, VerificationCode::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun authenticationDao(): AuthenticationDao
@@ -26,7 +26,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "clicks_db"
-                ).allowMainThreadQueries().build()
+                )
+                    .allowMainThreadQueries()
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
