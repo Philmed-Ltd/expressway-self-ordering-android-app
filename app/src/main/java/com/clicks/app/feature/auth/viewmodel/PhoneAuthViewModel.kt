@@ -8,7 +8,6 @@ import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
 import com.clicks.app.feature.auth.data.dto.PhoneVerificationCodePayload
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.feature.auth.model.Authentication
-import com.clicks.app.lib.session.TokenStorage
 import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiResult
 import kotlinx.coroutines.Dispatchers
@@ -176,11 +175,11 @@ class PhoneAuthViewModel(
                     try {
                         withContext(Dispatchers.IO) {
                             val auth = Authentication().apply {
+                                id = 1
                                 authToken = result.data.authToken ?: "customer-token-${result.data.id}"
                                 expiryTime = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
                             }
                             authLocalSrc.insertSync(auth)
-                            TokenStorage(ApiClient.appContext).saveToken(auth.authToken)
                         }
                     } catch (e: Exception) {
                         // ignore or log
@@ -228,11 +227,11 @@ class PhoneAuthViewModel(
                 withContext(Dispatchers.IO) {
                     val token = "login-session-$verificationCodeId"
                     val auth = Authentication().apply {
+                        id = 1
                         authToken = token
                         expiryTime = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
                     }
                     authLocalSrc.insertSync(auth)
-                    TokenStorage(ApiClient.appContext).saveToken(token)
                 }
                 uiState.value = PhoneAuthUiState(
                     isLoading = false,

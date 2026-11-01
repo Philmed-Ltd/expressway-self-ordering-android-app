@@ -7,18 +7,20 @@ import com.clicks.app.feature.auth.data.dto.InitLoginRequest
 import com.clicks.app.feature.auth.data.dto.InitLoginResponseData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeRequest
-import com.clicks.app.lib.session.TokenStorage
+import com.clicks.app.feature.auth.model.Authentication
+import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiResult
 import com.clicks.app.network.safeEntityApiCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 private const val TAG = "AuthRepository"
 
 class AuthRepository(
     private val authApi: AuthApi = ApiClient.createService<AuthApi>(),
-    private val tokenStorage: TokenStorage = TokenStorage(ApiClient.appContext)
+    private val authLocalSrc: AuthenticationLocalSrc = AuthenticationLocalSrc(ApiClient.appContext)
 ) {
 
     suspend fun requestVerificationCode(
@@ -61,7 +63,12 @@ class AuthRepository(
         if (result is ApiResult.Success) {
             try {
                 withContext(Dispatchers.IO) {
-                    tokenStorage.saveToken("customer-session-${result.data.id}")
+                    val auth = Authentication().apply {
+                        id = 1
+                        authToken = result.data.authToken ?: "customer-session-${result.data.id}"
+                        expiryTime = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
+                    }
+                    authLocalSrc.insertSync(auth)
                 }
             } catch (exception: Exception) {
                 Log.e(TAG, "Failed to save session token", exception)
@@ -72,6 +79,6 @@ class AuthRepository(
     }
 
     fun logout() {
-        tokenStorage.clearToken()
+        authLocalSrc.delete()
     }
 }

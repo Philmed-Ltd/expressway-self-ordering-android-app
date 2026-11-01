@@ -6,8 +6,8 @@ import java.util.Date
 
 @Entity(tableName = "authentication")
 class Authentication {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
+    @PrimaryKey
+    var id: Long = 1
     var expiryTime: Date = Date()
     var authToken: String = ""
 

@@ -12,7 +12,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.clicks.app.lib.session.SessionManager
-import com.clicks.app.lib.session.TokenStorage
 import com.clicks.app.lib.session.SessionRepository
 import com.clicks.app.feature.onboarding.OnboardingContainerScreen
 import com.clicks.app.feature.auth.ui.PhoneAuthScreen
@@ -36,7 +35,7 @@ import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 fun NavGraph() {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val sessionRepository = remember { SessionRepository(TokenStorage(context)) }
+    val sessionRepository = remember { SessionRepository(context) }
     val storeViewModel: StoreViewModel = viewModel()
     val deliveryLocationViewModel: DeliveryLocationViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
