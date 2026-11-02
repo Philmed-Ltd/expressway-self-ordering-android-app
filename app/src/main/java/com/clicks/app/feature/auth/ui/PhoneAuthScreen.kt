@@ -246,7 +246,14 @@ fun PhoneAuthScreen(
 
                         OutlinedTextField(
                             value = phoneNumber,
-                            onValueChange = { phoneNumber = it.filter(Char::isDigit) },
+                            onValueChange = {
+                                val digits = it.filter(Char::isDigit)
+                                phoneNumber = if (digits.length > 1) {
+                                    normalizeNationalPhoneNumber(digits)
+                                } else {
+                                    digits
+                                }
+                            },
                             placeholder = { Text("712345678") },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -324,7 +331,13 @@ fun PhoneAuthScreen(
                     isLoading = uiState.isLoading,
                     onClick = {
                         val usernameType = if (authMode == "REGISTER" || loginMethod == "PHONE") "PHONE_NUMBER" else "EMAIL"
-                        val identifier = if (usernameType == "PHONE_NUMBER") "${selectedCountry.code}$phoneNumber" else emailInput
+                        val normalizedPhoneNumber = normalizeNationalPhoneNumber(phoneNumber)
+                        phoneNumber = normalizedPhoneNumber
+                        val identifier = if (usernameType == "PHONE_NUMBER") {
+                            "${selectedCountry.code}$normalizedPhoneNumber"
+                        } else {
+                            emailInput
+                        }
 
                         if (authMode == "REGISTER") {
                             viewModel.sendVerificationCode(
@@ -332,7 +345,7 @@ fun PhoneAuthScreen(
                                 identifier = identifier,
                                 verificationCodeUse = "REGISTRATION",
                                 onCodeSent = { codeId ->
-                                    onCodeSent(selectedCountry.code, phoneNumber, codeId, "REGISTER")
+                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber, codeId, "REGISTER")
                                 }
                             )
                         } else {
@@ -341,7 +354,7 @@ fun PhoneAuthScreen(
                                 identifier = identifier,
                                 password = passwordInput,
                                 onCodeSent = { codeId ->
-                                    onCodeSent(selectedCountry.code, phoneNumber.ifBlank { emailInput }, codeId, "LOGIN")
+                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber.ifBlank { emailInput }, codeId, "LOGIN")
                                 }
                             )
                         }
@@ -351,6 +364,9 @@ fun PhoneAuthScreen(
         }
     }
 }
+
+private fun normalizeNationalPhoneNumber(phoneNumber: String): String =
+    phoneNumber.filter(Char::isDigit).removePrefix("0")
 
 @Composable
 private fun TabButton(
