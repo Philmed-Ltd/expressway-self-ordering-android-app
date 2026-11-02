@@ -17,6 +17,9 @@ import com.clicks.app.feature.onboarding.OnboardingContainerScreen
 import com.clicks.app.feature.auth.ui.PhoneAuthScreen
 import com.clicks.app.feature.auth.viewmodel.PhoneAuthViewModel
 import com.clicks.app.feature.auth.ui.PhoneVerificationScreen
+import com.clicks.app.feature.auth.ui.ForgotPasswordPhoneScreen
+import com.clicks.app.feature.auth.ui.ForgotPasswordResetScreen
+import com.clicks.app.feature.auth.viewmodel.ForgotPasswordViewModel
 import com.clicks.app.feature.home.ui.HomeScreen
 import com.clicks.app.feature.menu.ui.CategoryProductsScreen
 import com.clicks.app.feature.menu.ui.ProductDetailsScreen
@@ -94,9 +97,37 @@ fun NavGraph() {
                 onCodeSent = { countryCode, phoneNumber, codeId, authMode ->
                     navController.navigate(Routes.PhoneVerification.createRoute(countryCode, phoneNumber, codeId, authMode))
                 },
-                onBackToLogin = {
-                    navController.popBackStack()
+                onForgotPasswordClick = {
+                    navController.navigate(Routes.ForgotPasswordPhone.route)
                 }
+            )
+        }
+
+        composable(Routes.ForgotPasswordPhone.route) {
+            val forgotPasswordViewModel: ForgotPasswordViewModel = viewModel()
+            ForgotPasswordPhoneScreen(
+                viewModel = forgotPasswordViewModel,
+                onOtpSent = { phoneNumber, verificationCodeId ->
+                    navController.navigate(Routes.ForgotPasswordReset.createRoute(phoneNumber, verificationCodeId))
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.ForgotPasswordReset.route) { backStackEntry ->
+            val phoneNumber = Uri.decode(backStackEntry.arguments?.getString("phoneNumber") ?: "")
+            val verificationCodeId = Uri.decode(backStackEntry.arguments?.getString("verificationCodeId") ?: "")
+            val forgotPasswordViewModel: ForgotPasswordViewModel = viewModel()
+            ForgotPasswordResetScreen(
+                viewModel = forgotPasswordViewModel,
+                phoneNumber = phoneNumber,
+                verificationCodeId = verificationCodeId,
+                onResetSuccess = {
+                    navController.navigate(Routes.Home.route) {
+                        popUpTo(Routes.PhoneAuth.route) { inclusive = true }
+                    }
+                },
+                onBackClick = { navController.popBackStack() }
             )
         }
 
@@ -234,6 +265,7 @@ fun NavGraph() {
                 viewModel = profileViewModel,
                 onBackClick = { navController.popBackStack() },
                 onOrdersClick = { navController.navigate(Routes.Orders.route) },
+                onAddressClick = { navController.navigate(Routes.LocationPicker.route) },
                 onLogoutClick = {
                     profileViewModel.logout()
                     performLogout()

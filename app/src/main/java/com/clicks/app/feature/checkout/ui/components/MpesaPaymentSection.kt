@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -21,6 +22,7 @@ import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.SurfaceLight
+import com.clicks.app.R
 
 @Composable
 fun MpesaPaymentSection(
@@ -39,7 +41,7 @@ fun MpesaPaymentSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Payment",
+                text = stringResource(R.string.txt_payment),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = ClicksText
@@ -51,7 +53,7 @@ fun MpesaPaymentSection(
                     color = ClicksGreen.copy(alpha = 0.12f)
                 ) {
                     Text(
-                        text = "✓ Paid",
+                        text = stringResource(R.string.txt_paid),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = ClicksGreen,
@@ -91,7 +93,7 @@ fun MpesaPaymentSection(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.PhoneAndroid,
-                                contentDescription = "M-Pesa",
+                                contentDescription = stringResource(R.string.txt_mpesa),
                                 tint = ClicksGreen,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -99,7 +101,7 @@ fun MpesaPaymentSection(
                         Spacer(Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "M-Pesa",
+                                text = stringResource(R.string.txt_mpesa),
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = ClicksText
@@ -114,7 +116,7 @@ fun MpesaPaymentSection(
 
                     TextButton(onClick = onEditPhone) {
                         Text(
-                            text = "Edit",
+                            text = stringResource(R.string.txt_edit),
                             fontSize = 13.sp,
                             color = ClicksGreen,
                             fontWeight = FontWeight.Bold
@@ -132,13 +134,13 @@ fun MpesaPaymentSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Transaction Ref: $transactionCode",
+                            text = stringResource(R.string.txt_transaction_reference, transactionCode),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ClicksGreen
                         )
                         Text(
-                            text = "Confirmed",
+                            text = stringResource(R.string.txt_confirmed),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = ClicksGreen
@@ -158,7 +160,7 @@ fun MpesaPaymentSection(
                         )
                     ) {
                         Text(
-                            text = "Pay $ " + "%.2f".format(total) + " via M-Pesa",
+                            text = stringResource(R.string.txt_pay_via_mpesa, total),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )

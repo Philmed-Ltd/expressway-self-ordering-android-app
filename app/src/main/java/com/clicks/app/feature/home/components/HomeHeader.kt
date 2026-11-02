@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +48,7 @@ fun HomeHeader(
             IconButton(onClick = onMenuClick) {
                 Icon(
                     imageVector = Icons.Outlined.Menu,
-                    contentDescription = "Menu",
+                    contentDescription = stringResource(R.string.txt_menu),
                     tint = ClicksGreen
                 )
             }
@@ -59,14 +60,14 @@ fun HomeHeader(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.image2),
-                contentDescription = "Clicks Logo",
+                contentDescription = stringResource(R.string.txt_clicks),
                 modifier = Modifier
                     .size(35.dp)
                     .clip(CircleShape)
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = "Clicks",
+                text = stringResource(R.string.txt_clicks),
                 fontSize = 35.sp,
                 fontWeight = FontWeight.W800,
                 color = ClicksGreen,
@@ -82,7 +83,7 @@ fun HomeHeader(
             IconButton(onClick = onSearchToggle) {
                 Icon(
                     imageVector = Icons.Outlined.Search,
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.txt_search),
                     tint = ClicksGreen
                 )
             }
@@ -93,7 +94,7 @@ fun HomeHeader(
                 IconButton(onClick = onNotificationClick) {
                     Icon(
                         imageVector = Icons.Outlined.Notifications,
-                        contentDescription = "Notifications",
+                        contentDescription = stringResource(R.string.txt_notifications),
                         tint = ClicksGreen
                     )
                 }

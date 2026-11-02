@@ -22,10 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.clicks.app.R
 import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
@@ -68,7 +70,7 @@ fun CartScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Total ($totalItems items)",
+                                text = stringResource(R.string.txt_total_items, totalItems),
                                 fontSize = 14.sp,
                                 color = ClicksMuted
                             )
@@ -93,7 +95,7 @@ fun CartScreen(
                             )
                         ) {
                             Text(
-                                text = "Proceed to Buy",
+                                text = stringResource(R.string.txt_proceed_to_buy),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -119,7 +121,7 @@ fun CartScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = ClicksText
                     )
                 }
@@ -128,13 +130,13 @@ fun CartScreen(
 
                 Column {
                     Text(
-                        text = "Shopping Cart",
+                        text = stringResource(R.string.txt_shopping_cart),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
                     )
                     Text(
-                        text = "$totalItems items in your cart",
+                        text = stringResource(R.string.txt_items_in_cart, totalItems),
                         fontSize = 12.sp,
                         color = ClicksMuted
                     )
@@ -157,7 +159,7 @@ fun CartScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Subtotal",
+                            text = stringResource(R.string.txt_subtotal),
                             fontSize = 15.sp,
                             color = ClicksMuted
                         )
@@ -174,13 +176,13 @@ fun CartScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = "Eligible",
+                            contentDescription = stringResource(R.string.txt_eligible),
                             tint = ClicksGreen,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "Your order is eligible for free Delivery",
+                            text = stringResource(R.string.txt_free_delivery_eligible),
                             fontSize = 13.sp,
                             color = ClicksGreen,
                             fontWeight = FontWeight.Medium
@@ -200,7 +202,7 @@ fun CartScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Your cart is empty",
+                            text = stringResource(R.string.txt_cart_empty),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = ClicksText
@@ -211,7 +213,7 @@ fun CartScreen(
                             colors = ButtonDefaults
                                 .buttonColors(containerColor = ClicksGreen)
                         ) {
-                            Text(text = "Start Shopping", color = Color.White)
+                            Text(text = stringResource(R.string.txt_start_shopping), color = Color.White)
                         }
                     }
                 }
@@ -295,7 +297,7 @@ private fun CartItemRow(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Star,
-                    contentDescription = "Rating",
+                    contentDescription = stringResource(R.string.txt_rating),
                     tint = StarGold,
                     modifier = Modifier.size(14.dp)
                 )
@@ -329,7 +331,7 @@ private fun CartItemRow(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Remove,
-                            contentDescription = "Decrease",
+                            contentDescription = stringResource(R.string.txt_decrease),
                             tint = Color.White,
                             modifier = Modifier.size(16.dp)
                         )
@@ -353,7 +355,7 @@ private fun CartItemRow(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Add,
-                            contentDescription = "Increase",
+                            contentDescription = stringResource(R.string.txt_increase),
                             tint = Color.White,
                             modifier = Modifier.size(16.dp)
                         )
@@ -366,13 +368,13 @@ private fun CartItemRow(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.DeleteOutline,
-                        contentDescription = "Remove",
+                        contentDescription = stringResource(R.string.txt_remove),
                         tint = Error,
                         modifier = Modifier.size(15.dp)
                     )
                     Spacer(Modifier.width(2.dp))
                     Text(
-                        text = "Remove",
+                        text = stringResource(R.string.txt_remove),
                         fontSize = 12.sp,
                         color = Error,
                         fontWeight = FontWeight.Medium

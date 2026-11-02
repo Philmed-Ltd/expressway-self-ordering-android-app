@@ -16,40 +16,42 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.clicks.app.R
 import com.clicks.app.lib.theme.ClicksCream
 import com.clicks.app.lib.theme.ClicksText
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 data class PromoBanner(
-    val tag: String,
-    val title: String,
+    val tagRes: Int,
+    val titleRes: Int,
     val image: String
 )
 
 val defaultPromoBanners = listOf(
     PromoBanner(
-        tag = "CHEF'S SPECIALS",
-        title = "Fresh gourmet meals\ndelivered hot & fast",
+        tagRes = R.string.txt_promo_chefs_specials,
+        titleRes = R.string.txt_promo_fresh_meals,
         image = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
     ),
     PromoBanner(
-        tag = "COMBO DEALS",
-        title = "Save big on our\npopular family meal packs",
+        tagRes = R.string.txt_promo_combo_deals,
+        titleRes = R.string.txt_promo_family_packs,
         image = "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200"
     ),
     PromoBanner(
-        tag = "ARTISAN BAKERY",
-        title = "Freshly baked pastries\n& warm crusty breads",
+        tagRes = R.string.txt_promo_bakery,
+        titleRes = R.string.txt_promo_pastries,
         image = "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200"
     ),
     PromoBanner(
-        tag = "HAPPY HOUR",
-        title = "Refreshing smoothies\n& iced craft coffees",
+        tagRes = R.string.txt_promo_happy_hour,
+        titleRes = R.string.txt_promo_drinks,
         image = "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=1200"
     )
 )
@@ -89,7 +91,7 @@ fun HomePromoCarousel(
                 Box(modifier = Modifier.fillMaxSize()) {
                     AsyncImage(
                         model = banner.image,
-                        contentDescription = banner.tag,
+                        contentDescription = stringResource(banner.tagRes),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -106,7 +108,7 @@ fun HomePromoCarousel(
                             .padding(22.dp)
                     ) {
                         Text(
-                            text = banner.tag,
+                            text = stringResource(banner.tagRes),
                             fontSize = 10.sp,
                             letterSpacing = 3.sp,
                             color = Color.White,
@@ -114,7 +116,7 @@ fun HomePromoCarousel(
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            text = banner.title,
+                            text = stringResource(banner.titleRes),
                             fontSize = 25.sp,
                             lineHeight = 31.sp,
                             fontWeight = FontWeight.Medium,
@@ -134,7 +136,7 @@ fun HomePromoCarousel(
                             )
                         ) {
                             Text(
-                                "Discover",
+                                stringResource(R.string.txt_discover),
                                 fontWeight = FontWeight.SemiBold
                             )
                         }

@@ -21,17 +21,19 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.clicks.app.R
 import com.clicks.app.lib.theme.ClicksGreenLight
 import com.clicks.app.lib.theme.ClicksSplashBg
 
 data class OnboardingStep(
-    val title: String,
-    val subtitle: String,
+    val titleRes: Int,
+    val subtitleRes: Int,
     val imageUrl: String
 )
 
@@ -43,18 +45,18 @@ fun OnboardingScreen(
 
     val steps = listOf(
         OnboardingStep(
-            title = "Let's meet our summer\ncoffee drinks",
-            subtitle = "Discover refreshing iced beverages and seasonal blends crafted to energize your sunny days.",
+            titleRes = R.string.txt_onboarding_coffee_title,
+            subtitleRes = R.string.txt_onboarding_coffee_subtitle,
             imageUrl = "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=80"
         ),
         OnboardingStep(
-            title = "Discover amazing\nproducts daily",
-            subtitle = "Browse through thousands of curated items tailored specifically for your shopping needs and preferences.",
+            titleRes = R.string.txt_onboarding_products_title,
+            subtitleRes = R.string.txt_onboarding_products_subtitle,
             imageUrl = "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80"
         ),
         OnboardingStep(
-            title = "Fast delivery to your\ndoorstep",
-            subtitle = "Experience lightning-fast checkout and secure tracking for all your purchases right from your mobile device.",
+            titleRes = R.string.txt_onboarding_delivery_title,
+            subtitleRes = R.string.txt_onboarding_delivery_subtitle,
             imageUrl = "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=800&q=80"
         )
     )
@@ -78,7 +80,7 @@ fun OnboardingScreen(
         ) {
             TextButton(onClick = onFinished) {
                 Text(
-                    text = "Skip",
+                    text = stringResource(R.string.txt_skip),
                     color = Color.Gray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
@@ -107,7 +109,7 @@ fun OnboardingScreen(
                         )
                     )
                 },
-                label = "onboardingAnimation"
+                label = stringResource(R.string.txt_onboarding_animation)
             ) { targetStep ->
                 val currentData = steps[targetStep]
                 Column(
@@ -153,7 +155,7 @@ fun OnboardingScreen(
                         // High-Quality Open Source Photo from Unsplash/Pixabay
                         AsyncImage(
                             model = currentData.imageUrl,
-                            contentDescription = currentData.title,
+                            contentDescription = stringResource(currentData.titleRes),
                             modifier = Modifier
                                 .size(240.dp)
                                 .clip(RoundedCornerShape(32.dp)),
@@ -165,7 +167,7 @@ fun OnboardingScreen(
 
                     // Title
                     Text(
-                        text = currentData.title,
+                        text = stringResource(currentData.titleRes),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -178,7 +180,7 @@ fun OnboardingScreen(
 
                     // Subtitle
                     Text(
-                        text = currentData.subtitle,
+                        text = stringResource(currentData.subtitleRes),
                         fontSize = 14.sp,
                         color = Color.Gray,
                         textAlign = TextAlign.Center,
@@ -205,7 +207,7 @@ fun OnboardingScreen(
                     val width by animateDpAsState(
                         targetValue = if (isSelected) 32.dp else 8.dp,
                         animationSpec = tween(durationMillis = 300),
-                        label = "dotWidth"
+                        label = stringResource(R.string.txt_onboarding_dot_width)
                     )
                     val color = if (isSelected) ClicksSplashBg else Color.LightGray
 
@@ -238,7 +240,9 @@ fun OnboardingScreen(
                 shape = RoundedCornerShape(28.dp)
             ) {
                 Text(
-                    text = if (currentStep == 2) "GET STARTED" else "NEXT",
+                    text = stringResource(
+                        if (currentStep == 2) R.string.txt_get_started else R.string.txt_next
+                    ),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,

@@ -18,6 +18,16 @@ sealed class Routes(val route: String) {
         }
     }
 
+    data object ForgotPasswordPhone : Routes("forgot_password_phone")
+
+    data object ForgotPasswordReset : Routes("forgot_password_reset/{phoneNumber}/{verificationCodeId}") {
+        fun createRoute(phoneNumber: String, verificationCodeId: String): String {
+            val encodedPhone = Uri.encode(phoneNumber)
+            val encodedId = Uri.encode(verificationCodeId)
+            return "forgot_password_reset/$encodedPhone/$encodedId"
+        }
+    }
+
     data object Home : Routes("home")
 
     data object Products : Routes("products")

@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.clicks.app.feature.menu.model.StoreProduct
+import com.clicks.app.R
 import com.clicks.app.lib.components.SquircleShape
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksImageBackground
@@ -83,9 +85,9 @@ fun ProductCard(
                         Icons.Outlined.FavoriteBorder
                     },
                     contentDescription = if (isFavorite) {
-                        "Remove from favorites"
+                        stringResource(R.string.txt_favorite_remove)
                     } else {
-                        "Add to favorites"
+                        stringResource(R.string.txt_favorite_add)
                     },
                     tint = if (isFavorite) Error else ClicksText,
                     modifier = Modifier.size(17.dp)
@@ -140,7 +142,7 @@ fun ProductCard(
             ){
                 Icon(
                     imageVector = if (isInCart) Icons.Filled.Done else Icons.Filled.Add,
-                    contentDescription = if (isInCart) "Remove from cart" else "Add to cart",
+                    contentDescription = if (isInCart) stringResource(R.string.txt_remove_from_cart) else stringResource(R.string.txt_add_to_cart),
                     tint = Color.White,
                     modifier = Modifier
                         .size(21.dp)
@@ -160,7 +162,7 @@ fun ProductCard(
         ) {
             Icon(
                 Icons.Outlined.Star,
-                contentDescription = "Rating",
+                contentDescription = stringResource(R.string.txt_rating),
                 tint = StarGold,
                 modifier = Modifier.size(16.dp)
             )

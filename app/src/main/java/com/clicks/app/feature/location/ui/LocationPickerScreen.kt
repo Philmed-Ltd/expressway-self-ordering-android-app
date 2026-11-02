@@ -25,12 +25,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import com.clicks.app.lib.theme.ClicksGreen
+import com.clicks.app.R
 import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
@@ -172,7 +174,7 @@ fun LocationPickerScreen(
             )
             Icon(
                 imageVector = Icons.Filled.LocationOn,
-                contentDescription = "Delivery pin",
+                contentDescription = stringResource(R.string.txt_delivery_pin),
                 tint = ClicksGreen,
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -190,7 +192,7 @@ fun LocationPickerScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.txt_back),
                     tint = ClicksText
                 )
             }
@@ -210,7 +212,7 @@ fun LocationPickerScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Delivery location",
+                    text = stringResource(R.string.txt_delivery_location),
                     fontSize = 13.sp,
                     color = ClicksMuted
                 )
@@ -227,8 +229,8 @@ fun LocationPickerScreen(
                 Text(
                     text = when {
                         address != null -> address
-                        uiState.isLocating -> "Finding your location…"
-                        else -> "Move the map to place the pin on your delivery spot"
+                        uiState.isLocating -> stringResource(R.string.txt_finding_location)
+                        else -> stringResource(R.string.txt_move_map_instruction)
                     },
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -240,20 +242,23 @@ fun LocationPickerScreen(
                     !uiState.hasAccess && uiState.permissionDenied -> {
                         InfoBanner(
                             text = if (uiState.permissionBlocked) {
-                                "Location is blocked for Clicks. Open settings to allow it, or place the pin yourself."
+                                stringResource(R.string.txt_location_blocked)
                             } else {
-                                "Allow location to jump to where you are, or place the pin yourself."
+                                stringResource(R.string.txt_location_allow_to_find)
                             },
-                            actionLabel = if (uiState.permissionBlocked) "Open settings" else "Allow",
+                            actionLabel = stringResource(
+                                if (uiState.permissionBlocked) R.string.txt_open_settings else R.string.txt_allow
+                            ),
                             onAction = locateNow
                         )
                     }
 
                     uiState.hasAccess && uiState.isApproximateOnly -> {
                         InfoBanner(
-                            text = "Only approximate location is allowed, so the pin may be off. " +
-                                    "Allow precise location for accurate delivery.",
-                            actionLabel = if (upgradeAttempted) "Open settings" else "Allow precise",
+                            text = stringResource(R.string.txt_approximate_location_warning),
+                            actionLabel = stringResource(
+                                if (upgradeAttempted) R.string.txt_open_settings else R.string.txt_allow_precise
+                            ),
                             onAction = {
                                 if (upgradeAttempted) {
                                     context.openAppSettings()
@@ -283,7 +288,7 @@ fun LocationPickerScreen(
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text("My location", color = ClicksGreen, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.txt_my_location), color = ClicksGreen, fontWeight = FontWeight.SemiBold)
                     }
 
                     Button(
@@ -296,7 +301,7 @@ fun LocationPickerScreen(
                             contentColor = Color.White
                         )
                     ) {
-                        Text("Confirm", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.txt_confirm), fontWeight = FontWeight.Bold)
                     }
                 }
             }

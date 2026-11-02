@@ -15,15 +15,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import com.clicks.app.R
 import com.clicks.app.feature.home.components.*
 import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.feature.profile.ProfileViewModel
 import com.clicks.app.lib.components.ClicksBottomBar
+import com.clicks.app.lib.components.BottomTab
 import com.clicks.app.lib.components.ClicksDrawerSheet
 import com.clicks.app.lib.components.SearchBar
 import com.clicks.app.lib.theme.ClicksGreen
@@ -48,7 +51,7 @@ fun HomeScreen(
 ) {
     var searchText by remember { mutableStateOf("") }
     var isSearchOpen by remember { mutableStateOf(false) }
-    var selectedTab by remember { mutableStateOf("Home") }
+    var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -74,7 +77,7 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Notifications",
+                        text = stringResource(R.string.txt_notifications),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
@@ -83,7 +86,7 @@ fun HomeScreen(
                         onClick = { storeViewModel.markAllNotificationsRead() }
                     ) {
                         Text(
-                            text = "Mark all as read",
+                            text = stringResource(R.string.txt_mark_all_read),
                             fontSize = 13.sp,
                             color = ClicksGreen,
                             fontWeight = FontWeight.SemiBold
@@ -174,7 +177,7 @@ fun HomeScreen(
         drawerState = drawerState,
         drawerContent = {
             ClicksDrawerSheet(
-                userName = profileViewModel.uiState.customer?.name ?: "Customer",
+                userName = profileViewModel.uiState.customer?.name ?: stringResource(R.string.txt_customer),
                 userEmail = profileViewModel.uiState.customer?.phoneNumber ?: "",
                 userInitials = profileViewModel.uiState.customer?.name?.take(2)?.uppercase() ?: "CU",
                 isLoading = profileViewModel.uiState.isLoading,
@@ -197,9 +200,10 @@ fun HomeScreen(
                     onTabSelected = { tab ->
                         selectedTab = tab
                         when (tab) {
-                            "Favorites" -> onFavoritesClick()
-                            "Cart" -> onCartClick()
-                            "Profile" -> onProfileClick()
+                            BottomTab.FAVORITES -> onFavoritesClick()
+                            BottomTab.CART -> onCartClick()
+                            BottomTab.PROFILE -> onProfileClick()
+                            BottomTab.HOME -> Unit
                         }
                     }
                 )
@@ -228,15 +232,15 @@ fun HomeScreen(
                     SearchBar(
                         query = searchText,
                         onQueryChange = { searchText = it },
-                        placeholder = "Search products..."
+                        placeholder = stringResource(R.string.txt_search_products)
                     )
                 }
 
                 Spacer(Modifier.height(14.dp))
 
                 SectionHeading(
-                    title = "Categories",
-                    action = "View all",
+                    title = stringResource(R.string.txt_categories),
+                    action = stringResource(R.string.txt_view_all),
                     onActionClick = onViewAllClick,
                     modifier = Modifier.padding(horizontal = 22.dp)
                 )
@@ -250,8 +254,8 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
 
                 SectionHeading(
-                    title = "Combo Deals",
-                    action = "View all",
+                    title = stringResource(R.string.txt_combo_deals),
+                    action = stringResource(R.string.txt_view_all),
                     onActionClick = onViewAllClick,
                     modifier = Modifier.padding(horizontal = 22.dp)
                 )
@@ -265,8 +269,8 @@ fun HomeScreen(
                 Spacer(Modifier.height(28.dp))
 
                 SectionHeading(
-                    title = "Popular",
-                    action = "View all",
+                    title = stringResource(R.string.txt_popular),
+                    action = stringResource(R.string.txt_view_all),
                     onActionClick = onViewAllClick,
                     modifier = Modifier.padding(horizontal = 22.dp)
                 )

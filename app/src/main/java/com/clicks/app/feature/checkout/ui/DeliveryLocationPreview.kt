@@ -19,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.clicks.app.feature.location.ui.DeliveryLocation
+import com.clicks.app.R
 import com.clicks.app.feature.location.ui.MAP_STYLE_URL
 import com.clicks.app.feature.location.ui.rememberMapViewWithLifecycle
 import com.clicks.app.lib.theme.ClicksGreen
@@ -75,7 +77,7 @@ fun DeliveryLocationPreview(
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = "Tap to set your delivery location",
+                            text = stringResource(R.string.txt_tap_set_delivery_location),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = ClicksText
@@ -102,13 +104,13 @@ fun DeliveryLocationPreview(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Delivery Address",
+                        text = stringResource(R.string.txt_delivery_address),
                         fontSize = 13.sp,
                         color = ClicksMuted
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = location?.addressLine ?: "No address selected",
+                        text = location?.addressLine ?: stringResource(R.string.txt_no_address_selected),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ClicksText,
@@ -120,7 +122,7 @@ fun DeliveryLocationPreview(
                 Spacer(Modifier.width(12.dp))
 
                 Text(
-                    text = if (location == null) "Set" else "Change",
+                    text = stringResource(if (location == null) R.string.txt_set else R.string.txt_change),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = ClicksGreen
@@ -161,7 +163,7 @@ private fun StaticMapPreview(location: DeliveryLocation) {
 
         Icon(
             imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Delivery location",
+            contentDescription = stringResource(R.string.txt_delivery_location),
             tint = ClicksGreen,
             modifier = Modifier
                 .align(Alignment.Center)

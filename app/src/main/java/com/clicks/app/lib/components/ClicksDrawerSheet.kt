@@ -19,10 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.lib.theme.*
+import com.clicks.app.R
 
 @Composable
 fun ClicksDrawerSheet(
@@ -86,7 +88,7 @@ fun ClicksDrawerSheet(
                                 color = Error
                             )
                             TextButton(onClick = onRetryLoad) {
-                                Text("Retry", color = ClicksGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.txt_retry), color = ClicksGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -141,25 +143,25 @@ fun ClicksDrawerSheet(
             // Drawer Menu Options
             DrawerItem(
                 icon = Icons.Outlined.PersonOutline,
-                title = "My Profile",
+                title = stringResource(R.string.txt_my_profile),
                 onClick = { onCloseDrawer(); onProfileClick() }
             )
 
             DrawerItem(
                 icon = Icons.Outlined.ShoppingBag,
-                title = "My Orders",
+                title = stringResource(R.string.txt_my_orders),
                 onClick = { onCloseDrawer(); onOrdersClick() }
             )
 
             DrawerItem(
                 icon = Icons.Outlined.FavoriteBorder,
-                title = "Favorites",
+                title = stringResource(R.string.txt_favorites),
                 onClick = { onCloseDrawer(); onFavoritesClick() }
             )
 
             DrawerItem(
                 icon = Icons.Outlined.ShoppingCart,
-                title = "Cart",
+                title = stringResource(R.string.txt_cart),
                 onClick = { onCloseDrawer(); onCartClick() }
             )
 
@@ -182,12 +184,12 @@ fun ClicksDrawerSheet(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.Logout,
-                    contentDescription = "Log out",
+                    contentDescription = stringResource(R.string.txt_log_out),
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Log Out",
+                    text = stringResource(R.string.txt_log_out),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
                 )

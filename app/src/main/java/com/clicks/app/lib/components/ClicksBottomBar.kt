@@ -22,23 +22,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksGreenInactive
+import com.clicks.app.R
+
+enum class BottomTab(val labelRes: Int) {
+    HOME(R.string.txt_home),
+    FAVORITES(R.string.txt_favorites),
+    CART(R.string.txt_cart),
+    PROFILE(R.string.txt_profile)
+}
 
 @Composable
 fun ClicksBottomBar(
-    selectedTab: String,
-    onTabSelected: (String) -> Unit,
+    selectedTab: BottomTab,
+    onTabSelected: (BottomTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val tabs = listOf(
-        Triple("Home", Icons.Filled.Home, Icons.Outlined.Home),
-        Triple("Favorites", Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
-        Triple("Cart", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart),
-        Triple("Profile", Icons.Outlined.Person, Icons.Outlined.PersonOutline)
+        Triple(BottomTab.HOME, Icons.Filled.Home, Icons.Outlined.Home),
+        Triple(BottomTab.FAVORITES, Icons.Filled.Favorite, Icons.Outlined.FavoriteBorder),
+        Triple(BottomTab.CART, Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart),
+        Triple(BottomTab.PROFILE, Icons.Outlined.Person, Icons.Outlined.PersonOutline)
     )
 
     Surface(
@@ -54,13 +63,14 @@ fun ClicksBottomBar(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            tabs.forEach { (label, activeIcon, inactiveIcon) ->
-                val selected = selectedTab == label
+            tabs.forEach { (tab, activeIcon, inactiveIcon) ->
+                val selected = selectedTab == tab
+                val label = stringResource(tab.labelRes)
 
                 Column(
                     modifier = Modifier
                         .clip(RoundedCornerShape(18.dp))
-                        .clickable { onTabSelected(label) }
+                        .clickable { onTabSelected(tab) }
                         .padding(horizontal = 13.dp, vertical = 5.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

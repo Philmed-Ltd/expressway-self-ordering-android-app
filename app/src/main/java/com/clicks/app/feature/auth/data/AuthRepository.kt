@@ -1,20 +1,23 @@
 package com.clicks.app.feature.auth.data
 
 import android.util.Log
+import com.clicks.app.R
+import com.clicks.app.feature.auth.data.dto.CompleteLoginRequest
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterData
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
+import com.clicks.app.feature.auth.data.dto.CustomerView
 import com.clicks.app.feature.auth.data.dto.InitLoginRequest
 import com.clicks.app.feature.auth.data.dto.InitLoginResponseData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeRequest
-import com.clicks.app.feature.auth.model.Authentication
+import com.clicks.app.feature.auth.data.dto.ResetPasswordRequest
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.network.ApiClient
+import com.clicks.app.network.ApiErrorType
 import com.clicks.app.network.ApiResult
 import com.clicks.app.network.safeEntityApiCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Date
 
 private const val TAG = "AuthRepository"
 
@@ -60,25 +63,65 @@ class AuthRepository(
             authApi.registerCustomer(request)
         }
 
-        if (result is ApiResult.Success) {
-            try {
-                withContext(Dispatchers.IO) {
-                    val auth = Authentication().apply {
-                        id = 1
-                        authToken = result.data.authToken ?: "customer-session-${result.data.id}"
-                        expiryTime = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
-                    }
-                    authLocalSrc.insertSync(auth)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to save session token", exception)
-            }
+        return persistAuthentication(result, "registration")
+    }
+
+    suspend fun completeLogin(
+        verificationCodeId: String,
+        otp: String
+    ): ApiResult<CustomerRegisterData> {
+        val result = safeEntityApiCall {
+            authApi.completeLogin(verificationCodeId, CompleteLoginRequest(otp))
         }
 
-        return result
+        return persistAuthentication(result, "login")
+    }
+
+    suspend fun resetPassword(
+        verificationCodeId: String,
+        request: ResetPasswordRequest
+    ): ApiResult<CustomerRegisterData> {
+        val result = safeEntityApiCall {
+            authApi.resetPassword(verificationCodeId, request)
+        }
+
+        return persistAuthentication(result, "password reset")
+    }
+
+    suspend fun fetchCustomer(): ApiResult<CustomerView> {
+        return safeEntityApiCall {
+            authApi.fetchCustomer()
+        }
     }
 
     fun logout() {
         authLocalSrc.delete()
+    }
+
+    private suspend fun persistAuthentication(
+        result: ApiResult<CustomerRegisterData>,
+        operation: String
+    ): ApiResult<CustomerRegisterData> {
+        if (result !is ApiResult.Success) return result
+
+        if (result.data.authToken.isNullOrBlank()) {
+            return ApiResult.Error(
+                message = ApiClient.appContext.getString(R.string.txt_error_auth_token_missing),
+                type = ApiErrorType.Server
+            )
+        }
+
+        return try {
+            withContext(Dispatchers.IO) {
+                authLocalSrc.insertSync(result.data.toAuthentication())
+            }
+            result
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed to save session token after $operation", exception)
+            ApiResult.Error(
+                message = ApiClient.appContext.getString(R.string.txt_error_session_save),
+                type = ApiErrorType.Unknown
+            )
+        }
     }
 }
