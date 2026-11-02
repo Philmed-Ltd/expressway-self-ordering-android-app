@@ -43,8 +43,8 @@ import com.clicks.app.lib.theme.WarmPeachBg
 @Composable
 fun PhoneAuthScreen(
     viewModel: PhoneAuthViewModel,
-    onCodeSent: (String, String, String, String) -> Unit, // passes countryCode, phoneNumber, verificationCodeId, authMode
-    onBackToLogin: () -> Unit = {}
+    onForgotPasswordClick: () -> Unit,
+    onCodeSent: (String, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState
     var authMode by rememberSaveable { mutableStateOf("LOGIN") } // "LOGIN" or "REGISTER"
@@ -297,6 +297,24 @@ fun PhoneAuthScreen(
                             }
                         }
                     )
+
+                   Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(
+                            onClick = onForgotPasswordClick,
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Text(
+                                text = "Forgot Password?",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = BrandGreen
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(40.dp))

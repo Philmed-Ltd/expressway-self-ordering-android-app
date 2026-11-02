@@ -1,5 +1,7 @@
 package com.clicks.app.feature.auth.data.dto
 
+import com.clicks.app.feature.auth.model.Authentication
+
 data class PhoneVerificationCodePayload(
     val verificationCodeId: String,
     val otp: String
@@ -27,4 +29,12 @@ data class CustomerRegisterData(
     val expiryTime: String? = null,
     val createdAt: String,
     val updatedAt: String
-)
+) {
+    fun toAuthentication(): Authentication {
+        return Authentication().apply {
+            id = 1
+            authToken = this@CustomerRegisterData.authToken ?: ""
+            expiryTime = Authentication.parseIsoDate(this@CustomerRegisterData.expiryTime)
+        }
+    }
+}
