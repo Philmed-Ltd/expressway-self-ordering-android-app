@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,11 @@ import com.clicks.app.lib.theme.TextDark
 import com.clicks.app.lib.theme.TextMuted
 import com.clicks.app.lib.theme.WarmPeachBg
 
+private enum class VerificationMode {
+    REGISTER,
+    LOGIN
+}
+
 @Composable
 fun PhoneVerificationScreen(
     viewModel: PhoneAuthViewModel,
@@ -45,6 +51,7 @@ fun PhoneVerificationScreen(
     onBackClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState
+    val isRegistration = authMode == VerificationMode.REGISTER.name
     var code by rememberSaveable { mutableStateOf("") }
     var firstName by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
@@ -85,14 +92,14 @@ fun PhoneVerificationScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.image2),
-                            contentDescription = "Clicks Logo",
+                            contentDescription = stringResource(R.string.txt_clicks),
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Clicks",
+                            text = stringResource(R.string.txt_clicks),
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextDark,
@@ -115,17 +122,24 @@ fun PhoneVerificationScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = if (authMode == "REGISTER") "Verify & Complete Registration" else "Enter Login OTP",
+                        text = stringResource(
+                            if (isRegistration) R.string.txt_verify_complete_registration
+                            else R.string.txt_enter_login_otp
+                        ),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = if (authMode == "REGISTER") {
-                            "Enter the 5-digit code sent to $countryCode $phoneNumber, along with your first name, last name, and password."
+                        text = if (isRegistration) {
+                            stringResource(
+                                R.string.txt_register_otp_explanation,
+                                countryCode,
+                                phoneNumber
+                            )
                         } else {
-                            "Enter the 5-digit verification code sent to $phoneNumber to complete your sign in."
+                            stringResource(R.string.txt_login_otp_explanation, phoneNumber)
                         },
                         fontSize = 13.sp,
                         color = TextMuted,
@@ -139,8 +153,8 @@ fun PhoneVerificationScreen(
                 OutlinedTextField(
                     value = code,
                     onValueChange = { code = it.filter(Char::isDigit).take(5) },
-                    label = { Text("5-Digit Verification Code") },
-                    placeholder = { Text("12345") },
+                    label = { Text(stringResource(R.string.txt_verification_code)) },
+                    placeholder = { Text(stringResource(R.string.txt_otp_placeholder)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     shape = RoundedCornerShape(14.dp),
@@ -153,7 +167,7 @@ fun PhoneVerificationScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (authMode == "REGISTER") {
+                if (isRegistration) {
                     Spacer(modifier = Modifier.height(20.dp))
 
                     // First Name & Last Name Row
@@ -164,8 +178,8 @@ fun PhoneVerificationScreen(
                         ClicksTextField(
                             value = firstName,
                             onValueChange = { firstName = it },
-                            label = "First Name",
-                            placeholder = "John",
+                            label = stringResource(R.string.txt_first_name),
+                            placeholder = stringResource(R.string.txt_first_name_placeholder),
                             modifier = Modifier.weight(1f),
                             labelFontSize = 13
                         )
@@ -173,8 +187,8 @@ fun PhoneVerificationScreen(
                         ClicksTextField(
                             value = lastName,
                             onValueChange = { lastName = it },
-                            label = "Last Name",
-                            placeholder = "Ng'ang'a",
+                            label = stringResource(R.string.txt_last_name),
+                            placeholder = stringResource(R.string.txt_last_name_placeholder),
                             modifier = Modifier.weight(1f),
                             labelFontSize = 13
                         )
@@ -186,18 +200,21 @@ fun PhoneVerificationScreen(
                     ClicksTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = "Password (min 8 chars)",
-                        placeholder = "••••••••"
+                        label = stringResource(R.string.txt_password_min_length),
+                        placeholder = stringResource(R.string.txt_password_placeholder)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(36.dp))
 
                 ClicksButton(
-                    text = if (authMode == "REGISTER") "REGISTER" else "VERIFY & SIGN IN",
+                    text = stringResource(
+                        if (isRegistration) R.string.txt_register_action
+                        else R.string.txt_verify_sign_in
+                    ),
                     isLoading = uiState.isLoading,
                     onClick = {
-                        if (authMode == "REGISTER") {
+                        if (isRegistration) {
                             viewModel.verifyAndRegister(
                                 verificationCodeId = verificationCodeId,
                                 countryCode = countryCode,

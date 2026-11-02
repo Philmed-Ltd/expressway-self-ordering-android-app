@@ -14,9 +14,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clicks.app.R
 import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
@@ -56,13 +58,13 @@ fun OrdersScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = ClicksText
                     )
                 }
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "My Orders (${orders.size})",
+                    text = stringResource(R.string.txt_my_orders_count, orders.size),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = ClicksText
@@ -81,20 +83,20 @@ fun OrdersScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             imageVector = Icons.Outlined.LocalShipping,
-                            contentDescription = "Empty",
+                            contentDescription = stringResource(R.string.txt_empty),
                             tint = ClicksMuted,
                             modifier = Modifier.size(64.dp)
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "No orders placed yet",
+                            text = stringResource(R.string.txt_no_orders_placed),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = ClicksText
                         )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            text = "Your completed orders will appear here",
+                            text = stringResource(R.string.txt_completed_orders_appear),
                             fontSize = 14.sp,
                             color = ClicksMuted
                         )
@@ -139,7 +141,11 @@ fun OrdersScreen(
                                         }
                                     ) {
                                         Text(
-                                            text = order.status,
+                                            text = when (order.status) {
+                                                "Delivered" -> stringResource(R.string.txt_order_delivered)
+                                                "Processing" -> stringResource(R.string.txt_order_processing)
+                                                else -> order.status
+                                            },
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.SemiBold,
                                             color = when (order.status) {
@@ -155,7 +161,7 @@ fun OrdersScreen(
                                 Spacer(Modifier.height(8.dp))
 
                                 Text(
-                                    text = "Date: ${order.date}",
+                                    text = stringResource(R.string.txt_order_date, order.date),
                                     fontSize = 13.sp,
                                     color = ClicksMuted
                                 )
@@ -163,7 +169,7 @@ fun OrdersScreen(
                                 Spacer(Modifier.height(4.dp))
 
                                 Text(
-                                    text = "Items: ${order.itemsSummary}",
+                                    text = stringResource(R.string.txt_order_items, order.itemsSummary),
                                     fontSize = 13.sp,
                                     color = ClicksText,
                                     fontWeight = FontWeight.Medium
@@ -181,7 +187,7 @@ fun OrdersScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Total Amount",
+                                        text = stringResource(R.string.txt_total_amount),
                                         fontSize = 13.sp,
                                         color = ClicksMuted
                                     )

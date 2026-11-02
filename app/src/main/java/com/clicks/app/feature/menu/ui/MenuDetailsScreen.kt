@@ -25,7 +25,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import coil.compose.AsyncImage
+import com.clicks.app.R
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
@@ -46,6 +50,7 @@ fun ProductDetailsScreen(
     onAddToCartClick: () -> Unit = {},
     onSimilarProductClick: (Int) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val product = sampleProducts.firstOrNull { it.id == productId } ?: sampleProducts.first()
 
     val maxQUANTITY = 10
@@ -80,7 +85,7 @@ fun ProductDetailsScreen(
                                 onAddToCartClick()
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = "Added to cart",
+                                        message = context.getString(R.string.txt_added_to_cart),
                                         duration = SnackbarDuration.Short
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
@@ -102,9 +107,9 @@ fun ProductDetailsScreen(
                         Spacer(Modifier.width(8.dp))
                         Text(
                             text = if (!inCart) {
-                                "Add to cart · $ " + "%.2f".format(product.price * quantity)
+                                stringResource(R.string.txt_add_to_cart_price, product.price * quantity)
                             } else {
-                                "View cart · $cartQty item${if (cartQty > 1) "s" else ""}"
+                                pluralStringResource(R.plurals.txt_view_cart_count, cartQty, cartQty)
                             },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
@@ -132,13 +137,13 @@ fun ProductDetailsScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = ClicksText
                     )
                 }
 
                 Text(
-                    text = "Details",
+                    text = stringResource(R.string.txt_details),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = ClicksText
@@ -151,7 +156,7 @@ fun ProductDetailsScreen(
                     IconButton(onClick = onCartClick) {
                         Icon(
                             imageVector = Icons.Outlined.ShoppingCart,
-                            contentDescription = "Cart",
+                            contentDescription = stringResource(R.string.txt_cart),
                             tint = ClicksText
                         )
                     }
@@ -195,7 +200,7 @@ fun ProductDetailsScreen(
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = "Favorite",
+                        contentDescription = stringResource(R.string.txt_favorite),
                         tint = if (isFavorite) ClicksGreen else ClicksText,
                         modifier = Modifier.size(22.dp)
                     )
@@ -219,7 +224,7 @@ fun ProductDetailsScreen(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Star,
-                    contentDescription = "Rating",
+                    contentDescription = stringResource(R.string.txt_rating),
                     tint = StarGold,
                     modifier = Modifier.size(18.dp)
                 )
@@ -232,7 +237,7 @@ fun ProductDetailsScreen(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    text = "(${product.reviewCount} reviews)",
+                    text = stringResource(R.string.txt_reviews_count, product.reviewCount),
                     fontSize = 14.sp,
                     color = ClicksMuted
                 )
@@ -242,7 +247,7 @@ fun ProductDetailsScreen(
 
             // Description
             Text(
-                text = "The name says it all, the right size slightly shrugs the body leaving enough room for comfort in the sleeves and waist with premium crafted material.",
+                text = stringResource(R.string.txt_product_description),
                 fontSize = 14.sp,
                 color = ClicksMuted,
                 lineHeight = 22.sp
@@ -256,7 +261,7 @@ fun ProductDetailsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text(text = "Price", fontSize = 12.sp, color = ClicksMuted)
+                    Text(text = stringResource(R.string.txt_price), fontSize = 12.sp, color = ClicksMuted)
                     Spacer(Modifier.height(2.dp))
                     Text(
                         text = "$ " + "%.2f".format(product.price),
@@ -298,7 +303,7 @@ fun ProductDetailsScreen(
             Spacer(Modifier.height(12.dp))
             // Similar To Section
             Text(
-                text = "Similar To",
+                text = stringResource(R.string.txt_similar_to),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = ClicksText

@@ -25,10 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.feature.auth.data.dto.CustomerView
+import com.clicks.app.R
 import com.clicks.app.lib.theme.AppThemeMode
 import com.clicks.app.lib.theme.AppThemePreferences
 import com.clicks.app.lib.theme.BorderColor
@@ -78,7 +80,9 @@ fun ProfileScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = if (showingAccountInfo) "Account info" else "My Profile",
+                        text = stringResource(
+                            if (showingAccountInfo) R.string.txt_account_info else R.string.txt_my_profile
+                        ),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
@@ -92,7 +96,7 @@ fun ProfileScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.txt_back),
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -125,7 +129,7 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "Could not load your profile: ${uiState.errorMessage}",
+                        text = stringResource(R.string.txt_profile_load_error, uiState.errorMessage.orEmpty()),
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
@@ -135,7 +139,7 @@ fun ProfileScreen(
                         onClick = viewModel::loadProfile,
                         colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
                     ) {
-                        Text("Retry")
+                        Text(stringResource(R.string.txt_retry))
                     }
                 }
             }
@@ -170,7 +174,7 @@ fun ProfileScreen(
     if (showingThemeOptions) {
         AlertDialog(
             onDismissRequest = { showingThemeOptions = false },
-            title = { Text("Theme") },
+            title = { Text(stringResource(R.string.txt_theme)) },
             text = {
                 Column {
                     AppThemeMode.entries.forEach { mode ->
@@ -192,14 +196,14 @@ fun ProfileScreen(
                                 }
                             )
                             Spacer(Modifier.width(8.dp))
-                            Text(mode.label)
+                            Text(stringResource(mode.labelRes))
                         }
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showingThemeOptions = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.txt_close))
                 }
             }
         )
@@ -208,16 +212,15 @@ fun ProfileScreen(
     if (showingSettings) {
         AlertDialog(
             onDismissRequest = { showingSettings = false },
-            title = { Text("Settings") },
+            title = { Text(stringResource(R.string.txt_settings)) },
             text = {
                 Text(
-                    "Your account details are currently read-only. You can review your saved " +
-                        "information under Account information and change the app appearance under Theme."
+                    stringResource(R.string.txt_profile_read_only_settings)
                 )
             },
             confirmButton = {
                 TextButton(onClick = { showingSettings = false }) {
-                    Text("Done")
+                    Text(stringResource(R.string.txt_done))
                 }
             }
         )
@@ -226,17 +229,26 @@ fun ProfileScreen(
     if (showingFaq) {
         AlertDialog(
             onDismissRequest = { showingFaq = false },
-            title = { Text("Frequently asked questions") },
+            title = { Text(stringResource(R.string.txt_faq_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    FaqItem("Where can I track an order?", "Open Orders to track from your profile.")
-                    FaqItem("How do I set a delivery address?", "Open Addresses and choose a delivery location on the map.")
-                    FaqItem("How do I change my theme?", "Choose Theme and select System, Light, or Dark.")
+                    FaqItem(
+                        stringResource(R.string.txt_faq_track_order_question),
+                        stringResource(R.string.txt_faq_track_order_answer)
+                    )
+                    FaqItem(
+                        stringResource(R.string.txt_faq_address_question),
+                        stringResource(R.string.txt_faq_address_answer)
+                    )
+                    FaqItem(
+                        stringResource(R.string.txt_faq_theme_question),
+                        stringResource(R.string.txt_faq_theme_answer)
+                    )
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showingFaq = false }) {
-                    Text("Close")
+                    Text(stringResource(R.string.txt_close))
                 }
             }
         )
@@ -264,44 +276,44 @@ private fun ProfileOverview(
     ) {
         ProfileHeader(customer, onAccountClick)
 
-        ProfileSection(title = "YOUR ACCOUNT") {
+        ProfileSection(title = stringResource(R.string.txt_your_account)) {
             ProfileMenuItem(
                 icon = Icons.Outlined.AccountCircle,
-                title = "Account information",
-                subtitle = "View your name and contact details",
+                title = stringResource(R.string.txt_account_information),
+                subtitle = stringResource(R.string.txt_account_info_subtitle),
                 onClick = onAccountClick
             )
             ProfileMenuItem(
                 icon = Icons.Outlined.LocationOn,
-                title = "Addresses",
-                subtitle = "Choose a delivery location",
+                title = stringResource(R.string.txt_addresses),
+                subtitle = stringResource(R.string.txt_addresses_subtitle),
                 onClick = onAddressClick
             )
             ProfileMenuItem(
                 icon = Icons.Outlined.LocalShipping,
-                title = "Orders to track",
-                subtitle = "View your orders and their status",
+                title = stringResource(R.string.txt_orders_to_track),
+                subtitle = stringResource(R.string.txt_orders_to_track_subtitle),
                 onClick = onOrdersClick
             )
         }
 
-        ProfileSection(title = "PREFERENCES & SUPPORT") {
+        ProfileSection(title = stringResource(R.string.txt_preferences_support)) {
             ProfileMenuItem(
                 icon = Icons.Outlined.Settings,
-                title = "Settings",
-                subtitle = "Account and app preferences",
+                title = stringResource(R.string.txt_settings),
+                subtitle = stringResource(R.string.txt_settings_subtitle),
                 onClick = onSettingsClick
             )
             ProfileMenuItem(
                 icon = Icons.Outlined.Palette,
-                title = "Theme",
-                subtitle = AppThemePreferences.mode.label,
+                title = stringResource(R.string.txt_theme),
+                subtitle = stringResource(AppThemePreferences.mode.labelRes),
                 onClick = onThemeClick
             )
             ProfileMenuItem(
                 icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                title = "FAQ",
-                subtitle = "Answers to common questions",
+                title = stringResource(R.string.txt_faq),
+                subtitle = stringResource(R.string.txt_faq_subtitle),
                 onClick = onFaqClick
             )
         }
@@ -320,7 +332,7 @@ private fun ProfileOverview(
             )
             Spacer(Modifier.width(10.dp))
             Text(
-                text = "Log out",
+                text = stringResource(R.string.txt_log_out),
                 color = Error,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 15.sp
@@ -350,7 +362,9 @@ private fun ProfileHeader(customer: CustomerView?, onClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = customer?.name?.take(2)?.uppercase().orEmpty().ifBlank { "U" },
+                text = customer?.name?.take(2)?.uppercase().orEmpty().ifBlank {
+                    stringResource(R.string.txt_user_initial)
+                },
                 color = ClicksGreen,
                 fontWeight = FontWeight.Bold,
                 fontSize = 21.sp
@@ -359,21 +373,24 @@ private fun ProfileHeader(customer: CustomerView?, onClick: () -> Unit) {
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = customer?.name?.takeIf(String::isNotBlank) ?: "Your profile",
+                text = customer?.name?.takeIf(String::isNotBlank)
+                    ?: stringResource(R.string.txt_your_profile),
                 color = ClicksText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 17.sp
             )
             Text(
                 text = customer?.email?.takeIf(String::isNotBlank)
-                    ?: customer?.phoneNumber.orEmpty().ifBlank { "View your account details" },
+                    ?: customer?.phoneNumber.orEmpty().ifBlank {
+                        stringResource(R.string.txt_view_account_details)
+                    },
                 color = ClicksMuted,
                 fontSize = 13.sp
             )
         }
         Icon(
             imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = "View account information",
+            contentDescription = stringResource(R.string.txt_view_account_information),
             tint = MaterialTheme.colorScheme.primary
         )
     }
@@ -452,7 +469,7 @@ private fun AccountInformation(customer: CustomerView?, modifier: Modifier = Mod
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         Text(
-            text = "Your account details",
+            text = stringResource(R.string.txt_your_account_details),
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold
@@ -464,14 +481,18 @@ private fun AccountInformation(customer: CustomerView?, modifier: Modifier = Mod
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 16.dp)
         ) {
-            AccountDetail("Full name", customer?.name)
-            AccountDetail("Email", customer?.email, verified = customer?.emailVerified)
+            AccountDetail(stringResource(R.string.txt_full_name), customer?.name)
             AccountDetail(
-                "Phone number",
+                stringResource(R.string.txt_email),
+                customer?.email,
+                verified = customer?.emailVerified
+            )
+            AccountDetail(
+                stringResource(R.string.txt_phone_number_label),
                 formatPhoneNumber(customer?.phoneCode, customer?.phoneNumber),
                 verified = customer?.phoneNumberVerified
             )
-            AccountDetail("Account status", customer?.userStatus)
+            AccountDetail(stringResource(R.string.txt_account_status), customer?.userStatus)
         }
     }
 }
@@ -506,7 +527,8 @@ private fun AccountDetail(label: String, value: String?, verified: Boolean? = nu
         Spacer(Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = value?.takeIf(String::isNotBlank) ?: "Not provided",
+                text = value?.takeIf(String::isNotBlank)
+                    ?: stringResource(R.string.txt_not_provided),
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Medium,
@@ -514,7 +536,7 @@ private fun AccountDetail(label: String, value: String?, verified: Boolean? = nu
             )
             verified?.let {
                 Text(
-                    text = if (it) "Verified" else "Not verified",
+                    text = stringResource(if (it) R.string.txt_verified else R.string.txt_not_verified),
                     color = if (it) ClicksGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp
                 )

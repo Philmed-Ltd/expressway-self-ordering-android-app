@@ -7,11 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.lib.components.ClicksButton
+import com.clicks.app.R
 import com.clicks.app.lib.theme.*
 
 @Composable
@@ -26,7 +28,7 @@ fun OrderSummarySection(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "Order Summary",
+            text = stringResource(R.string.txt_order_summary),
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = ClicksText
@@ -42,11 +44,11 @@ fun OrderSummarySection(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            SummaryRow("Sub-total", "$ " + "%.2f".format(subtotal))
-            SummaryRow("VAT (%)", "$ " + "%.2f".format(vat))
-            SummaryRow("Shipping fee", "$ " + "%.2f".format(shippingFee))
+            SummaryRow(stringResource(R.string.txt_sub_total), "$ " + "%.2f".format(subtotal))
+            SummaryRow(stringResource(R.string.txt_vat), "$ " + "%.2f".format(vat))
+            SummaryRow(stringResource(R.string.txt_shipping_fee), "$ " + "%.2f".format(shippingFee))
             HorizontalDivider(color = BorderColor, thickness = 1.dp)
-            SummaryRow("Total", "$ " + "%.2f".format(total), isBold = true)
+            SummaryRow(stringResource(R.string.txt_total_amount), "$ " + "%.2f".format(total), isBold = true)
         }
 
         Spacer(Modifier.height(20.dp))
@@ -60,7 +62,7 @@ fun OrderSummarySection(
             OutlinedTextField(
                 value = promoCode,
                 onValueChange = { promoCode = it },
-                placeholder = { Text("Enter promo code", fontSize = 14.sp) },
+                placeholder = { Text(stringResource(R.string.txt_enter_promo_code), fontSize = 14.sp) },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
@@ -73,7 +75,7 @@ fun OrderSummarySection(
             )
 
             ClicksButton(
-                text = "Add",
+                text = stringResource(R.string.txt_add),
                 onClick = { /* Apply promo */ },
                 modifier = Modifier.width(90.dp),
                 height = 56.dp,

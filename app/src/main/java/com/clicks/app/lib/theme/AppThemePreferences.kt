@@ -6,10 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-enum class AppThemeMode(val label: String) {
-    SYSTEM("System"),
-    LIGHT("Light"),
-    DARK("Dark")
+enum class AppThemeMode(val labelRes: Int) {
+    SYSTEM(com.clicks.app.R.string.txt_theme_system),
+    LIGHT(com.clicks.app.R.string.txt_theme_light),
+    DARK(com.clicks.app.R.string.txt_theme_dark)
 }
 
 object AppThemePreferences {

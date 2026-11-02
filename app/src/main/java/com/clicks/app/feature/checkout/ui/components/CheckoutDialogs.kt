@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -22,6 +23,7 @@ import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
+import com.clicks.app.R
 
 @Composable
 fun EditPhoneDialog(
@@ -34,7 +36,7 @@ fun EditPhoneDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Edit M-Pesa Number",
+                text = stringResource(R.string.txt_edit_mpesa_number),
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = ClicksText
@@ -43,7 +45,7 @@ fun EditPhoneDialog(
         text = {
             Column {
                 Text(
-                    text = "Enter your M-Pesa registered phone number:",
+                    text = stringResource(R.string.txt_enter_mpesa_phone),
                     fontSize = 14.sp,
                     color = ClicksMuted
                 )
@@ -72,12 +74,12 @@ fun EditPhoneDialog(
                     onDismiss()
                 }
             ) {
-                Text("Save", fontWeight = FontWeight.Bold, color = ClicksGreen)
+                Text(stringResource(R.string.txt_save), fontWeight = FontWeight.Bold, color = ClicksGreen)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = ClicksMuted)
+                Text(stringResource(R.string.txt_cancel), color = ClicksMuted)
             }
         },
         containerColor = Color.White
@@ -104,14 +106,14 @@ fun ProcessingPaymentDialog(
                 CircularProgressIndicator(color = ClicksGreen, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(20.dp))
                 Text(
-                    text = "M-Pesa STK Push Sent",
+                    text = stringResource(R.string.txt_mpesa_stk_sent),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = ClicksText
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Please enter your M-Pesa PIN on your phone ($mpesaPhone) to complete payment of $ " + "%.2f".format(total),
+                    text = stringResource(R.string.txt_complete_mpesa_payment, mpesaPhone, total),
                     fontSize = 14.sp,
                     color = ClicksMuted,
                     textAlign = TextAlign.Center
@@ -147,7 +149,7 @@ fun SuccessOrderDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.CheckCircle,
-                        contentDescription = "Success",
+                        contentDescription = stringResource(R.string.txt_success),
                         tint = ClicksGreen,
                         modifier = Modifier.size(44.dp)
                     )
@@ -156,7 +158,7 @@ fun SuccessOrderDialog(
                 Spacer(Modifier.height(20.dp))
 
                 Text(
-                    text = "Congratulations!",
+                    text = stringResource(R.string.txt_congratulations),
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = ClicksText
@@ -165,7 +167,7 @@ fun SuccessOrderDialog(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Your order has been placed successfully.",
+                    text = stringResource(R.string.txt_order_placed_success),
                     fontSize = 15.sp,
                     color = ClicksMuted,
                     textAlign = TextAlign.Center
@@ -174,7 +176,7 @@ fun SuccessOrderDialog(
                 if (transactionCode.isNotEmpty()) {
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "M-Pesa Ref: $transactionCode",
+                        text = stringResource(R.string.txt_mpesa_reference, transactionCode),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = ClicksGreen
@@ -184,7 +186,7 @@ fun SuccessOrderDialog(
                 Spacer(Modifier.height(24.dp))
 
                 ClicksButton(
-                    text = "Track Your Order",
+                    text = stringResource(R.string.txt_track_order),
                     onClick = onTrackOrder,
                     height = 50.dp,
                     shape = RoundedCornerShape(25.dp)

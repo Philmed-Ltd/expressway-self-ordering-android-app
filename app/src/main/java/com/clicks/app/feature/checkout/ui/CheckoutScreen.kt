@@ -9,8 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.clicks.app.feature.checkout.ui.components.*
+import com.clicks.app.R
 import com.clicks.app.feature.location.ui.DeliveryLocationViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.theme.ClicksGreen
@@ -65,7 +67,9 @@ fun CheckoutScreen(
                     val canPlaceOrder = isLocationSet && isPaymentConfirmed
 
                     ClicksButton(
-                        text = if (!isLocationSet) "Select Delivery Location" else "Place Order",
+                        text = stringResource(
+                            if (!isLocationSet) R.string.txt_select_delivery_location else R.string.txt_place_order
+                        ),
                         onClick = { showSuccessDialog = true },
                         enabled = canPlaceOrder,
                         height = 56.dp,

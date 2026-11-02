@@ -17,10 +17,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clicks.app.R
 import com.clicks.app.feature.auth.viewmodel.ForgotPasswordViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.components.ToastBanner
@@ -70,7 +72,7 @@ fun ForgotPasswordPhoneScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = TextDark
                     )
                 }
@@ -87,14 +89,14 @@ fun ForgotPasswordPhoneScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "Reset Password",
+                        text = stringResource(R.string.txt_reset_password),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Enter your registered phone number to receive a verification OTP.",
+                        text = stringResource(R.string.txt_registered_phone_otp_explanation),
                         fontSize = 14.sp,
                         color = TextMuted,
                         lineHeight = 20.sp
@@ -134,7 +136,16 @@ fun ForgotPasswordPhoneScreen(
                             ) {
                                 commonCountryCodes.forEach { country ->
                                     DropdownMenuItem(
-                                        text = { Text("${country.flag}  ${country.name} (${country.code})") },
+                                        text = {
+                                            Text(
+                                                stringResource(
+                                                    R.string.txt_country_picker_item,
+                                                    country.flag,
+                                                    stringResource(country.nameRes),
+                                                    country.code
+                                                )
+                                            )
+                                        },
                                         onClick = {
                                             selectedCountry = country
                                             expanded = false
@@ -147,7 +158,7 @@ fun ForgotPasswordPhoneScreen(
                         OutlinedTextField(
                             value = phoneNumber,
                             onValueChange = { phoneNumber = it.filter(Char::isDigit) },
-                            placeholder = { Text("712345678") },
+                            placeholder = { Text(stringResource(R.string.txt_phone_placeholder)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             shape = RoundedCornerShape(14.dp),
@@ -164,7 +175,7 @@ fun ForgotPasswordPhoneScreen(
                     Spacer(modifier = Modifier.height(40.dp))
 
                     ClicksButton(
-                        text = "SEND OTP",
+                        text = stringResource(R.string.txt_send_otp),
                         isLoading = uiState.isLoading,
                         onClick = {
                             val fullPhone = "${selectedCountry.code}$phoneNumber"

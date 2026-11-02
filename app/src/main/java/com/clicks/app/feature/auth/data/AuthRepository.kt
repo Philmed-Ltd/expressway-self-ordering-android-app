@@ -1,6 +1,7 @@
 package com.clicks.app.feature.auth.data
 
 import android.util.Log
+import com.clicks.app.R
 import com.clicks.app.feature.auth.data.dto.CompleteLoginRequest
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterData
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
@@ -105,7 +106,7 @@ class AuthRepository(
 
         if (result.data.authToken.isNullOrBlank()) {
             return ApiResult.Error(
-                message = "The server did not return an authentication token. Please try again.",
+                message = ApiClient.appContext.getString(R.string.txt_error_auth_token_missing),
                 type = ApiErrorType.Server
             )
         }
@@ -118,7 +119,7 @@ class AuthRepository(
         } catch (exception: Exception) {
             Log.e(TAG, "Failed to save session token after $operation", exception)
             ApiResult.Error(
-                message = "Could not save your session. Please try signing in again.",
+                message = ApiClient.appContext.getString(R.string.txt_error_session_save),
                 type = ApiErrorType.Unknown
             )
         }

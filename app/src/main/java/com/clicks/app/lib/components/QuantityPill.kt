@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksText
+import com.clicks.app.R
 
 @Composable
 fun QuantityPill(
@@ -40,7 +42,7 @@ fun QuantityPill(
             .padding(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        PillButton(Icons.Filled.Remove, "Decrease quantity", canDecrease, onDecrease)
+        PillButton(Icons.Filled.Remove, stringResource(R.string.txt_decrease_quantity), canDecrease, onDecrease)
         Text(
             text = quantity.toString(),
             modifier = Modifier.widthIn(min = 40.dp),
@@ -49,7 +51,7 @@ fun QuantityPill(
             fontWeight = FontWeight.Bold,
             color = ClicksText
         )
-        PillButton(Icons.Filled.Add, "Increase quantity", canIncrease, onIncrease)
+        PillButton(Icons.Filled.Add, stringResource(R.string.txt_increase_quantity), canIncrease, onIncrease)
     }
 }
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -39,6 +40,16 @@ import com.clicks.app.lib.theme.TextDark
 import com.clicks.app.lib.theme.TextMuted
 import com.clicks.app.lib.theme.WarmPeachBg
 
+private enum class AuthMode {
+    LOGIN,
+    REGISTER
+}
+
+private enum class LoginMethod {
+    PHONE,
+    EMAIL
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneAuthScreen(
@@ -47,8 +58,8 @@ fun PhoneAuthScreen(
     onCodeSent: (String, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState
-    var authMode by rememberSaveable { mutableStateOf("LOGIN") } // "LOGIN" or "REGISTER"
-    var loginMethod by rememberSaveable { mutableStateOf("PHONE") } // "PHONE" or "EMAIL"
+    var authMode by rememberSaveable { mutableStateOf(AuthMode.LOGIN) }
+    var loginMethod by rememberSaveable { mutableStateOf(LoginMethod.PHONE) }
 
     var phoneNumber by rememberSaveable { mutableStateOf("") }
     var emailInput by rememberSaveable { mutableStateOf("") }
@@ -93,14 +104,14 @@ fun PhoneAuthScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.image2),
-                            contentDescription = "Clicks Logo",
+                            contentDescription = stringResource(R.string.txt_clicks),
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Clicks",
+                            text = stringResource(R.string.txt_clicks),
                             fontSize = 30.sp,
                             fontWeight = FontWeight.Bold,
                             color = TextDark,
@@ -127,15 +138,15 @@ fun PhoneAuthScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TabButton(
-                        text = "Sign In",
-                        selected = authMode == "LOGIN",
-                        onClick = { authMode = "LOGIN" },
+                        text = stringResource(R.string.txt_sign_in),
+                        selected = authMode == AuthMode.LOGIN,
+                        onClick = { authMode = AuthMode.LOGIN },
                         modifier = Modifier.weight(1f)
                     )
                     TabButton(
-                        text = "Register",
-                        selected = authMode == "REGISTER",
-                        onClick = { authMode = "REGISTER" },
+                        text = stringResource(R.string.txt_register),
+                        selected = authMode == AuthMode.REGISTER,
+                        onClick = { authMode = AuthMode.REGISTER },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -143,32 +154,32 @@ fun PhoneAuthScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Login Method Tabs if in LOGIN mode (Phone vs Email)
-                if (authMode == "LOGIN") {
+                if (authMode == AuthMode.LOGIN) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         OutlinedButton(
-                            onClick = { loginMethod = "PHONE" },
+                            onClick = { loginMethod = LoginMethod.PHONE },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = if (loginMethod == "PHONE") BrandGreen.copy(alpha = 0.1f) else Color.Transparent,
-                                contentColor = if (loginMethod == "PHONE") BrandGreen else TextMuted
+                                containerColor = if (loginMethod == LoginMethod.PHONE) BrandGreen.copy(alpha = 0.1f) else Color.Transparent,
+                                contentColor = if (loginMethod == LoginMethod.PHONE) BrandGreen else TextMuted
                             )
                         ) {
-                            Text("Via Phone", fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.txt_via_phone), fontWeight = FontWeight.SemiBold)
                         }
                         OutlinedButton(
-                            onClick = { loginMethod = "EMAIL" },
+                            onClick = { loginMethod = LoginMethod.EMAIL },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = if (loginMethod == "EMAIL") BrandGreen.copy(alpha = 0.1f) else Color.Transparent,
-                                contentColor = if (loginMethod == "EMAIL") BrandGreen else TextMuted
+                                containerColor = if (loginMethod == LoginMethod.EMAIL) BrandGreen.copy(alpha = 0.1f) else Color.Transparent,
+                                contentColor = if (loginMethod == LoginMethod.EMAIL) BrandGreen else TextMuted
                             )
                         ) {
-                            Text("Via Email", fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.txt_via_email), fontWeight = FontWeight.SemiBold)
                         }
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -179,18 +190,23 @@ fun PhoneAuthScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = if (authMode == "REGISTER") "Enter Your Phone Number" else "Sign In via OTP",
+                        text = stringResource(
+                            if (authMode == AuthMode.REGISTER) R.string.txt_enter_phone_number
+                            else R.string.txt_sign_in_via_otp
+                        ),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = if (authMode == "REGISTER") {
-                            "We'll send a verification code via SMS to verify your number."
+                        text = if (authMode == AuthMode.REGISTER) {
+                            stringResource(R.string.txt_registration_sms_explanation)
                         } else {
-                            if (loginMethod == "PHONE") "Enter your registered phone number & password to receive a login OTP."
-                            else "Enter your registered email address & password to receive a login OTP."
+                            stringResource(
+                                if (loginMethod == LoginMethod.PHONE) R.string.txt_login_phone_explanation
+                                else R.string.txt_login_email_explanation
+                            )
                         },
                         fontSize = 13.sp,
                         color = TextMuted,
@@ -201,7 +217,7 @@ fun PhoneAuthScreen(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 // Input field: Phone or Email
-                if (authMode == "REGISTER" || loginMethod == "PHONE") {
+                if (authMode == AuthMode.REGISTER || loginMethod == LoginMethod.PHONE) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -234,7 +250,16 @@ fun PhoneAuthScreen(
                             ) {
                                 commonCountryCodes.forEach { country ->
                                     DropdownMenuItem(
-                                        text = { Text("${country.flag}  ${country.name} (${country.code})") },
+                                        text = {
+                                            Text(
+                                                stringResource(
+                                                    R.string.txt_country_picker_item,
+                                                    country.flag,
+                                                    stringResource(country.nameRes),
+                                                    country.code
+                                                )
+                                            )
+                                        },
                                         onClick = {
                                             selectedCountry = country
                                             expanded = false
@@ -254,7 +279,7 @@ fun PhoneAuthScreen(
                                     digits
                                 }
                             },
-                            placeholder = { Text("712345678") },
+                            placeholder = { Text(stringResource(R.string.txt_phone_placeholder)) },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             shape = RoundedCornerShape(14.dp),
@@ -271,7 +296,7 @@ fun PhoneAuthScreen(
                     OutlinedTextField(
                         value = emailInput,
                         onValueChange = { emailInput = it },
-                        placeholder = { Text("johndoe@example.com") },
+                        placeholder = { Text(stringResource(R.string.txt_email_placeholder)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         shape = RoundedCornerShape(14.dp),
@@ -286,19 +311,19 @@ fun PhoneAuthScreen(
                 }
 
                 // Password input for LOGIN mode
-                if (authMode == "LOGIN") {
+                if (authMode == AuthMode.LOGIN) {
                     Spacer(modifier = Modifier.height(20.dp))
                     ClicksTextField(
                         value = passwordInput,
                         onValueChange = { passwordInput = it },
-                        label = "Password",
-                        placeholder = "••••••••",
+                        label = stringResource(R.string.txt_password),
+                        placeholder = stringResource(R.string.txt_password_placeholder),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                                    contentDescription = "Toggle password visibility",
+                                    contentDescription = stringResource(R.string.txt_toggle_password_visibility),
                                     tint = BrandGreen
                                 )
                             }
@@ -315,7 +340,7 @@ fun PhoneAuthScreen(
                             contentPadding = PaddingValues(0.dp)
                         ) {
                             Text(
-                                text = "Forgot Password?",
+                                text = stringResource(R.string.txt_forgot_password),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = BrandGreen
@@ -324,13 +349,15 @@ fun PhoneAuthScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 ClicksButton(
-                    text = if (authMode == "REGISTER") "SEND CODE" else "LOGIN",
+                    text = stringResource(
+                        if (authMode == AuthMode.REGISTER) R.string.txt_send_code else R.string.txt_login
+                    ),
                     isLoading = uiState.isLoading,
                     onClick = {
-                        val usernameType = if (authMode == "REGISTER" || loginMethod == "PHONE") "PHONE_NUMBER" else "EMAIL"
+                        val usernameType = if (authMode == AuthMode.REGISTER || loginMethod == LoginMethod.PHONE) "PHONE_NUMBER" else "EMAIL"
                         val normalizedPhoneNumber = normalizeNationalPhoneNumber(phoneNumber)
                         phoneNumber = normalizedPhoneNumber
                         val identifier = if (usernameType == "PHONE_NUMBER") {
@@ -339,13 +366,13 @@ fun PhoneAuthScreen(
                             emailInput
                         }
 
-                        if (authMode == "REGISTER") {
+                        if (authMode == AuthMode.REGISTER) {
                             viewModel.sendVerificationCode(
                                 usernameType = usernameType,
                                 identifier = identifier,
                                 verificationCodeUse = "REGISTRATION",
                                 onCodeSent = { codeId ->
-                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber, codeId, "REGISTER")
+                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber, codeId, AuthMode.REGISTER.name)
                                 }
                             )
                         } else {
@@ -354,7 +381,7 @@ fun PhoneAuthScreen(
                                 identifier = identifier,
                                 password = passwordInput,
                                 onCodeSent = { codeId ->
-                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber.ifBlank { emailInput }, codeId, "LOGIN")
+                                    onCodeSent(selectedCountry.code, normalizedPhoneNumber.ifBlank { emailInput }, codeId, AuthMode.LOGIN.name)
                                 }
                             )
                         }

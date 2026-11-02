@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clicks.app.R
 import com.clicks.app.feature.location.data.LocationClient
 import com.clicks.app.feature.location.data.LocationSettingsStatus
 import kotlinx.coroutines.CancellationException
@@ -140,8 +141,7 @@ class LocationPickerViewModel(application: Application) : AndroidViewModel(appli
                 focusOn(precise, zoom = 17f, durationMs = 1_400)
             } else if (uiState.focus == null) {
                 uiState = uiState.copy(
-                    message = "Couldn't get your location. Check that location is on and try again, " +
-                            "or move the map to place the pin yourself."
+                    message = getApplication<Application>().getString(R.string.txt_location_lookup_failed)
                 )
             }
 
@@ -158,7 +158,7 @@ class LocationPickerViewModel(application: Application) : AndroidViewModel(appli
             locate()
         } else {
             uiState = uiState.copy(
-                message = "Location is switched off. You can still move the map to place the pin."
+                message = getApplication<Application>().getString(R.string.txt_location_switched_off)
             )
         }
     }

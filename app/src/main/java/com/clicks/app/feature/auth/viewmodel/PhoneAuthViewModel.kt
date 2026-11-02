@@ -3,9 +3,11 @@ package com.clicks.app.feature.auth.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clicks.app.R
 import com.clicks.app.feature.auth.data.AuthRepository
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
 import com.clicks.app.feature.auth.data.dto.PhoneVerificationCodePayload
+import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiResult
 import kotlinx.coroutines.launch
 
@@ -33,7 +35,10 @@ class PhoneAuthViewModel(
 
         val cleanIdentifier = identifier.trim()
         if (cleanIdentifier.isBlank()) {
-            uiState.value = PhoneAuthUiState(errorMessage = "Please enter a valid $usernameType")
+            val label = if (usernameType == "PHONE_NUMBER") R.string.txt_phone_number else R.string.txt_email_address
+            uiState.value = PhoneAuthUiState(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_valid_identifier, ApiClient.appContext.getString(label))
+            )
             return
         }
 
@@ -47,7 +52,7 @@ class PhoneAuthViewModel(
                         isLoading = false,
                         isCodeSent = true,
                         successMessage = result.message.ifBlank {
-                            "OTP has been sent to $cleanIdentifier."
+                            ApiClient.appContext.getString(R.string.txt_otp_sent_to, cleanIdentifier)
                         }
                     )
                     onCodeSent(codeId)
@@ -73,11 +78,16 @@ class PhoneAuthViewModel(
 
         val cleanIdentifier = identifier.trim()
         if (cleanIdentifier.isBlank()) {
-            uiState.value = PhoneAuthUiState(errorMessage = "Please enter a valid $usernameType")
+            val label = if (usernameType == "PHONE_NUMBER") R.string.txt_phone_number else R.string.txt_email_address
+            uiState.value = PhoneAuthUiState(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_valid_identifier, ApiClient.appContext.getString(label))
+            )
             return
         }
         if (password.length < 8) {
-            uiState.value = PhoneAuthUiState(errorMessage = "Password must be at least 8 characters")
+            uiState.value = PhoneAuthUiState(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_password_min_length)
+            )
             return
         }
 
@@ -91,7 +101,7 @@ class PhoneAuthViewModel(
                         isLoading = false,
                         isCodeSent = true,
                         successMessage = result.message.ifBlank {
-                            "Login OTP has been sent to $cleanIdentifier."
+                            ApiClient.appContext.getString(R.string.txt_login_otp_sent_to, cleanIdentifier)
                         }
                     )
                     onCodeSent(codeId)
@@ -125,23 +135,33 @@ class PhoneAuthViewModel(
         val cleanLast = lastName.trim()
 
         if (cleanCode.length != 5) {
-            uiState.value = uiState.value.copy(errorMessage = "Please enter the 5-digit verification code")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_enter_5_digit_code)
+            )
             return
         }
         if (cleanFirst.length < 3) {
-            uiState.value = uiState.value.copy(errorMessage = "First name must be at least 3 characters")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_first_name_min_length)
+            )
             return
         }
         if (cleanLast.length < 3) {
-            uiState.value = uiState.value.copy(errorMessage = "Last name must be at least 3 characters")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_last_name_min_length)
+            )
             return
         }
         if (password.length < 8) {
-            uiState.value = uiState.value.copy(errorMessage = "Password must be at least 8 characters")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_password_min_length)
+            )
             return
         }
         if (verificationCodeId.isBlank()) {
-            uiState.value = uiState.value.copy(errorMessage = "Verification session expired. Please re-enter details.")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_verification_session_expired)
+            )
             return
         }
 
@@ -164,7 +184,9 @@ class PhoneAuthViewModel(
                 is ApiResult.Success -> {
                     uiState.value = PhoneAuthUiState(
                         isLoading = false,
-                        successMessage = result.message.ifBlank { "User registration success." }
+                        successMessage = result.message.ifBlank {
+                            ApiClient.appContext.getString(R.string.txt_registration_success)
+                        }
                     )
                     onSuccess()
                 }
@@ -188,11 +210,15 @@ class PhoneAuthViewModel(
 
         val cleanCode = code.trim()
         if (cleanCode.length != 5) {
-            uiState.value = uiState.value.copy(errorMessage = "Please enter the 5-digit verification code")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_enter_5_digit_code)
+            )
             return
         }
         if (verificationCodeId.isBlank()) {
-            uiState.value = uiState.value.copy(errorMessage = "Verification session expired. Please re-enter details.")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_verification_session_expired)
+            )
             return
         }
 
@@ -203,7 +229,9 @@ class PhoneAuthViewModel(
                 is ApiResult.Success -> {
                     uiState.value = PhoneAuthUiState(
                         isLoading = false,
-                        successMessage = result.message.ifBlank { "Sign in success!" }
+                        successMessage = result.message.ifBlank {
+                            ApiClient.appContext.getString(R.string.txt_login_success)
+                        }
                     )
                     onSuccess()
                 }

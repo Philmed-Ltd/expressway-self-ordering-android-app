@@ -3,8 +3,10 @@ package com.clicks.app.feature.auth.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.clicks.app.R
 import com.clicks.app.feature.auth.data.AuthRepository
 import com.clicks.app.feature.auth.data.dto.ResetPasswordRequest
+import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiResult
 import kotlinx.coroutines.launch
 
@@ -29,7 +31,9 @@ class ForgotPasswordViewModel(
         if (uiState.value.isLoading) return
         val cleanPhone = phoneNumber.trim()
         if (cleanPhone.isBlank()) {
-            uiState.value = ForgotPasswordUiState(errorMessage = "Please enter a valid phone number")
+            uiState.value = ForgotPasswordUiState(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_valid_phone)
+            )
             return
         }
 
@@ -46,7 +50,9 @@ class ForgotPasswordViewModel(
                     uiState.value = ForgotPasswordUiState(
                         isLoading = false,
                         isCodeSent = true,
-                        successMessage = result.message.ifBlank { "OTP has been sent to $cleanPhone." }
+                        successMessage = result.message.ifBlank {
+                            ApiClient.appContext.getString(R.string.txt_otp_sent_to, cleanPhone)
+                        }
                     )
                     onCodeSent(codeId)
                 }
@@ -72,11 +78,15 @@ class ForgotPasswordViewModel(
         val cleanPass = newPassword.trim()
 
         if (cleanOtp.length != 5) {
-            uiState.value = uiState.value.copy(errorMessage = "Please enter the 5-digit OTP")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_enter_5_digit_otp)
+            )
             return
         }
         if (cleanPass.length < 8) {
-            uiState.value = uiState.value.copy(errorMessage = "Password must be at least 8 characters")
+            uiState.value = uiState.value.copy(
+                errorMessage = ApiClient.appContext.getString(R.string.txt_error_password_min_length)
+            )
             return
         }
 
@@ -88,7 +98,9 @@ class ForgotPasswordViewModel(
                 is ApiResult.Success -> {
                     uiState.value = ForgotPasswordUiState(
                         isLoading = false,
-                        successMessage = result.message.ifBlank { "Password has successfully been changed." }
+                        successMessage = result.message.ifBlank {
+                            ApiClient.appContext.getString(R.string.txt_password_changed_success)
+                        }
                     )
                     onSuccess()
                 }

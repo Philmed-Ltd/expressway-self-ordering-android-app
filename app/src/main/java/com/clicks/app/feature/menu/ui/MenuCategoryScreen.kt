@@ -26,6 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.clicks.app.R
 import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.ui.components.ProductCard
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
@@ -70,6 +72,31 @@ fun CategoryProductsScreen(
 
     val category = categories.find { it.title.equals(categoryTitle, ignoreCase = true) }
         ?: categories.first()
+    val categoryLabel = when (category.title) {
+        "Drinks & Smoothies" -> stringResource(R.string.txt_drinks_smoothies)
+        "Bakery & Desserts" -> stringResource(R.string.txt_bakery_desserts)
+        else -> stringResource(R.string.txt_all_meals_dishes)
+    }
+    val categorySubtitle = when (category.title) {
+        "Drinks & Smoothies" -> stringResource(R.string.txt_fresh_iced_hot_drinks)
+        "Bakery & Desserts" -> stringResource(R.string.txt_baked_fresh_daily)
+        else -> stringResource(R.string.txt_gourmet_burgers_pizzas_mains)
+    }
+    @Composable
+    fun subcategoryLabel(value: String) = when (value) {
+        "All" -> stringResource(R.string.txt_all)
+        "Burgers" -> stringResource(R.string.txt_burgers)
+        "Pizza" -> stringResource(R.string.txt_pizza)
+        "Pasta" -> stringResource(R.string.txt_pasta)
+        "Salads" -> stringResource(R.string.txt_salads)
+        "Sandwiches" -> stringResource(R.string.txt_sandwiches)
+        "Iced Coffees" -> stringResource(R.string.txt_iced_coffees)
+        "Teas" -> stringResource(R.string.txt_teas)
+        "Smoothies" -> stringResource(R.string.txt_smoothies)
+        "Croissants" -> stringResource(R.string.txt_croissants)
+        "Desserts" -> stringResource(R.string.txt_desserts)
+        else -> value
+    }
 
     var selectedSubcategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
@@ -120,7 +147,7 @@ fun CategoryProductsScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = ClicksText
                     )
                 }
@@ -129,13 +156,13 @@ fun CategoryProductsScreen(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = category.title,
+                        text = categoryLabel,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
                     )
                     Text(
-                        text = category.subtitle,
+                        text = categorySubtitle,
                         fontSize = 12.sp,
                         color = ClicksMuted
                     )
@@ -148,7 +175,7 @@ fun CategoryProductsScreen(
                 }) {
                     Icon(
                         imageVector = Icons.Outlined.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.txt_search),
                         tint = ClicksText
                     )
                 }
@@ -161,7 +188,7 @@ fun CategoryProductsScreen(
                     IconButton(onClick = onCartClick) {
                         Icon(
                             imageVector = Icons.Outlined.ShoppingCart,
-                            contentDescription = "Cart",
+                            contentDescription = stringResource(R.string.txt_cart),
                             tint = ClicksText
                         )
                     }
@@ -183,7 +210,7 @@ fun CategoryProductsScreen(
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
-                    placeholder = "Search in ${category.title}..."
+                    placeholder = stringResource(R.string.txt_search_in_category, categoryLabel)
                 )
             }
 
@@ -214,7 +241,7 @@ fun CategoryProductsScreen(
                             )
                     ) {
                         Text(
-                            text = subcategory,
+                            text = subcategoryLabel(subcategory),
                             modifier = Modifier.padding(
                                 horizontal = 23.dp,
                                 vertical = 13.dp
@@ -240,7 +267,7 @@ fun CategoryProductsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${displayedProducts.size} products",
+                    text = stringResource(R.string.txt_product_count, displayedProducts.size),
                     fontSize = 14.sp,
                     color = ClicksMuted
                 )
@@ -253,7 +280,7 @@ fun CategoryProductsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Sort",
+                            text = stringResource(R.string.txt_sort),
                             fontSize = 14.sp,
                             color = ClicksGreen,
                             fontWeight = FontWeight.Medium
@@ -261,7 +288,7 @@ fun CategoryProductsScreen(
                         Spacer(Modifier.width(6.dp))
                         Icon(
                             Icons.AutoMirrored.Outlined.Sort,
-                            contentDescription = "Sort products",
+                            contentDescription = stringResource(R.string.txt_sort_products),
                             tint = ClicksGreen,
                             modifier = Modifier.size(19.dp)
                         )
@@ -272,13 +299,13 @@ fun CategoryProductsScreen(
                         onDismissRequest = { sortMenuExpanded = false }
                     ) {
                         listOf(
-                            "Recommended",
-                            "Price: Low to High",
-                            "Price: High to Low",
-                            "Top Rated"
-                        ).forEach { option ->
+                            "Recommended" to R.string.txt_sort_recommended,
+                            "Price: Low to High" to R.string.txt_sort_price_low_high,
+                            "Price: High to Low" to R.string.txt_sort_price_high_to_low,
+                            "Top Rated" to R.string.txt_sort_top_rated
+                        ).forEach { (option, labelResource) ->
                             DropdownMenuItem(
-                                text = { Text(option) },
+                                text = { Text(stringResource(labelResource)) },
                                 onClick = {
                                     sortOption = option
                                     sortMenuExpanded = false
@@ -300,7 +327,7 @@ fun CategoryProductsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No products found",
+                        text = stringResource(R.string.txt_no_products_found),
                         color = ClicksMuted
                     )
                 }

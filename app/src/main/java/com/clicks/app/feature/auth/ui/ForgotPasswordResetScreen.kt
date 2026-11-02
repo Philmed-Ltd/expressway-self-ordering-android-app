@@ -19,12 +19,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clicks.app.R
 import com.clicks.app.feature.auth.viewmodel.ForgotPasswordViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.components.ClicksTextField
@@ -76,7 +78,7 @@ fun ForgotPasswordResetScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.txt_back),
                         tint = TextDark
                     )
                 }
@@ -93,14 +95,14 @@ fun ForgotPasswordResetScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "Create New Password",
+                        text = stringResource(R.string.txt_create_new_password),
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Enter the 5-digit OTP sent to $phoneNumber and your new secure password.",
+                        text = stringResource(R.string.txt_reset_password_otp_explanation, phoneNumber),
                         fontSize = 14.sp,
                         color = TextMuted,
                         lineHeight = 20.sp
@@ -111,7 +113,7 @@ fun ForgotPasswordResetScreen(
                     OutlinedTextField(
                         value = otp,
                         onValueChange = { otp = it.filter(Char::isDigit).take(5) },
-                        placeholder = { Text("12345") },
+                        placeholder = { Text(stringResource(R.string.txt_otp_placeholder)) },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         shape = RoundedCornerShape(14.dp),
@@ -129,14 +131,14 @@ fun ForgotPasswordResetScreen(
                     ClicksTextField(
                         value = newPassword,
                         onValueChange = { newPassword = it },
-                        label = "New Password",
-                        placeholder = "••••••••",
+                        label = stringResource(R.string.txt_new_password),
+                        placeholder = stringResource(R.string.txt_password_placeholder),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
-                                    contentDescription = "Toggle password visibility",
+                                    contentDescription = stringResource(R.string.txt_toggle_password_visibility),
                                     tint = BrandGreen
                                 )
                             }
@@ -146,7 +148,7 @@ fun ForgotPasswordResetScreen(
                     Spacer(modifier = Modifier.height(40.dp))
 
                     ClicksButton(
-                        text = "RESET PASSWORD",
+                        text = stringResource(R.string.txt_reset_password_action),
                         isLoading = uiState.isLoading,
                         onClick = {
                             viewModel.resetPassword(
