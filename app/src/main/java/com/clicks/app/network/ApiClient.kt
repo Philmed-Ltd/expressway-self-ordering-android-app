@@ -8,12 +8,11 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
 
-//    private const val BASE_URL = "https://minishop-backend-mi7h.onrender.com/"
-//    local db
-    private const val BASE_URL = "http://10.100.8.6:8080/"
+    private const val BASE_URL = "http://10.100.8.6:5001/"
 
     lateinit var appContext: Context
-    private set
+        private set
+
     @Volatile
     private var initialized = false
 

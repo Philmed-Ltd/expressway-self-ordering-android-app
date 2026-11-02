@@ -1,75 +1,84 @@
 package com.clicks.app.feature.auth.data
 
-import com.clicks.app.feature.auth.data.dto.AuthResponse
-import com.clicks.app.feature.auth.data.dto.LoginRequest
-import com.clicks.app.feature.auth.data.dto.RegisterRequest
-import com.clicks.app.lib.session.TokenStorage
+import android.util.Log
+import com.clicks.app.feature.auth.data.dto.CustomerRegisterData
+import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
+import com.clicks.app.feature.auth.data.dto.InitLoginRequest
+import com.clicks.app.feature.auth.data.dto.InitLoginResponseData
+import com.clicks.app.feature.auth.data.dto.VerificationCodeData
+import com.clicks.app.feature.auth.data.dto.VerificationCodeRequest
+import com.clicks.app.feature.auth.model.Authentication
+import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiResult
-import com.clicks.app.network.safeApiCall
-import kotlinx.coroutines.CancellationException
+import com.clicks.app.network.safeEntityApiCall
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
+
+private const val TAG = "AuthRepository"
 
 class AuthRepository(
     private val authApi: AuthApi = ApiClient.createService<AuthApi>(),
-    private val tokenStorage: TokenStorage = TokenStorage(ApiClient.appContext)
+    private val authLocalSrc: AuthenticationLocalSrc = AuthenticationLocalSrc(ApiClient.appContext)
 ) {
 
-    suspend fun register(
-        firstName: String,
-        lastName: String,
-        email: String,
-        password: String
-    ): ApiResult<AuthResponse> {
-        val request = RegisterRequest(
-            firstName = firstName.trim(),
-            lastName = lastName.trim(),
-            email = email.trim(),
-            password = password
+    suspend fun requestVerificationCode(
+        usernameType: String,
+        username: String,
+        verificationCodeUse: String
+    ): ApiResult<VerificationCodeData> {
+        val request = VerificationCodeRequest(
+            usernameType = usernameType,
+            username = username.trim(),
+            verificationCodeUse = verificationCodeUse
         )
-        val result = safeApiCall {
-            authApi.register(request)
+        return safeEntityApiCall {
+            authApi.requestVerificationCode(request)
         }
-
-        return persistSession(result)
     }
 
-    suspend fun login(
-        email: String,
+    suspend fun initLogin(
+        usernameType: String,
+        username: String,
         password: String
-    ): ApiResult<AuthResponse> {
-        val request = LoginRequest(
-            email = email.trim(),
+    ): ApiResult<InitLoginResponseData> {
+        val request = InitLoginRequest(
+            usernameType = usernameType,
+            username = username.trim(),
             password = password
         )
-        val result = safeApiCall {
-            authApi.login(request)
+        return safeEntityApiCall {
+            authApi.initLogin(request)
+        }
+    }
+
+    suspend fun registerCustomer(
+        request: CustomerRegisterRequest
+    ): ApiResult<CustomerRegisterData> {
+        val result = safeEntityApiCall {
+            authApi.registerCustomer(request)
         }
 
-        return persistSession(result)
+        if (result is ApiResult.Success) {
+            try {
+                withContext(Dispatchers.IO) {
+                    val auth = Authentication().apply {
+                        id = 1
+                        authToken = result.data.authToken ?: "customer-session-${result.data.id}"
+                        expiryTime = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
+                    }
+                    authLocalSrc.insertSync(auth)
+                }
+            } catch (exception: Exception) {
+                Log.e(TAG, "Failed to save session token", exception)
+            }
+        }
+
+        return result
     }
 
     fun logout() {
-        tokenStorage.clearToken()
-    }
-
-    private suspend fun persistSession(
-        result: ApiResult<AuthResponse>
-    ): ApiResult<AuthResponse> {
-        if (result !is ApiResult.Success) return result
-
-        return try {
-            withContext(Dispatchers.IO) {
-                tokenStorage.saveToken(result.data.token)
-            }
-            result
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
-            ApiResult.Error(
-                message = "An error occurred! Please try again."
-            )
-        }
+        authLocalSrc.delete()
     }
 }

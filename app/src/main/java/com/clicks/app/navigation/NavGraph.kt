@@ -1,5 +1,8 @@
 package com.clicks.app.navigation
 
+import android.net.Uri
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -9,13 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.clicks.app.lib.session.SessionManager
-import com.clicks.app.lib.session.TokenStorage
 import com.clicks.app.lib.session.SessionRepository
-import com.clicks.app.feature.auth.ui.login.LoginScreen
-import com.clicks.app.feature.auth.ui.login.LoginViewModel
 import com.clicks.app.feature.onboarding.OnboardingContainerScreen
-import com.clicks.app.feature.auth.ui.register.RegisterScreen
-import com.clicks.app.feature.auth.ui.register.RegisterViewModel
+import com.clicks.app.feature.auth.ui.PhoneAuthScreen
+import com.clicks.app.feature.auth.viewmodel.PhoneAuthViewModel
+import com.clicks.app.feature.auth.ui.PhoneVerificationScreen
 import com.clicks.app.feature.home.ui.HomeScreen
 import com.clicks.app.feature.menu.ui.CategoryProductsScreen
 import com.clicks.app.feature.menu.ui.ProductDetailsScreen
@@ -25,8 +26,8 @@ import com.clicks.app.feature.checkout.ui.CheckoutScreen
 import com.clicks.app.feature.location.ui.DeliveryLocationViewModel
 import com.clicks.app.feature.location.ui.LocationPickerScreen
 import com.clicks.app.feature.location.ui.LocationPickerViewModel
-import com.clicks.app.feature.auth.ui.profile.ProfileScreen
-import com.clicks.app.feature.auth.ui.profile.ProfileViewModel
+import com.clicks.app.feature.profile.ProfileScreen
+import com.clicks.app.feature.profile.ProfileViewModel
 import com.clicks.app.feature.orders.OrdersScreen
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 
@@ -34,7 +35,7 @@ import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 fun NavGraph() {
     val navController = rememberNavController()
     val context = LocalContext.current
-    val sessionRepository = remember { SessionRepository(TokenStorage(context)) }
+    val sessionRepository = remember { SessionRepository(context) }
     val storeViewModel: StoreViewModel = viewModel()
     val deliveryLocationViewModel: DeliveryLocationViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
@@ -42,11 +43,11 @@ fun NavGraph() {
     val startDestination = when {
         !sessionRepository.isOnboardingCompleted() -> Routes.Onboarding.route
         sessionRepository.isLoggedIn() -> Routes.Home.route
-        else -> Routes.Login.route
+        else -> Routes.PhoneAuth.route
     }
 
-    val goToLogin = {
-        navController.navigate(Routes.Login.route) {
+    val goToAuth = {
+        navController.navigate(Routes.PhoneAuth.route) {
             popUpTo(Routes.Onboarding.route) { inclusive = true }
         }
     }
@@ -55,7 +56,7 @@ fun NavGraph() {
         storeViewModel.clearSession()
         profileViewModel.clearSession()
         sessionRepository.clearSession()
-        goToLogin()
+        goToAuth()
     }
 
     LaunchedEffect(Unit) {
@@ -66,13 +67,17 @@ fun NavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        enterTransition = { fadeIn(animationSpec = tween(350)) + slideInHorizontally(animationSpec = tween(350)) { it / 5 } },
+        exitTransition = { fadeOut(animationSpec = tween(350)) + slideOutHorizontally(animationSpec = tween(350)) { -it / 5 } },
+        popEnterTransition = { fadeIn(animationSpec = tween(350)) + slideInHorizontally(animationSpec = tween(350)) { -it / 5 } },
+        popExitTransition = { fadeOut(animationSpec = tween(350)) + slideOutHorizontally(animationSpec = tween(350)) { it / 5 } }
     ) {
         composable(Routes.Onboarding.route) {
             OnboardingContainerScreen(
                 onFinished = {
                     sessionRepository.setOnboardingCompleted(true)
-                    val nextRoute = if (sessionRepository.isLoggedIn()) Routes.Home.route else Routes.Login.route
+                    val nextRoute = if (sessionRepository.isLoggedIn()) Routes.Home.route else Routes.PhoneAuth.route
                     navController.navigate(nextRoute) {
                         popUpTo(Routes.Onboarding.route) {
                             inclusive = true
@@ -81,43 +86,43 @@ fun NavGraph() {
                 }
             )
         }
-        composable(Routes.Login.route) {
-            val loginViewModel: LoginViewModel = viewModel()
-            LoginScreen(
-                viewModel = loginViewModel,
-                onLoginSuccess = {
-                    navController.navigate(Routes.Home.route) {
-                        popUpTo(Routes.Login.route) {
-                            inclusive = true
-                        }
-                    }
-                },
-                onRegisterClick = {
-                    navController.navigate(Routes.Register.route)
-                }
-            ) {
-                // Handle forgot password
-            }
-        }
 
-        composable(Routes.Register.route) {
-            val registerViewModel: RegisterViewModel = viewModel()
-            RegisterScreen(
-                viewModel = registerViewModel,
-                onLoginClick = {
-                    navController.popBackStack()
+        composable(Routes.PhoneAuth.route) {
+            val phoneAuthViewModel: PhoneAuthViewModel = viewModel()
+            PhoneAuthScreen(
+                viewModel = phoneAuthViewModel,
+                onCodeSent = { countryCode, phoneNumber, codeId, authMode ->
+                    navController.navigate(Routes.PhoneVerification.createRoute(countryCode, phoneNumber, codeId, authMode))
                 },
-                onRegisterSuccess = {
-                    navController.navigate(Routes.Home.route) {
-                        popUpTo(Routes.Login.route) {
-                            inclusive = true
-                        }
-                    }
+                onBackToLogin = {
+                    navController.popBackStack()
                 }
             )
         }
 
+        composable(Routes.PhoneVerification.route) { backStackEntry ->
+            val countryCode = Uri.decode(backStackEntry.arguments?.getString("countryCode") ?: "+254")
+            val phoneNumber = Uri.decode(backStackEntry.arguments?.getString("phoneNumber") ?: "")
+            val verificationCodeId = Uri.decode(backStackEntry.arguments?.getString("verificationCodeId") ?: "")
+            val authMode = Uri.decode(backStackEntry.arguments?.getString("authMode") ?: "REGISTER")
+            val phoneAuthViewModel: PhoneAuthViewModel = viewModel()
+            PhoneVerificationScreen(
+                viewModel = phoneAuthViewModel,
+                verificationCodeId = verificationCodeId,
+                countryCode = countryCode,
+                phoneNumber = phoneNumber,
+                authMode = authMode,
+                onRegisterSuccess = {
+                    navController.navigate(Routes.Home.route) {
+                        popUpTo(Routes.PhoneAuth.route) { inclusive = true }
+                    }
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable(Routes.Home.route) {
+            LaunchedEffect(Unit) { profileViewModel.loadProfile() }
             HomeScreen(
                 storeViewModel = storeViewModel,
                 profileViewModel = profileViewModel,

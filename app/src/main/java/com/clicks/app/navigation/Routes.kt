@@ -1,12 +1,22 @@
 package com.clicks.app.navigation
 
+import android.net.Uri
+
 sealed class Routes(val route: String) {
 
     data object Onboarding : Routes("onboarding")
 
-    data object Login : Routes("login")
+    data object PhoneAuth : Routes("phone_auth")
 
-    data object Register : Routes("register")
+    data object PhoneVerification : Routes("phone_verification/{countryCode}/{phoneNumber}/{verificationCodeId}/{authMode}") {
+        fun createRoute(countryCode: String, phoneNumber: String, verificationCodeId: String, authMode: String): String {
+            val encodedCode = Uri.encode(countryCode)
+            val encodedPhone = Uri.encode(phoneNumber)
+            val encodedId = Uri.encode(verificationCodeId)
+            val encodedMode = Uri.encode(authMode)
+            return "phone_verification/$encodedCode/$encodedPhone/$encodedId/$encodedMode"
+        }
+    }
 
     data object Home : Routes("home")
 

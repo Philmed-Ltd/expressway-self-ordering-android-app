@@ -1,4 +1,4 @@
-package com.clicks.app.feature.auth.ui.profile
+package com.clicks.app.feature.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,7 +37,7 @@ fun ProfileScreen(
     onLogoutClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState
-    val user = uiState.user
+    val customer = uiState.customer
 
     var notificationsEnabled by remember { mutableStateOf(true) }
     var emailAlertsEnabled by remember { mutableStateOf(true) }
@@ -100,80 +100,42 @@ fun ProfileScreen(
                 colors = CardDefaults.cardColors(containerColor = ClicksMint),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                when {
-                    user != null -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(CircleShape)
-                                    .background(ClicksGreen),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = user.initials,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            }
-
-                            Spacer(Modifier.width(16.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = user.displayName,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ClicksText
-                                )
-                                Spacer(Modifier.height(2.dp))
-                                Text(
-                                    text = user.email,
-                                    fontSize = 13.sp,
-                                    color = ClicksMuted
-                                )
-                            }
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape)
+                            .background(ClicksGreen),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = customer?.name?.take(2)?.uppercase() ?: "CU",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
                     }
 
-                    uiState.isLoading -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = ClicksGreen)
-                        }
-                    }
+                    Spacer(Modifier.width(16.dp))
 
-                    else -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
-                        ) {
-                            Text(
-                                text = uiState.errorMessage
-                                    ?: "Could not load your profile.",
-                                fontSize = 13.sp,
-                                color = Error
-                            )
-                            Spacer(Modifier.height(4.dp))
-                            TextButton(onClick = viewModel::loadProfile) {
-                                Text(
-                                    text = "Retry",
-                                    color = ClicksGreen,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = customer?.name ?: "Customer",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ClicksText
+                        )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            text = customer?.phoneNumber ?: "",
+                            fontSize = 13.sp,
+                            color = ClicksMuted
+                        )
                     }
                 }
             }
@@ -246,10 +208,9 @@ fun ProfileScreen(
             ProfileMenuItem(
                 icon = Icons.Outlined.PersonOutline,
                 title = "Account Information",
-                subtitle = "View your name and email"
+                subtitle = "View your name and phone number"
             ) {
-                // Nothing to show until the profile has loaded.
-                if (user != null) showAccountInfoDialog = true
+                showAccountInfoDialog = true
             }
             ProfileMenuItem(
                 icon = Icons.Outlined.Lock,
@@ -369,7 +330,7 @@ fun ProfileScreen(
         }
     }
 
-    // Add Address Dialog (local only: the backend has no address endpoints yet)
+    // Add Address Dialog
     if (showAddAddressDialog) {
         AlertDialog(
             onDismissRequest = { showAddAddressDialog = false },
@@ -406,16 +367,16 @@ fun ProfileScreen(
         )
     }
 
-    // Account Information Dialog (read-only until the backend has an update endpoint)
-    if (showAccountInfoDialog && user != null) {
+    // Account Information Dialog
+    if (showAccountInfoDialog) {
         AlertDialog(
             onDismissRequest = { showAccountInfoDialog = false },
             title = { Text("Account Information", fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    AccountInfoRow(label = "First name", value = user.firstName)
-                    AccountInfoRow(label = "Last name", value = user.lastName)
-                    AccountInfoRow(label = "Email address", value = user.email)
+                    AccountInfoRow(label = "Full Name", value = customer?.name ?: "Customer")
+                    AccountInfoRow(label = "Phone Number", value = customer?.phoneNumber ?: "")
+                    AccountInfoRow(label = "Status", value = customer?.userStatus ?: "ACTIVE")
                 }
             },
             confirmButton = {

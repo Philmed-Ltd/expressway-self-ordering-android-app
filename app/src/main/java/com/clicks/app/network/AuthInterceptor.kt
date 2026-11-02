@@ -23,6 +23,12 @@ class AuthInterceptor(
         )
     }
     private companion object {
-        val NO_AUTH_PATHS = setOf("/api/auth/login", "/api/auth/register")
+        val NO_AUTH_PATHS = setOf(
+            "/api/auth/login",
+            "/api/auth/register",
+            "/api/auth/forgot-password",
+            "/api/auth/verify-reset-code",
+            "/api/auth/reset-password"
+        )
     }
 }

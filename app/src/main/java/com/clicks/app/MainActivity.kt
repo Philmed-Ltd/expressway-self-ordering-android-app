@@ -17,6 +17,7 @@ import com.clicks.app.network.ApiClient
 import com.clicks.app.navigation.NavGraph
 import com.clicks.app.feature.onboarding.splash.SplashState
 import com.clicks.app.feature.onboarding.splash.SplashViewModel
+import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.lib.theme.ClicksTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,8 +28,8 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val tokenStorage = com.clicks.app.lib.session.TokenStorage(applicationContext)
-        ApiClient.initialize(applicationContext) { tokenStorage.getToken() }
+        val authLocalSrc = AuthenticationLocalSrc(applicationContext)
+        ApiClient.initialize(applicationContext) { authLocalSrc.getToken() }
 
         splashScreen.setKeepOnScreenCondition {
             splashViewModel.state.value == SplashState.Loading
