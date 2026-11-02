@@ -17,24 +17,24 @@ data class CustomerRegisterRequest(
 )
 
 data class CustomerRegisterData(
-    val id: String,
-    val name: String,
-    val phoneNumber: String,
-    val phoneCode: String,
-    val countryCode: String,
-    val emailVerified: Boolean,
-    val phoneNumberVerified: Boolean,
-    val userStatus: String,
     val authToken: String? = null,
     val expiryTime: String? = null,
-    val createdAt: String,
-    val updatedAt: String
+    val id: String? = null,
+    val name: String? = null,
+    val phoneNumber: String? = null,
+    val phoneCode: String? = null,
+    val countryCode: String? = null,
+    val emailVerified: Boolean? = null,
+    val phoneNumberVerified: Boolean? = null,
+    val userStatus: String? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null
 ) {
     fun toAuthentication(): Authentication {
         return Authentication().apply {
             id = 1
-            authToken = this@CustomerRegisterData.authToken ?: ""
-            expiryTime = Authentication.parseIsoDate(this@CustomerRegisterData.expiryTime)
+            this.authToken = this@CustomerRegisterData.authToken.orEmpty()
+            this.expiryTime = Authentication.parseIsoDate(this@CustomerRegisterData.expiryTime)
         }
     }
 }

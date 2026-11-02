@@ -1,6 +1,7 @@
 package com.clicks.app.feature.profile
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +12,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,401 +28,377 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.clicks.app.feature.auth.data.dto.CustomerView
+import com.clicks.app.lib.theme.AppThemeMode
+import com.clicks.app.lib.theme.AppThemePreferences
+import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
-import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.SurfaceLight
 
+private val ProfileColorScheme = lightColorScheme(
+    primary = ClicksGreen,
+    onPrimary = Color.White,
+    primaryContainer = SurfaceLight,
+    onPrimaryContainer = ClicksText,
+    background = Color.White,
+    onBackground = ClicksText,
+    surface = Color.White,
+    onSurface = ClicksText,
+    surfaceVariant = SurfaceLight,
+    onSurfaceVariant = ClicksMuted,
+    outline = BorderColor,
+    outlineVariant = BorderColor,
+    error = Error,
+    onError = Color.White
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onBackClick: () -> Unit = {},
     onOrdersClick: () -> Unit = {},
+    onAddressClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {}
 ) {
     val uiState = viewModel.uiState
     val customer = uiState.customer
+    var showingAccountInfo by remember { mutableStateOf(false) }
+    var showingThemeOptions by remember { mutableStateOf(false) }
+    var showingSettings by remember { mutableStateOf(false) }
+    var showingFaq by remember { mutableStateOf(false) }
 
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    var emailAlertsEnabled by remember { mutableStateOf(true) }
-    val addresses = remember {
-        mutableStateListOf(
-            "Home: 925 S Chugach St #APT 10, Alaska",
-            "Work: 450 Financial Center, Suite 300"
-        )
-    }
-    var showAddAddressDialog by remember { mutableStateOf(false) }
-    var newAddressInput by remember { mutableStateOf("") }
-
-    var showAccountInfoDialog by remember { mutableStateOf(false) }
-
+    MaterialTheme(colorScheme = ProfileColorScheme) {
     Scaffold(
-        containerColor = Color.White
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .statusBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .background(Color.White)
-                .padding(horizontal = 20.dp, vertical = 12.dp)
-        ) {
-            // Top Bar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "Back",
-                        tint = ClicksText
+        containerColor = Color.White,
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = if (showingAccountInfo) "Account info" else "My Profile",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
-                }
-                Text(
-                    text = "My Profile",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ClicksText
-                )
-                IconButton(onClick = { }) {
-                    Icon(
-                        imageVector = Icons.Outlined.Notifications,
-                        contentDescription = "Notifications",
-                        tint = ClicksText
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(16.dp))
-
-            // User Info Header Card: loaded / loading / error
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = ClicksMint),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(ClicksGreen),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = customer?.name?.take(2)?.uppercase() ?: "CU",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
-
-                    Spacer(Modifier.width(16.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = customer?.name ?: "Customer",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ClicksText
-                        )
-                        Spacer(Modifier.height(2.dp))
-                        Text(
-                            text = customer?.phoneNumber ?: "",
-                            fontSize = 13.sp,
-                            color = ClicksMuted
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // Section: Orders
-            ProfileSectionTitle("Orders & Purchases")
-            Spacer(Modifier.height(8.dp))
-            ProfileMenuItem(
-                icon = Icons.Outlined.ShoppingBag,
-                title = "My Orders",
-                subtitle = "View active and past orders"
-            ) { onOrdersClick() }
-
-            Spacer(Modifier.height(20.dp))
-
-            // Section: Address Book
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProfileSectionTitle("Address Book")
-                Text(
-                    text = "+ Add New",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ClicksGreen,
-                    modifier = Modifier.clickable { showAddAddressDialog = true }
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            addresses.forEach { address ->
-                Card(
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceLight),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            if (showingAccountInfo) showingAccountInfo = false else onBackClick()
+                        }
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.LocationOn,
-                            contentDescription = "Address",
-                            tint = ClicksGreen,
-                            modifier = Modifier.size(20.dp)
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = address,
-                            fontSize = 13.sp,
-                            color = ClicksText,
-                            modifier = Modifier.weight(1f)
-                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
+        }
+    ) { innerPadding ->
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = ClicksGreen)
+                }
+            }
+
+            !uiState.errorMessage.isNullOrBlank() -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Could not load your profile: ${uiState.errorMessage}",
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    Button(
+                        onClick = viewModel::loadProfile,
+                        colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
+                    ) {
+                        Text("Retry")
                     }
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
-
-            // Section: Personal Details
-            ProfileSectionTitle("Personal Details")
-            Spacer(Modifier.height(8.dp))
-            ProfileMenuItem(
-                icon = Icons.Outlined.PersonOutline,
-                title = "Account Information",
-                subtitle = "View your name and phone number"
-            ) {
-                showAccountInfoDialog = true
-            }
-            ProfileMenuItem(
-                icon = Icons.Outlined.Lock,
-                title = "Security & Password",
-                subtitle = "Change password, 2FA"
-            ) { }
-
-            Spacer(Modifier.height(20.dp))
-
-            // Section: Preferences & Notifications
-            ProfileSectionTitle("Preferences")
-            Spacer(Modifier.height(8.dp))
-
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = SurfaceLight),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Notifications,
-                                contentDescription = "Push",
-                                tint = ClicksGreen,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                text = "Push Notifications",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = ClicksText
-                            )
-                        }
-                        Switch(
-                            checked = notificationsEnabled,
-                            onCheckedChange = { notificationsEnabled = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = ClicksGreen)
-                        )
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Email,
-                                contentDescription = "Email",
-                                tint = ClicksGreen,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                text = "Email Alerts",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = ClicksText
-                            )
-                        }
-                        Switch(
-                            checked = emailAlertsEnabled,
-                            onCheckedChange = { emailAlertsEnabled = it },
-                            colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = ClicksGreen)
-                        )
-                    }
-                }
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            // Section: Help & Support
-            ProfileSectionTitle("Support")
-            Spacer(Modifier.height(8.dp))
-            ProfileMenuItem(
-                icon = Icons.AutoMirrored.Outlined.HelpOutline,
-                title = "FAQs & Help Center",
-                subtitle = "Find answers to common questions"
-            ) { }
-
-            Spacer(Modifier.height(32.dp))
-
-            // Log Out Button
-            Button(
-                onClick = onLogoutClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(26.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Error.copy(alpha = 0.1f),
-                    contentColor = Error
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Logout,
-                    contentDescription = "Log out",
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    text = "Log Out",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
+            showingAccountInfo -> {
+                AccountInformation(
+                    customer = customer,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 )
             }
 
-            Spacer(Modifier.height(32.dp))
+            else -> {
+                ProfileOverview(
+                    customer = customer,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    onAccountClick = { showingAccountInfo = true },
+                    onAddressClick = onAddressClick,
+                    onOrdersClick = onOrdersClick,
+                    onSettingsClick = { showingSettings = true },
+                    onThemeClick = { showingThemeOptions = true },
+                    onFaqClick = { showingFaq = true },
+                    onLogoutClick = onLogoutClick
+                )
+            }
         }
     }
 
-    // Add Address Dialog
-    if (showAddAddressDialog) {
+    if (showingThemeOptions) {
         AlertDialog(
-            onDismissRequest = { showAddAddressDialog = false },
-            title = { Text("Add New Address", fontWeight = FontWeight.Bold) },
+            onDismissRequest = { showingThemeOptions = false },
+            title = { Text("Theme") },
             text = {
-                OutlinedTextField(
-                    value = newAddressInput,
-                    onValueChange = { newAddressInput = it },
-                    placeholder = { Text("e.g., Office: 123 Main St") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp)
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (newAddressInput.isNotBlank()) {
-                            addresses.add(newAddressInput.trim())
-                            newAddressInput = ""
-                            showAddAddressDialog = false
+                Column {
+                    AppThemeMode.entries.forEach { mode ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    AppThemePreferences.updateMode(mode)
+                                    showingThemeOptions = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = AppThemePreferences.mode == mode,
+                                onClick = {
+                                    AppThemePreferences.updateMode(mode)
+                                    showingThemeOptions = false
+                                }
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(mode.label)
                         }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
-                ) {
-                    Text("Add")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddAddressDialog = false }) {
-                    Text("Cancel", color = ClicksMuted)
-                }
-            }
-        )
-    }
-
-    // Account Information Dialog
-    if (showAccountInfoDialog) {
-        AlertDialog(
-            onDismissRequest = { showAccountInfoDialog = false },
-            title = { Text("Account Information", fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    AccountInfoRow(label = "Full Name", value = customer?.name ?: "Customer")
-                    AccountInfoRow(label = "Phone Number", value = customer?.phoneNumber ?: "")
-                    AccountInfoRow(label = "Status", value = customer?.userStatus ?: "ACTIVE")
+                    }
                 }
             },
             confirmButton = {
-                Button(
-                    onClick = { showAccountInfoDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
-                ) {
+                TextButton(onClick = { showingThemeOptions = false }) {
                     Text("Close")
                 }
             }
         )
     }
+
+    if (showingSettings) {
+        AlertDialog(
+            onDismissRequest = { showingSettings = false },
+            title = { Text("Settings") },
+            text = {
+                Text(
+                    "Your account details are currently read-only. You can review your saved " +
+                        "information under Account information and change the app appearance under Theme."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showingSettings = false }) {
+                    Text("Done")
+                }
+            }
+        )
+    }
+
+    if (showingFaq) {
+        AlertDialog(
+            onDismissRequest = { showingFaq = false },
+            title = { Text("Frequently asked questions") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    FaqItem("Where can I track an order?", "Open Orders to track from your profile.")
+                    FaqItem("How do I set a delivery address?", "Open Addresses and choose a delivery location on the map.")
+                    FaqItem("How do I change my theme?", "Choose Theme and select System, Light, or Dark.")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showingFaq = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+    }
 }
 
 @Composable
-private fun AccountInfoRow(label: String, value: String) {
-    Column {
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = ClicksMuted
-        )
-        Spacer(Modifier.height(2.dp))
-        Text(
-            text = value,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            color = ClicksText
+private fun ProfileOverview(
+    customer: CustomerView?,
+    modifier: Modifier = Modifier,
+    onAccountClick: () -> Unit,
+    onAddressClick: () -> Unit,
+    onOrdersClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onThemeClick: () -> Unit,
+    onFaqClick: () -> Unit,
+    onLogoutClick: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        ProfileHeader(customer, onAccountClick)
+
+        ProfileSection(title = "YOUR ACCOUNT") {
+            ProfileMenuItem(
+                icon = Icons.Outlined.AccountCircle,
+                title = "Account information",
+                subtitle = "View your name and contact details",
+                onClick = onAccountClick
+            )
+            ProfileMenuItem(
+                icon = Icons.Outlined.LocationOn,
+                title = "Addresses",
+                subtitle = "Choose a delivery location",
+                onClick = onAddressClick
+            )
+            ProfileMenuItem(
+                icon = Icons.Outlined.LocalShipping,
+                title = "Orders to track",
+                subtitle = "View your orders and their status",
+                onClick = onOrdersClick
+            )
+        }
+
+        ProfileSection(title = "PREFERENCES & SUPPORT") {
+            ProfileMenuItem(
+                icon = Icons.Outlined.Settings,
+                title = "Settings",
+                subtitle = "Account and app preferences",
+                onClick = onSettingsClick
+            )
+            ProfileMenuItem(
+                icon = Icons.Outlined.Palette,
+                title = "Theme",
+                subtitle = AppThemePreferences.mode.label,
+                onClick = onThemeClick
+            )
+            ProfileMenuItem(
+                icon = Icons.AutoMirrored.Outlined.HelpOutline,
+                title = "FAQ",
+                subtitle = "Answers to common questions",
+                onClick = onFaqClick
+            )
+        }
+
+        TextButton(
+            onClick = onLogoutClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.Logout,
+                contentDescription = null,
+                tint = Error
+            )
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = "Log out",
+                color = Error,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun ProfileHeader(customer: CustomerView?, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(SurfaceLight)
+            .border(1.dp, BorderColor, RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(58.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = customer?.name?.take(2)?.uppercase().orEmpty().ifBlank { "U" },
+                color = ClicksGreen,
+                fontWeight = FontWeight.Bold,
+                fontSize = 21.sp
+            )
+        }
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = customer?.name?.takeIf(String::isNotBlank) ?: "Your profile",
+                color = ClicksText,
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp
+            )
+            Text(
+                text = customer?.email?.takeIf(String::isNotBlank)
+                    ?: customer?.phoneNumber.orEmpty().ifBlank { "View your account details" },
+                color = ClicksMuted,
+                fontSize = 13.sp
+            )
+        }
+        Icon(
+            imageVector = Icons.Outlined.ChevronRight,
+            contentDescription = "View account information",
+            tint = MaterialTheme.colorScheme.primary
         )
     }
 }
 
 @Composable
-private fun ProfileSectionTitle(title: String) {
-    Text(
-        text = title,
-        fontSize = 15.sp,
-        fontWeight = FontWeight.Bold,
-        color = ClicksText
-    )
+private fun ProfileSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(
+            text = title,
+            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.8.sp
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(Color.White)
+                .border(1.dp, BorderColor, RoundedCornerShape(18.dp)),
+            content = content
+        )
+    }
 }
 
 @Composable
@@ -426,58 +408,127 @@ private fun ProfileMenuItem(
     subtitle: String,
     onClick: () -> Unit
 ) {
-    Card(
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceLight),
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onClick() }
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(38.dp)
-                    .clip(CircleShape)
-                    .background(ClicksMint),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = title,
-                    tint = ClicksGreen,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = ClicksText
-                )
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    fontSize = 12.sp,
-                    color = ClicksMuted
-                )
-            }
-
-            Icon(
-                imageVector = Icons.Outlined.ChevronRight,
-                contentDescription = "Navigate",
-                tint = ClicksMuted,
-                modifier = Modifier.size(20.dp)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = ClicksGreen,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp
+            )
+            Text(
+                text = subtitle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp
             )
         }
+        Icon(
+            imageVector = Icons.Outlined.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun AccountInformation(customer: CustomerView?, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Text(
+            text = "Your account details",
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(horizontal = 16.dp)
+        ) {
+            AccountDetail("Full name", customer?.name)
+            AccountDetail("Email", customer?.email, verified = customer?.emailVerified)
+            AccountDetail(
+                "Phone number",
+                formatPhoneNumber(customer?.phoneCode, customer?.phoneNumber),
+                verified = customer?.phoneNumberVerified
+            )
+            AccountDetail("Account status", customer?.userStatus)
+        }
+    }
+}
+
+private fun formatPhoneNumber(phoneCode: String?, phoneNumber: String?): String? {
+    val code = phoneCode?.trim().orEmpty()
+    val number = phoneNumber?.trim().orEmpty()
+    if (number.isBlank()) return code.ifBlank { null }
+    if (code.isBlank()) return number
+
+    val codeDigits = code.filter(Char::isDigit)
+    val numberDigits = number.filter(Char::isDigit)
+    return if (codeDigits.isNotEmpty() && numberDigits.startsWith(codeDigits)) {
+        number
+    } else {
+        "$code $number"
+    }
+}
+
+@Composable
+private fun AccountDetail(label: String, value: String?, verified: Boolean? = null) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 14.dp)
+    ) {
+        Text(
+            text = label,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 12.sp
+        )
+        Spacer(Modifier.height(4.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = value?.takeIf(String::isNotBlank) ?: "Not provided",
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            verified?.let {
+                Text(
+                    text = if (it) "Verified" else "Not verified",
+                    color = if (it) ClicksGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 11.sp
+                )
+            }
+        }
+    }
+    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+}
+
+@Composable
+private fun FaqItem(question: String, answer: String) {
+    Column {
+        Text(question, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+        Spacer(Modifier.height(3.dp))
+        Text(answer, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -19,6 +20,7 @@ import com.clicks.app.feature.onboarding.splash.SplashState
 import com.clicks.app.feature.onboarding.splash.SplashViewModel
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.lib.theme.ClicksTheme
+import com.clicks.app.lib.theme.AppThemePreferences
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +32,7 @@ class MainActivity : ComponentActivity() {
 
         val authLocalSrc = AuthenticationLocalSrc(applicationContext)
         ApiClient.initialize(applicationContext) { authLocalSrc.getToken() }
+        AppThemePreferences.initialize(applicationContext)
 
         splashScreen.setKeepOnScreenCondition {
             splashViewModel.state.value == SplashState.Loading
@@ -37,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            ClicksTheme {
+            ClicksTheme(darkTheme = AppThemePreferences.darkTheme(isSystemInDarkTheme())) {
                 Surface(Modifier.fillMaxSize()) {
                     Box(Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
                         NavGraph()

@@ -10,25 +10,27 @@ class AuthInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
 
-        if (request.url.encodedPath in NO_AUTH_PATHS) {
+        val path = request.url.encodedPath
+        if (path in NO_AUTH_PATHS || path.startsWith(COMPLETE_LOGIN_PATH_PREFIX)) {
             return chain.proceed(request)
         }
 
-        val token = tokenProvider() ?: return chain.proceed(request)
+        val token = tokenProvider()?.takeIf { it.isNotBlank() } ?: return chain.proceed(request)
 
         return chain.proceed(
             request.newBuilder()
-                .header("Authorization", "Bearer $token")
+                .header("Authorization", token)
                 .build()
         )
     }
+
     private companion object {
+        const val COMPLETE_LOGIN_PATH_PREFIX = "/customer/auth/complete-login/"
+
         val NO_AUTH_PATHS = setOf(
-            "/api/auth/login",
-            "/api/auth/register",
-            "/api/auth/forgot-password",
-            "/api/auth/verify-reset-code",
-            "/api/auth/reset-password"
+            "/customer/auth/init-login",
+            "/customer/auth/register",
+            "/customer/verification-code/request"
         )
     }
 }

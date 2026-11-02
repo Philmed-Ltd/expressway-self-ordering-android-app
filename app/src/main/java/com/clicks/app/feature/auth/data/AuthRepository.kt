@@ -1,8 +1,10 @@
 package com.clicks.app.feature.auth.data
 
 import android.util.Log
+import com.clicks.app.feature.auth.data.dto.CompleteLoginRequest
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterData
 import com.clicks.app.feature.auth.data.dto.CustomerRegisterRequest
+import com.clicks.app.feature.auth.data.dto.CustomerView
 import com.clicks.app.feature.auth.data.dto.InitLoginRequest
 import com.clicks.app.feature.auth.data.dto.InitLoginResponseData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeData
@@ -10,6 +12,7 @@ import com.clicks.app.feature.auth.data.dto.VerificationCodeRequest
 import com.clicks.app.feature.auth.data.dto.ResetPasswordRequest
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import com.clicks.app.network.ApiClient
+import com.clicks.app.network.ApiErrorType
 import com.clicks.app.network.ApiResult
 import com.clicks.app.network.safeEntityApiCall
 import kotlinx.coroutines.Dispatchers
@@ -59,18 +62,18 @@ class AuthRepository(
             authApi.registerCustomer(request)
         }
 
-        if (result is ApiResult.Success) {
-            try {
-                withContext(Dispatchers.IO) {
-                    val auth = result.data.toAuthentication()
-                    authLocalSrc.insertSync(auth)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to save session token", exception)
-            }
+        return persistAuthentication(result, "registration")
+    }
+
+    suspend fun completeLogin(
+        verificationCodeId: String,
+        otp: String
+    ): ApiResult<CustomerRegisterData> {
+        val result = safeEntityApiCall {
+            authApi.completeLogin(verificationCodeId, CompleteLoginRequest(otp))
         }
 
-        return result
+        return persistAuthentication(result, "login")
     }
 
     suspend fun resetPassword(
@@ -81,21 +84,43 @@ class AuthRepository(
             authApi.resetPassword(verificationCodeId, request)
         }
 
-        if (result is ApiResult.Success) {
-            try {
-                withContext(Dispatchers.IO) {
-                    val auth = result.data.toAuthentication()
-                    authLocalSrc.insertSync(auth)
-                }
-            } catch (exception: Exception) {
-                Log.e(TAG, "Failed to save session token after password reset", exception)
-            }
-        }
+        return persistAuthentication(result, "password reset")
+    }
 
-        return result
+    suspend fun fetchCustomer(): ApiResult<CustomerView> {
+        return safeEntityApiCall {
+            authApi.fetchCustomer()
+        }
     }
 
     fun logout() {
         authLocalSrc.delete()
+    }
+
+    private suspend fun persistAuthentication(
+        result: ApiResult<CustomerRegisterData>,
+        operation: String
+    ): ApiResult<CustomerRegisterData> {
+        if (result !is ApiResult.Success) return result
+
+        if (result.data.authToken.isNullOrBlank()) {
+            return ApiResult.Error(
+                message = "The server did not return an authentication token. Please try again.",
+                type = ApiErrorType.Server
+            )
+        }
+
+        return try {
+            withContext(Dispatchers.IO) {
+                authLocalSrc.insertSync(result.data.toAuthentication())
+            }
+            result
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed to save session token after $operation", exception)
+            ApiResult.Error(
+                message = "Could not save your session. Please try signing in again.",
+                type = ApiErrorType.Unknown
+            )
+        }
     }
 }

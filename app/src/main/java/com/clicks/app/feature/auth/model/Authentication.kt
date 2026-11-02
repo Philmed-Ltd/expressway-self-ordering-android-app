@@ -11,15 +11,17 @@ import java.util.TimeZone
 class Authentication {
     @PrimaryKey
     var id: Long = 1
-    var expiryTime: Date = Date()
+    var expiryTime: Date = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
     var authToken: String = ""
 
     fun hasExpired(): Boolean = this.expiryTime.before(Date())
 
     companion object {
         fun parseIsoDate(dateStr: String?): Date {
-            if (dateStr.isNullOrBlank()) return Date()
+            val defaultExpiry = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)
+            if (dateStr.isNullOrBlank()) return defaultExpiry
             val patterns = arrayOf(
+                "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'",
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'",
                 "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                 "yyyy-MM-dd'T'HH:mm:ss'Z'",
@@ -33,10 +35,12 @@ class Authentication {
                 try {
                     val sdf = SimpleDateFormat(pattern, Locale.US)
                     sdf.timeZone = TimeZone.getTimeZone("UTC")
-                    sdf.parse(dateStr)?.let { return it }
+                    sdf.parse(dateStr)?.let {
+                        return if (it.before(Date())) defaultExpiry else it
+                    }
                 } catch (_: Exception) {}
             }
-            return Date()
+            return defaultExpiry
         }
     }
 }

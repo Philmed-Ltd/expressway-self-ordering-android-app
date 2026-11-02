@@ -12,6 +12,10 @@ data class InitLoginResponseData(
     val expiryTime: String?
 )
 
+data class CompleteLoginRequest(
+    val otp: String
+)
+
 data class ResetPasswordRequest(
     val otp: String,
     val password: String

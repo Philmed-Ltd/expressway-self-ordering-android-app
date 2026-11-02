@@ -265,6 +265,7 @@ fun NavGraph() {
                 viewModel = profileViewModel,
                 onBackClick = { navController.popBackStack() },
                 onOrdersClick = { navController.navigate(Routes.Orders.route) },
+                onAddressClick = { navController.navigate(Routes.LocationPicker.route) },
                 onLogoutClick = {
                     profileViewModel.logout()
                     performLogout()
