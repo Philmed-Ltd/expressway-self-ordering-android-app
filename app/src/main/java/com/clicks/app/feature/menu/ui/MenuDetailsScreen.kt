@@ -26,41 +26,72 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import coil.compose.AsyncImage
 import com.clicks.app.R
+import com.clicks.app.feature.cart.MAX_CART_QUANTITY
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.ProductBgLight
 import com.clicks.app.lib.theme.StarGold
-import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.lib.components.QuantityPill
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProductDetailsScreen(
-    productId: Int = 1,
+    productId: String = "1",
     storeViewModel: StoreViewModel,
     onBackClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onAddToCartClick: () -> Unit = {},
-    onSimilarProductClick: (Int) -> Unit = {}
+    onSimilarProductClick: (String) -> Unit = {},
 ) {
-    val context = LocalContext.current
-    val product = sampleProducts.firstOrNull { it.id == productId } ?: sampleProducts.first()
+    val product = storeViewModel.products.firstOrNull { it.id == productId }
 
-    val maxQUANTITY = 10
+    if (product == null) {
+        Scaffold(containerColor = Color.White) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .statusBarsPadding()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = storeViewModel.productsError
+                        ?: stringResource(R.string.txt_no_products_found),
+                    color = ClicksMuted
+                )
+                if (storeViewModel.isProductsLoading) {
+                    Spacer(Modifier.height(16.dp))
+                    CircularProgressIndicator(color = ClicksGreen)
+                } else if (storeViewModel.productsError != null) {
+                    Spacer(Modifier.height(12.dp))
+                    TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
+                        Text(stringResource(R.string.txt_retry), color = ClicksGreen)
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                TextButton(onClick = onBackClick) {
+                    Text(stringResource(R.string.txt_back), color = ClicksGreen)
+                }
+            }
+        }
+        return
+    }
+
     var quantity by rememberSaveable(productId) { mutableIntStateOf(1) }
     val isFavorite = storeViewModel.isFavorite(productId)
     val cartCount = storeViewModel.cartItemCount
     val inCart = storeViewModel.isInCart(productId)
     val cartQty = storeViewModel.cartQuantityOf(productId)
     val shownQuantity = if (inCart) cartQty else quantity
-
+    val addedToCartMessage = stringResource(R.string.txt_added_to_cart)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -85,7 +116,7 @@ fun ProductDetailsScreen(
                                 onAddToCartClick()
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = context.getString(R.string.txt_added_to_cart),
+                                        addedToCartMessage,
                                         duration = SnackbarDuration.Short
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
@@ -219,35 +250,39 @@ fun ProductDetailsScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Star,
-                    contentDescription = stringResource(R.string.txt_rating),
-                    tint = StarGold,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = "${product.rating}/5",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = ClicksText
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.txt_reviews_count, product.reviewCount),
-                    fontSize = 14.sp,
-                    color = ClicksMuted
-                )
+            if (product.rating != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Star,
+                        contentDescription = stringResource(R.string.txt_rating),
+                        tint = StarGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "${product.rating}/5",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = ClicksText
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.txt_reviews_count, product.reviewCount),
+                        fontSize = 14.sp,
+                        color = ClicksMuted
+                    )
+                }
             }
 
             Spacer(Modifier.height(16.dp))
 
             // Description
             Text(
-                text = stringResource(R.string.txt_product_description),
+                text = product.description.ifBlank {
+                    stringResource(R.string.txt_product_description)
+                },
                 fontSize = 14.sp,
                 color = ClicksMuted,
                 lineHeight = 22.sp
@@ -274,7 +309,7 @@ fun ProductDetailsScreen(
                 QuantityPill(
                     quantity = shownQuantity,
                     canDecrease = shownQuantity > 1,
-                    canIncrease = shownQuantity < maxQUANTITY,
+                    canIncrease = shownQuantity < MAX_CART_QUANTITY,
                     onDecrease = {
                         if (inCart) {
                             if (shownQuantity > 1) {
@@ -288,11 +323,11 @@ fun ProductDetailsScreen(
                     },
                     onIncrease = {
                         if (inCart) {
-                            if (shownQuantity < maxQUANTITY) {
+                            if (shownQuantity < MAX_CART_QUANTITY) {
                                 storeViewModel.updateQuantity(productId, 1)
                             }
                         } else {
-                            if (quantity < maxQUANTITY) {
+                            if (quantity < MAX_CART_QUANTITY) {
                                 quantity++
                             }
                         }
@@ -317,7 +352,7 @@ fun ProductDetailsScreen(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                sampleProducts.filter { it.id != product.id }.take(4).forEach { similar ->
+                storeViewModel.allProducts.filter { it.id != product.id }.take(4).forEach { similar ->
                     Column(
                         modifier = Modifier
                             .width(140.dp)

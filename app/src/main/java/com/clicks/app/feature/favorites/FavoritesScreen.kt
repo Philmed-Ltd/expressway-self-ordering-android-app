@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.R
-import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.ui.components.ProductCard
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.lib.theme.BorderColor
@@ -29,10 +28,10 @@ import com.clicks.app.lib.theme.ClicksText
 fun FavoritesScreen(
     storeViewModel: StoreViewModel,
     onBackClick: () -> Unit = {},
-    onProductClick: (Int) -> Unit = {}
+    onProductClick: (String) -> Unit = {}
 ) {
     val favoriteIds = storeViewModel.favorites
-    val favoriteProducts = sampleProducts.filter { it.id in favoriteIds }
+    val favoriteProducts = storeViewModel.allProducts.filter { it.id in favoriteIds }
 
     Scaffold(
         containerColor = Color.White

@@ -36,6 +36,7 @@ import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.StarGold
 
+
 @Composable
 fun ProductCard(
     product: StoreProduct,
@@ -64,7 +65,7 @@ fun ProductCard(
                 model = product.imageUrl,
                 contentDescription = product.name,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
 
             IconButton(
@@ -156,22 +157,24 @@ fun ProductCard(
 
         Spacer(Modifier.height(9.dp))
 
-        Row(
-            modifier = Modifier.padding(start = 5.dp, bottom = 5.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Outlined.Star,
-                contentDescription = stringResource(R.string.txt_rating),
-                tint = StarGold,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(Modifier.width(5.dp))
-            Text(
-                text = "${product.rating} (${product.reviewCount})",
-                fontSize = 11.sp,
-                color = ClicksMuted
-            )
+        if (product.rating != null) {
+            Row(
+                modifier = Modifier.padding(start = 5.dp, bottom = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Outlined.Star,
+                    contentDescription = stringResource(R.string.txt_rating),
+                    tint = StarGold,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(5.dp))
+                Text(
+                    text = "${product.rating} (${product.reviewCount})",
+                    fontSize = 11.sp,
+                    color = ClicksMuted
+                )
+            }
         }
     }
 }

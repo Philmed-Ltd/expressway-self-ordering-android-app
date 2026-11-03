@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.clicks.app.lib.session.SessionManager
 import com.clicks.app.lib.session.SessionRepository
 import com.clicks.app.feature.onboarding.OnboardingContainerScreen
@@ -157,11 +159,11 @@ fun NavGraph() {
             HomeScreen(
                 storeViewModel = storeViewModel,
                 profileViewModel = profileViewModel,
-                onCategoryClick = { _ ->
-                    navController.navigate(Routes.Products.route)
+                onCategoryClick = { categoryKey ->
+                    navController.navigate(Routes.Products.createRoute(categoryKey))
                 },
                 onViewAllClick = {
-                    navController.navigate(Routes.Products.route)
+                    navController.navigate(Routes.Products.createRoute())
                 },
                 onProductClick = { productId ->
                     navController.navigate(Routes.ProductDetails.createRoute(productId))
@@ -184,8 +186,18 @@ fun NavGraph() {
             )
         }
 
-        composable(Routes.Products.route) {
+        composable(
+            route = Routes.Products.route,
+            arguments = listOf(
+                navArgument("categoryKey") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
             CategoryProductsScreen(
+                categoryKey = backStackEntry.arguments?.getString("categoryKey"),
                 storeViewModel = storeViewModel,
                 onBackClick = { navController.popBackStack() },
                 onCartClick = {
@@ -198,7 +210,7 @@ fun NavGraph() {
         }
 
         composable(Routes.ProductDetails.route) { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull() ?: 1
+            val productId = Uri.decode(backStackEntry.arguments?.getString("productId") ?: "")
             ProductDetailsScreen(
                 productId = productId,
                 storeViewModel = storeViewModel,
@@ -206,10 +218,9 @@ fun NavGraph() {
                 onCartClick = {
                     navController.navigate(Routes.Cart.route)
                 },
-                onSimilarProductClick = { simId ->
-                    navController.navigate(Routes.ProductDetails.createRoute(simId))
-                }
-            )
+            ) { simId ->
+                navController.navigate(Routes.ProductDetails.createRoute(simId))
+            }
         }
 
         composable(Routes.Cart.route) {

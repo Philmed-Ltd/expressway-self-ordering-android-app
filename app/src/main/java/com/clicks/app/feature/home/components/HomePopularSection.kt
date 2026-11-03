@@ -12,7 +12,7 @@ import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 fun HomePopularSection(
     products: List<StoreProduct>,
     storeViewModel: StoreViewModel,
-    onProductClick: (Int) -> Unit,
+    onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(

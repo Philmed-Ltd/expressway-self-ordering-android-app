@@ -14,6 +14,9 @@ android {
     }
 
     defaultConfig {
+        val apiBaseUrl = providers.gradleProperty("API_BASE_URL")
+            .orElse("http://10.100.8.6:5001/")
+            .get()
         applicationId = "com.clicks.app"
         minSdk = 26
         targetSdk = 37
@@ -21,6 +24,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildTypes {
@@ -41,6 +45,7 @@ android {
     buildFeatures {
         compose = true
         viewBinding = false
+        buildConfig = true
     }
     dependenciesInfo {
         includeInApk = true
