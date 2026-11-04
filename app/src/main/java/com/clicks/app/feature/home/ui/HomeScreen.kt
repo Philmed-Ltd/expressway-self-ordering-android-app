@@ -291,6 +291,44 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(22.dp))
             }
+
+            if (storeViewModel.isHomeOffline) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier.padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.txt_no_internet_title),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ClicksText
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.txt_no_internet_message),
+                            fontSize = 14.sp,
+                            color = ClicksMuted
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                storeViewModel.loadProducts(force = true)
+                                storeViewModel.loadCategories(force = true)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
+                        ) {
+                            Text(stringResource(R.string.txt_retry), color = Color.White)
+                        }
+                    }
+                }
+            }
         }
     }
 }

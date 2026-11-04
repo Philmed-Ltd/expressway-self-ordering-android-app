@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.clicks.app.feature.checkout.model.OrderRequest
 import com.clicks.app.feature.cart.MAX_CART_QUANTITY
 import com.clicks.app.feature.cart.data.CartLocalRepository
+import com.clicks.app.feature.favorites.data.FavoritesLocalRepository
 import com.clicks.app.feature.home.components.ShopCategory
 import com.clicks.app.feature.menu.data.ProductCategoriesRepository
 import com.clicks.app.feature.menu.data.ProductItemsRepository
@@ -50,11 +51,16 @@ data class NotificationItem(
 class StoreViewModel : ViewModel() {
     private val productItemsRepository = ProductItemsRepository()
     private val productCategoriesRepository = ProductCategoriesRepository()
+    private val favoritesLocalRepository = FavoritesLocalRepository(ApiClient.appContext)
     private val cartLocalRepository = CartLocalRepository(ApiClient.appContext)
     private val cartMutex = Mutex()
     private val cartReady = CompletableDeferred<Unit>()
     private val cartEditsBeforeRestore = mutableSetOf<String>()
     private var cartClearedBeforeRestore = false
+    private val favoritesMutex = Mutex()
+    private val favoritesReady = CompletableDeferred<Unit>()
+    private val favoriteEditsBeforeRestore = mutableSetOf<String>()
+    private var favoritesClearedBeforeRestore = false
 
     val products = mutableStateListOf<StoreProduct>()
     val categories = mutableStateListOf<ShopCategory>()
@@ -62,11 +68,15 @@ class StoreViewModel : ViewModel() {
         private set
     var categoriesError by mutableStateOf<String?>(null)
         private set
+    var isCategoriesNetworkError by mutableStateOf(false)
+        private set
     private var hasLoadedCategories = false
 
     var isProductsLoading by mutableStateOf(false)
         private set
     var productsError by mutableStateOf<String?>(null)
+        private set
+    var isProductsNetworkError by mutableStateOf(false)
         private set
     private var hasLoadedProducts = false
 
@@ -79,6 +89,11 @@ class StoreViewModel : ViewModel() {
         get() = products
 
     val favorites = mutableStateListOf<String>()
+    val favoriteProducts = mutableStateListOf<StoreProduct>()
+    var isFavoritesLoading by mutableStateOf(true)
+        private set
+    var favoritePersistenceError by mutableStateOf<String?>(null)
+        private set
     val cartItems = mutableStateListOf<CartItem>()
     val orders = mutableStateListOf(
         OrderItem("ORD-78421", "Oct 24, 2023", 34.50, "Delivered", "Truffle Burger & Fries, Caramel Iced Latte"),
@@ -86,6 +101,35 @@ class StoreViewModel : ViewModel() {
     )
 
     init {
+        viewModelScope.launch {
+            favoritesMutex.withLock {
+                var restoreSucceeded = false
+                try {
+                    val savedFavorites = favoritesLocalRepository.loadFavorites()
+                    if (!favoritesClearedBeforeRestore) {
+                        savedFavorites
+                            .filterNot { it.id in favoriteEditsBeforeRestore }
+                            .forEach { saved ->
+                                val product = products.firstOrNull { it.id == saved.id } ?: saved
+                                favorites.add(product.id)
+                                favoriteProducts.add(product)
+                            }
+                    }
+                    restoreSucceeded = true
+                } catch (exception: CancellationException) {
+                    throw exception
+                } catch (exception: Exception) {
+                    Log.e(CART_TAG, "Failed to restore favorites from Room", exception)
+                    favoritePersistenceError = "Could not restore your saved favorites."
+                } finally {
+                    isFavoritesLoading = false
+                    favoritesReady.complete(Unit)
+                }
+
+                if (restoreSucceeded) persistFavoritesLocked()
+            }
+        }
+
         viewModelScope.launch {
             cartMutex.withLock {
                 var restoreSucceeded = false
@@ -125,6 +169,9 @@ class StoreViewModel : ViewModel() {
 
     fun clearSession() {
         favorites.clear()
+        favoriteProducts.clear()
+        if (!favoritesReady.isCompleted) favoritesClearedBeforeRestore = true
+        persistFavorites()
         cartItems.clear()
         orders.clear()
         orders.addAll(
@@ -150,15 +197,20 @@ class StoreViewModel : ViewModel() {
         if (isProductsLoading || (hasLoadedProducts && !force)) return
         isProductsLoading = true
         productsError = null
+        isProductsNetworkError = false
         viewModelScope.launch {
             try {
                 when (val result = productItemsRepository.loadProducts()) {
                     is ApiResult.Success -> {
                         products.clear()
                         products.addAll(result.data)
+                        refreshFavoriteSnapshots(result.data)
                         hasLoadedProducts = true
                     }
-                    is ApiResult.Error -> productsError = result.message
+                    is ApiResult.Error -> {
+                        productsError = result.message
+                        isProductsNetworkError = result.type == com.clicks.app.network.ApiErrorType.Network
+                    }
                 }
             } finally {
                 isProductsLoading = false
@@ -170,6 +222,7 @@ class StoreViewModel : ViewModel() {
         if (isCategoriesLoading || (hasLoadedCategories && !force)) return
         isCategoriesLoading = true
         categoriesError = null
+        isCategoriesNetworkError = false
         viewModelScope.launch {
             try {
                 when (val result = productCategoriesRepository.loadCategories()) {
@@ -178,7 +231,10 @@ class StoreViewModel : ViewModel() {
                         categories.addAll(result.data)
                         hasLoadedCategories = true
                     }
-                    is ApiResult.Error -> categoriesError = result.message
+                    is ApiResult.Error -> {
+                        categoriesError = result.message
+                        isCategoriesNetworkError = result.type == com.clicks.app.network.ApiErrorType.Network
+                    }
                 }
             } finally {
                 isCategoriesLoading = false
@@ -201,10 +257,23 @@ class StoreViewModel : ViewModel() {
     fun toggleFavorite(productId: String) {
         if (favorites.contains(productId)) {
             favorites.remove(productId)
+            favoriteProducts.removeAll { it.id == productId }
         } else {
+            val product = products.firstOrNull { it.id == productId } ?: return
             favorites.add(productId)
+            favoriteProducts.add(product)
         }
+        if (!favoritesReady.isCompleted) favoriteEditsBeforeRestore.add(productId)
+        persistFavorites()
     }
+
+    val isHomeOffline: Boolean
+        get() = !isProductsLoading &&
+            !isCategoriesLoading &&
+            products.isEmpty() &&
+            categories.isEmpty() &&
+            isProductsNetworkError &&
+            isCategoriesNetworkError
 
     fun isInCart(productId: String): Boolean = cartItems.any { it.product.id == productId }
 
@@ -294,6 +363,36 @@ class StoreViewModel : ViewModel() {
         } catch (exception: Exception) {
             Log.e(CART_TAG, "Failed to persist cart to Room", exception)
             cartPersistenceError = "Could not save your cart. Please try again."
+        }
+    }
+
+    private fun refreshFavoriteSnapshots(updatedProducts: List<StoreProduct>) {
+        if (favoriteProducts.isEmpty()) return
+        val updatedById = updatedProducts.associateBy { it.id }
+        favoriteProducts.indices.forEach { index ->
+            updatedById[favoriteProducts[index].id]?.let { favoriteProducts[index] = it }
+        }
+        persistFavorites()
+    }
+
+    private fun persistFavorites() {
+        viewModelScope.launch {
+            favoritesReady.await()
+            favoritesMutex.withLock {
+                persistFavoritesLocked()
+            }
+        }
+    }
+
+    private suspend fun persistFavoritesLocked() {
+        try {
+            favoritesLocalRepository.replaceFavorites(favoriteProducts.toList())
+            favoritePersistenceError = null
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            Log.e(CART_TAG, "Failed to persist favorites to Room", exception)
+            favoritePersistenceError = "Could not save your favorites. Please try again."
         }
     }
 }
