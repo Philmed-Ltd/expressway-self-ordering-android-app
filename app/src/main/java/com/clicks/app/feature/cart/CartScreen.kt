@@ -145,6 +145,15 @@ fun CartScreen(
 
             HorizontalDivider(color = BorderColor, thickness = 1.dp)
 
+            storeViewModel.cartPersistenceError?.let { error ->
+                Text(
+                    text = error,
+                    color = Error,
+                    fontSize = 13.sp,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                )
+            }
+
             // Subtotal Banner
             if (cartItems.isNotEmpty()) {
                 Column(
@@ -193,7 +202,14 @@ fun CartScreen(
             }
 
             // Cart Items List
-            if (cartItems.isEmpty()) {
+            if (storeViewModel.isCartLoading && cartItems.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = ClicksGreen)
+                }
+            } else if (cartItems.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -292,21 +308,23 @@ private fun CartItemRow(
                 color = ClicksGreen
             )
             Spacer(Modifier.height(4.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Star,
-                    contentDescription = stringResource(R.string.txt_rating),
-                    tint = StarGold,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    text = "${product.rating} (${product.reviewCount} Reviews)",
-                    fontSize = 11.sp,
-                    color = ClicksMuted
-                )
+            if (product.rating != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Star,
+                        contentDescription = stringResource(R.string.txt_rating),
+                        tint = StarGold,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = "${product.rating} (${product.reviewCount} Reviews)",
+                        fontSize = 11.sp,
+                        color = ClicksMuted
+                    )
+                }
             }
 
             Spacer(Modifier.height(10.dp))
@@ -350,7 +368,9 @@ private fun CartItemRow(
                             .size(28.dp)
                             .clip(CircleShape)
                             .background(ClicksGreen)
-                            .clickable { onIncrement() },
+                            .clickable(enabled = cartItem.quantity < MAX_CART_QUANTITY) {
+                                onIncrement()
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(

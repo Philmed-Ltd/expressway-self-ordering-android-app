@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.clicks.app.R
 import com.clicks.app.feature.home.components.*
-import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.feature.profile.ProfileViewModel
 import com.clicks.app.lib.components.ClicksBottomBar
@@ -44,11 +43,16 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onOrdersClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onProductClick: (Int) -> Unit = {},
+    onProductClick: (String) -> Unit = {},
     onCategoryClick: (String) -> Unit = {},
     onViewAllClick: () -> Unit = {},
     onDiscoverClick: () -> Unit = {}
 ) {
+    LaunchedEffect(Unit) {
+        storeViewModel.loadProducts()
+        storeViewModel.loadCategories()
+    }
+
     var searchText by remember { mutableStateOf("") }
     var isSearchOpen by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
@@ -59,7 +63,6 @@ fun HomeScreen(
     var showNotificationsSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     val unreadNotifications = storeViewModel.unreadNotificationCount
-
     if (showNotificationsSheet) {
         ModalBottomSheet(
             onDismissRequest = { showNotificationsSheet = false },
@@ -248,8 +251,11 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
 
                 HomeCategoriesSection(
-                    onCategoryClick = onCategoryClick
-                )
+                    categories = storeViewModel.categories,
+                    onCategoryClick = onCategoryClick,
+                    isLoading = storeViewModel.isCategoriesLoading,
+                    error = storeViewModel.categoriesError
+                ) { storeViewModel.loadCategories(force = true) }
 
                 Spacer(Modifier.height(14.dp))
 
@@ -278,12 +284,50 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
 
                 HomePopularSection(
-                    products = sampleProducts.take(4),
+                    products = storeViewModel.products.take(4),
                     storeViewModel = storeViewModel,
                     onProductClick = onProductClick
                 )
 
                 Spacer(Modifier.height(22.dp))
+            }
+
+            if (storeViewModel.isHomeOffline) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White)
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier.padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = stringResource(R.string.txt_no_internet_title),
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ClicksText
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.txt_no_internet_message),
+                            fontSize = 14.sp,
+                            color = ClicksMuted
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                storeViewModel.loadProducts(force = true)
+                                storeViewModel.loadCategories(force = true)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
+                        ) {
+                            Text(stringResource(R.string.txt_retry), color = Color.White)
+                        }
+                    }
+                }
             }
         }
     }

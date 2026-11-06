@@ -13,12 +13,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.clicks.app.feature.checkout.ui.components.*
 import com.clicks.app.R
+import com.clicks.app.feature.checkout.model.OrderDeliveryAddress
+import com.clicks.app.feature.checkout.model.OrderRequest
+import com.clicks.app.feature.checkout.model.OrderRequestItem
 import com.clicks.app.feature.location.ui.DeliveryLocationViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import kotlinx.coroutines.delay
+import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
@@ -144,7 +148,28 @@ fun CheckoutScreen(
             transactionCode = transactionCode,
             onTrackOrder = {
                 showSuccessDialog = false
-                storeViewModel.placeOrder()
+                val location = deliveryLocationViewModel.location
+                if (location != null) {
+                    storeViewModel.placeOrder(
+                        OrderRequest(
+                            orderId = UUID.randomUUID().toString(),
+                            deliveryAddress = OrderDeliveryAddress(
+                                address = location.addressLine,
+                                latitude = location.latitude,
+                                longitude = location.longitude,
+                                instructions = ""
+                            ),
+                            items = storeViewModel.cartItems.map { cartItem ->
+                                OrderRequestItem(
+                                    productItemEntityId = cartItem.product.id,
+                                    quantity = cartItem.quantity,
+                                    unitPrice = cartItem.product.price
+                                )
+                            },
+                            paymentMethod = "MPESA"
+                        )
+                    )
+                }
                 onOrderPlaced()
             }
         )

@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.CircularProgressIndicator
 import com.clicks.app.R
-import com.clicks.app.feature.menu.model.sampleProducts
 import com.clicks.app.feature.menu.ui.components.ProductCard
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.lib.theme.BorderColor
@@ -29,10 +29,9 @@ import com.clicks.app.lib.theme.ClicksText
 fun FavoritesScreen(
     storeViewModel: StoreViewModel,
     onBackClick: () -> Unit = {},
-    onProductClick: (Int) -> Unit = {}
+    onProductClick: (String) -> Unit = {}
 ) {
-    val favoriteIds = storeViewModel.favorites
-    val favoriteProducts = sampleProducts.filter { it.id in favoriteIds }
+    val favoriteProducts = storeViewModel.favoriteProducts
 
     Scaffold(
         containerColor = Color.White
@@ -69,7 +68,19 @@ fun FavoritesScreen(
 
             HorizontalDivider(color = BorderColor, thickness = 1.dp)
 
-            if (favoriteProducts.isEmpty()) {
+            storeViewModel.favoritePersistenceError?.let { error ->
+                Text(
+                    text = error,
+                    color = ClicksMuted,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                )
+            }
+
+            if (storeViewModel.isFavoritesLoading && favoriteProducts.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (favoriteProducts.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

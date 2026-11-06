@@ -30,10 +30,14 @@ sealed class Routes(val route: String) {
 
     data object Home : Routes("home")
 
-    data object Products : Routes("products")
+    data object Products : Routes("products?categoryKey={categoryKey}") {
+        fun createRoute(categoryKey: String? = null): String =
+            if (categoryKey == null) "products"
+            else "products?categoryKey=${Uri.encode(categoryKey)}"
+    }
 
     data object ProductDetails : Routes("product_details/{productId}") {
-        fun createRoute(productId: Int) = "product_details/$productId"
+        fun createRoute(productId: String) = "product_details/${Uri.encode(productId)}"
     }
 
     data object Cart : Routes("cart")
