@@ -51,6 +51,7 @@
     <string name="txt_country_india">India</string>
     <string name="txt_country_picker_item">%1$s  %2$s (%3$s)</string>
     <string name="txt_error_valid_identifier">Please enter a valid %1$s</string>
+    <string name="txt_error_phone_number_length">Please enter a valid phone number</string>
     <string name="txt_phone_number">phone number</string>
     <string name="txt_email_address">email address</string>
     <string name="txt_error_password_min_length">Password must be at least 8 characters</string>

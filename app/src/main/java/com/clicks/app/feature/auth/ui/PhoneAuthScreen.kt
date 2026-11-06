@@ -62,11 +62,16 @@ fun PhoneAuthScreen(
     var loginMethod by rememberSaveable { mutableStateOf(LoginMethod.PHONE) }
 
     var phoneNumber by rememberSaveable { mutableStateOf("") }
+    var phoneInputError by remember { mutableStateOf<String?>(null) }
     var emailInput by rememberSaveable { mutableStateOf("") }
     var passwordInput by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
     var selectedCountry by remember { mutableStateOf(commonCountryCodes.first()) }
+    val phoneLengthError = stringResource(
+        R.string.txt_error_phone_number_length,
+        selectedCountry.nationalNumberLength
+    )
     var expanded by remember { mutableStateOf(false) }
 
     var isVisible by remember { mutableStateOf(false) }
@@ -262,6 +267,9 @@ fun PhoneAuthScreen(
                                         },
                                         onClick = {
                                             selectedCountry = country
+                                            phoneNumber = normalizeNationalPhoneNumber(phoneNumber)
+                                                .take(country.nationalNumberLength)
+                                            phoneInputError = null
                                             expanded = false
                                         }
                                     )
@@ -272,12 +280,9 @@ fun PhoneAuthScreen(
                         OutlinedTextField(
                             value = phoneNumber,
                             onValueChange = {
-                                val digits = it.filter(Char::isDigit)
-                                phoneNumber = if (digits.length > 1) {
-                                    normalizeNationalPhoneNumber(digits)
-                                } else {
-                                    digits
-                                }
+                                phoneNumber = normalizeNationalPhoneNumber(it)
+                                    .take(selectedCountry.nationalNumberLength)
+                                phoneInputError = null
                             },
                             placeholder = { Text(stringResource(R.string.txt_phone_placeholder)) },
                             singleLine = true,
@@ -290,6 +295,16 @@ fun PhoneAuthScreen(
                                 unfocusedTextColor = TextDark
                             ),
                             modifier = Modifier.weight(1f)
+                        )
+                    }
+                    phoneInputError?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp)
                         )
                     }
                 } else {
@@ -360,6 +375,13 @@ fun PhoneAuthScreen(
                         val usernameType = if (authMode == AuthMode.REGISTER || loginMethod == LoginMethod.PHONE) "PHONE_NUMBER" else "EMAIL"
                         val normalizedPhoneNumber = normalizeNationalPhoneNumber(phoneNumber)
                         phoneNumber = normalizedPhoneNumber
+                        if (authMode == AuthMode.REGISTER &&
+                            normalizedPhoneNumber.length != selectedCountry.nationalNumberLength
+                        ) {
+                            phoneInputError = phoneLengthError
+                            return@ClicksButton
+                        }
+
                         val identifier = if (usernameType == "PHONE_NUMBER") {
                             "${selectedCountry.code}$normalizedPhoneNumber"
                         } else {
