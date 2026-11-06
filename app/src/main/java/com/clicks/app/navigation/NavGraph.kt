@@ -34,7 +34,9 @@ import com.clicks.app.feature.location.ui.LocationPickerViewModel
 import com.clicks.app.feature.profile.ProfileScreen
 import com.clicks.app.feature.profile.ProfileViewModel
 import com.clicks.app.feature.orders.OrdersScreen
+import com.clicks.app.feature.orders.OrderDetailsScreen
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.location.ui.DeliveryLocation
 
 @Composable
 fun NavGraph() {
@@ -245,9 +247,10 @@ fun NavGraph() {
                 onBackClick = { navController.popBackStack() },
                 onPickLocation = { navController.navigate(Routes.LocationPicker.route) },
                 onOrderPlaced = {
-                    navController.navigate(Routes.Home.route) {
-                        popUpTo(Routes.Home.route) { inclusive = true }
+                    navController.navigate(Routes.Orders.route) {
+                        popUpTo(Routes.Home.route) { inclusive = false }
                     }
+                    navController.navigate(Routes.OrderDetails.createRoute(it))
                 }
             )
         }
@@ -287,7 +290,32 @@ fun NavGraph() {
         composable(Routes.Orders.route) {
             OrdersScreen(
                 storeViewModel = storeViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onOrderClick = { orderId ->
+                    navController.navigate(Routes.OrderDetails.createRoute(orderId))
+                }
+            )
+        }
+
+        composable(Routes.OrderDetails.route) { backStackEntry ->
+            val orderId = Uri.decode(backStackEntry.arguments?.getString("orderId") ?: "")
+            val order = storeViewModel.orderById(orderId)
+            OrderDetailsScreen(
+                order = order,
+                onBackClick = { navController.popBackStack() },
+                onReorder = { selectedOrder ->
+                    if (storeViewModel.reorder(selectedOrder.orderId)) {
+                        val address = selectedOrder.deliveryAddress
+                        val latitude = selectedOrder.deliveryLatitude
+                        val longitude = selectedOrder.deliveryLongitude
+                        if (address != null && latitude != null && longitude != null) {
+                            deliveryLocationViewModel.confirm(
+                                DeliveryLocation(latitude, longitude, address)
+                            )
+                        }
+                        navController.navigate(Routes.Checkout.route)
+                    }
+                }
             )
         }
     }

@@ -31,7 +31,7 @@ fun CheckoutScreen(
     onPickLocation: () -> Unit = {},
     storeViewModel: StoreViewModel,
     onBackClick: () -> Unit = {},
-    onOrderPlaced: () -> Unit = {}
+    onOrderPlaced: (String) -> Unit = {}
 ) {
     val subtotal = storeViewModel.cartSubtotal
     val shippingFee = if (subtotal > 0) 80.0 else 0.0
@@ -150,7 +150,7 @@ fun CheckoutScreen(
                 showSuccessDialog = false
                 val location = deliveryLocationViewModel.location
                 if (location != null) {
-                    storeViewModel.placeOrder(
+                    val orderId = storeViewModel.placeOrder(
                         OrderRequest(
                             orderId = UUID.randomUUID().toString(),
                             deliveryAddress = OrderDeliveryAddress(
@@ -167,10 +167,13 @@ fun CheckoutScreen(
                                 )
                             },
                             paymentMethod = "MPESA"
-                        )
+                        ),
+                        paymentReference = transactionCode
                     )
+                    if (orderId != null) {
+                        onOrderPlaced(orderId)
+                    }
                 }
-                onOrderPlaced()
             }
         )
     }

@@ -210,29 +210,9 @@ fun CartScreen(
                     CircularProgressIndicator(color = ClicksGreen)
                 }
             } else if (cartItems.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = stringResource(R.string.txt_cart_empty),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ClicksText
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Button(
-                            onClick = onStartShopping,
-                            colors = ButtonDefaults
-                                .buttonColors(containerColor = ClicksGreen)
-                        ) {
-                            Text(text = stringResource(R.string.txt_start_shopping), color = Color.White)
-                        }
-                    }
-                }
+                com.clicks.app.lib.components.EmptyCartGraphic(
+                    onStartShopping = onStartShopping
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier
