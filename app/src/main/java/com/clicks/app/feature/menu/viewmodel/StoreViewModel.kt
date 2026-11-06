@@ -37,7 +37,17 @@ data class OrderItem(
     val date: String,
     val total: Double,
     val status: String,
-    val itemsSummary: String
+    val itemsSummary: String,
+    val items: List<OrderLineItem> = emptyList(),
+    val deliveryAddress: String? = null,
+    val deliveryLatitude: Double? = null,
+    val deliveryLongitude: Double? = null,
+    val paymentReference: String? = null
+)
+
+data class OrderLineItem(
+    val product: StoreProduct,
+    val quantity: Int
 )
 
 data class NotificationItem(
@@ -320,25 +330,61 @@ class StoreViewModel : ViewModel() {
         persistCart()
     }
 
-    fun placeOrder(orderRequest: OrderRequest) {
-        if (cartItems.isEmpty()) return
+    fun orderById(orderId: String): OrderItem? =
+        orders.firstOrNull { it.orderId == orderId }
+
+    fun placeOrder(orderRequest: OrderRequest, paymentReference: String): String? {
+        if (cartItems.isEmpty()) return null
         val requestJson = GsonBuilder()
             .setPrettyPrinting()
             .create()
             .toJson(orderRequest)
         Log.i(ORDER_TAG, "Simulated order POST request:\n$requestJson")
 
+        val orderedItems = cartItems.map { OrderLineItem(it.product, it.quantity) }
         val newOrder = OrderItem(
             orderId = "ORD-${(10000..99999).random()}",
             date = "Today",
             total = cartSubtotal + 80.0,
             status = "Processing",
-            itemsSummary = cartItems.joinToString(", ") { "${it.quantity}x ${it.product.name}" }
+            itemsSummary = orderedItems.joinToString(", ") { "${it.quantity}x ${it.product.name}" },
+            items = orderedItems,
+            deliveryAddress = orderRequest.deliveryAddress.address,
+            deliveryLatitude = orderRequest.deliveryAddress.latitude,
+            deliveryLongitude = orderRequest.deliveryAddress.longitude,
+            paymentReference = paymentReference
         )
         orders.add(0, newOrder)
         cartItems.clear()
         if (!cartReady.isCompleted) cartClearedBeforeRestore = true
         persistCart()
+        return newOrder.orderId
+    }
+
+    fun reorder(orderId: String): Boolean {
+        val order = orderById(orderId) ?: return false
+        if (order.items.isEmpty()) return false
+
+        order.items.forEach { orderItem ->
+            val productId = orderItem.product.id
+            markCartEdited(productId)
+            val index = cartItems.indexOfFirst { it.product.id == productId }
+            if (index >= 0) {
+                cartItems[index] = cartItems[index].copy(
+                    quantity = (cartItems[index].quantity + orderItem.quantity)
+                        .coerceAtMost(MAX_CART_QUANTITY)
+                )
+            } else {
+                cartItems.add(
+                    CartItem(
+                        product = orderItem.product,
+                        quantity = orderItem.quantity.coerceAtMost(MAX_CART_QUANTITY)
+                    )
+                )
+            }
+        }
+        persistCart()
+        return cartItems.isNotEmpty()
     }
 
     private fun markCartEdited(productId: String) {
