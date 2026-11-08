@@ -69,7 +69,7 @@ fun OrderSummarySection(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = ClicksText,
                     unfocusedTextColor = ClicksText,
-                    focusedBorderColor = ClicksGreen,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = BorderColor
                 )
             )

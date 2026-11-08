@@ -45,7 +45,7 @@ fun OrderDetailsScreen(
         bottomBar = {
             if (order != null && order.items.isNotEmpty()) {
                 Surface(
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 12.dp
                 ) {
                     ClicksButton(
@@ -78,7 +78,7 @@ fun OrderDetailsScreen(
                     )
                     Spacer(Modifier.height(12.dp))
                     TextButton(onClick = onBackClick) {
-                        Text(stringResource(R.string.txt_back), color = ClicksGreen)
+                        Text(stringResource(R.string.txt_back), color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -106,7 +106,7 @@ fun OrderDetailsScreen(
                                 Icon(
                                     imageVector = Icons.Outlined.LocationOn,
                                     contentDescription = null,
-                                    tint = ClicksGreen
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             },
                             detail = address
@@ -119,7 +119,7 @@ fun OrderDetailsScreen(
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
                                     contentDescription = null,
-                                    tint = ClicksGreen
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             },
                             detail = reference
@@ -237,7 +237,7 @@ private fun TrackingCard(status: String) {
                             HorizontalDivider(
                                 modifier = Modifier.weight(1f),
                                 thickness = 2.dp,
-                                color = if (index <= activeStep) ClicksGreen else BorderColor
+                                color = if (index <= activeStep) MaterialTheme.colorScheme.primary else BorderColor
                             )
                         }
                         Box(
@@ -250,7 +250,7 @@ private fun TrackingCard(status: String) {
                             HorizontalDivider(
                                 modifier = Modifier.weight(1f),
                                 thickness = 2.dp,
-                                color = if (index < activeStep) ClicksGreen else BorderColor
+                                color = if (index < activeStep) MaterialTheme.colorScheme.primary else BorderColor
                             )
                         }
                     }
@@ -296,7 +296,7 @@ private fun ItemsCard(order: OrderItem) {
                 text = "$ " + "%.2f".format(order.total),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = ClicksGreen
+                color = MaterialTheme.colorScheme.primary
             )
         }
         Spacer(Modifier.height(14.dp))
@@ -327,7 +327,7 @@ private fun ItemsCard(order: OrderItem) {
                     ) {
                         Text(
                             text = item.quantity.toString().padStart(2, '0'),
-                            color = ClicksGreen,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -422,7 +422,7 @@ private fun PremiumCard(content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
@@ -432,6 +432,7 @@ private fun PremiumCard(content: @Composable ColumnScope.() -> Unit) {
     }
 }
 
+@Composable
 private fun statusColors(status: String): Pair<Color, Color> = when (status.lowercase()) {
     "delivered" -> ClicksMint to ClicksGreen
     "processing" -> WarningBg to Warning

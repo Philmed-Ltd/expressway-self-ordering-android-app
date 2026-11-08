@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.clicks.app.lib.theme.ClicksMint
-import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 
@@ -46,7 +46,7 @@ fun HomeCategoriesSection(
                 modifier = modifier.fillMaxWidth().height(100.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = ClicksGreen)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
             }
         }
         categories.isNotEmpty() -> {
@@ -103,7 +103,7 @@ fun HomeCategoriesSection(
                     modifier = Modifier.weight(1f)
                 )
                 TextButton(onClick = onRetry) {
-                    Text("Retry", color = ClicksGreen)
+                    Text("Retry", color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

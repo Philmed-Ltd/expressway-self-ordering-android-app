@@ -151,8 +151,7 @@ fun NavGraph() {
                     navController.navigate(Routes.Home.route) {
                         popUpTo(Routes.PhoneAuth.route) { inclusive = true }
                     }
-                },
-                onBackClick = { navController.popBackStack() }
+                }
             )
         }
 

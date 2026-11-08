@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -27,7 +26,6 @@ import com.clicks.app.feature.auth.viewmodel.ForgotPasswordViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.components.ToastBanner
 import com.clicks.app.lib.theme.BorderColor
-import com.clicks.app.lib.theme.BrandGreen
 import com.clicks.app.lib.theme.TextDark
 import com.clicks.app.lib.theme.TextMuted
 
@@ -49,7 +47,7 @@ fun ForgotPasswordPhoneScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         uiState.errorMessage?.let { error ->
             ToastBanner(message = error, isError = true, onDismiss = viewModel::clearMessages)
@@ -121,7 +119,7 @@ fun ForgotPasswordPhoneScreen(
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = BrandGreen,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = BorderColor,
                                     focusedTextColor = TextDark,
                                     unfocusedTextColor = TextDark
@@ -132,7 +130,7 @@ fun ForgotPasswordPhoneScreen(
                             ExposedDropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
-                                modifier = Modifier.background(Color.White)
+                                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                             ) {
                                 commonCountryCodes.forEach { country ->
                                     DropdownMenuItem(
@@ -163,7 +161,7 @@ fun ForgotPasswordPhoneScreen(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = BrandGreen,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = BorderColor,
                                 focusedTextColor = TextDark,
                                 unfocusedTextColor = TextDark

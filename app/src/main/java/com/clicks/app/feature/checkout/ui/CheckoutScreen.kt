@@ -8,7 +8,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.clicks.app.feature.checkout.ui.components.*
@@ -55,10 +54,10 @@ fun CheckoutScreen(
     }
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         bottomBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 16.dp
             ) {
                 Box(
@@ -79,7 +78,7 @@ fun CheckoutScreen(
                         height = 56.dp,
                         shape = RoundedCornerShape(28.dp),
                         containerColor = ClicksGreen,
-                        disabledContainerColor = Color(0xFFE5E7EB),
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         disabledContentColor = ClicksMuted
                     )
                 }
@@ -92,7 +91,7 @@ fun CheckoutScreen(
                 .padding(innerPadding)
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
             CheckoutTopBar(onBackClick = onBackClick)

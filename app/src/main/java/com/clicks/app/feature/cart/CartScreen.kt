@@ -51,7 +51,7 @@ fun CartScreen(
     val totalItems = storeViewModel.cartItemCount
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         bottomBar = {
             if (cartItems.isNotEmpty()) {
                 Surface(
@@ -169,7 +169,7 @@ fun CartScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = ClicksGreen)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (cartItems.isEmpty()) {
                 com.clicks.app.lib.components.EmptyCartGraphic(
@@ -210,7 +210,7 @@ private fun CartItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, SurfaceLightAlt, RoundedCornerShape(16.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -247,7 +247,7 @@ private fun CartItemRow(
                 text = "$ " + "%.2f".format(product.price),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = ClicksGreen
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(4.dp))
             if (product.rating != null) {

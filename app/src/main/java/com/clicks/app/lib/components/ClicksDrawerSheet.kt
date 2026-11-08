@@ -43,7 +43,7 @@ fun ClicksDrawerSheet(
     modifier: Modifier = Modifier
 ) {
     ModalDrawerSheet(
-        drawerContainerColor = Color.White,
+        drawerContainerColor = MaterialTheme.colorScheme.surface,
         modifier = modifier.width(300.dp)
     ) {
         Column(
@@ -72,7 +72,7 @@ fun ClicksDrawerSheet(
                                 .padding(20.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = ClicksGreen, modifier = Modifier.size(24.dp))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                         }
                     }
 
@@ -88,7 +88,7 @@ fun ClicksDrawerSheet(
                                 color = Error
                             )
                             TextButton(onClick = onRetryLoad) {
-                                Text(stringResource(R.string.txt_retry), color = ClicksGreen, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -223,7 +223,7 @@ private fun DrawerItem(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = ClicksGreen,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(Modifier.width(14.dp))

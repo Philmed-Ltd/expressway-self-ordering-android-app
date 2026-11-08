@@ -52,7 +52,7 @@ fun ProductDetailsScreen(
     val product = storeViewModel.products.firstOrNull { it.id == productId }
 
     if (product == null) {
-        Scaffold(containerColor = Color.White) { innerPadding ->
+        Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -69,16 +69,16 @@ fun ProductDetailsScreen(
                 )
                 if (storeViewModel.isProductsLoading) {
                     Spacer(Modifier.height(16.dp))
-                    CircularProgressIndicator(color = ClicksGreen)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 } else if (storeViewModel.productsError != null) {
                     Spacer(Modifier.height(12.dp))
                     TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
-                        Text(stringResource(R.string.txt_retry), color = ClicksGreen)
+                        Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 Spacer(Modifier.height(12.dp))
                 TextButton(onClick = onBackClick) {
-                    Text(stringResource(R.string.txt_back), color = ClicksGreen)
+                    Text(stringResource(R.string.txt_back), color = MaterialTheme.colorScheme.primary)
                 }
             }
         }
@@ -96,11 +96,11 @@ fun ProductDetailsScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Surface(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 16.dp
             ) {
                 Column(
@@ -130,8 +130,8 @@ fun ProductDetailsScreen(
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(28.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (!inCart) ClicksGreen else Color(0xFFF2C299),
-                            contentColor = Color.White
+                            containerColor = if (!inCart) ClicksGreen else MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = if (!inCart) Color.White else MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     ) {
                         Icon(Icons.Outlined.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -156,7 +156,7 @@ fun ProductDetailsScreen(
                 .padding(innerPadding)
                 .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
         ) {
             // Top Bar
@@ -227,7 +227,7 @@ fun ProductDetailsScreen(
                         .align(Alignment.TopEnd)
                         .padding(16.dp)
                         .size(42.dp)
-                        .background(Color.White, CircleShape)
+                        .background(MaterialTheme.colorScheme.surface, CircleShape)
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
@@ -385,7 +385,7 @@ fun ProductDetailsScreen(
                             text = "$ " + "%.2f".format(similar.price),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ClicksGreen
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

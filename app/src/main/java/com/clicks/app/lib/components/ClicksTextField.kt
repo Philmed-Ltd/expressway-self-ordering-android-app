@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +19,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.lib.theme.BorderColor
-import com.clicks.app.lib.theme.BrandGreen
 import com.clicks.app.lib.theme.ClicksTextPlaceholder
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.LabelColor
@@ -75,7 +75,7 @@ fun ClicksTextField(
                 unfocusedContainerColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent,
                 errorContainerColor = Color.Transparent,
-                focusedBorderColor = BrandGreen,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = BorderColor,
                 errorBorderColor = Error,
                 focusedTextColor = TextDark,

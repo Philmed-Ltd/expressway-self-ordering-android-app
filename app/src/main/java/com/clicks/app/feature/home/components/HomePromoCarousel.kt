@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,6 +27,7 @@ import coil.compose.AsyncImage
 import com.clicks.app.R
 import com.clicks.app.feature.menu.model.StoreProduct
 import com.clicks.app.lib.theme.ClicksGreen
+import com.clicks.app.lib.theme.ClicksGreenPrimary
 import com.clicks.app.lib.theme.ClicksText
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -134,7 +136,7 @@ fun HomePromoCarousel(
                             onClick = { onOrderNowClick(product.id) },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.White,
-                                contentColor = ClicksText
+                                contentColor = ClicksGreenPrimary
                             ),
                             shape = RoundedCornerShape(50),
                             contentPadding = PaddingValues(horizontal = 15.dp, vertical = 0.dp),

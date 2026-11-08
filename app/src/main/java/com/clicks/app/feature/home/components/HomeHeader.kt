@@ -10,18 +10,17 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.R
-import com.clicks.app.lib.theme.ClicksGreen
 
 @Composable
 fun HomeHeader(
@@ -47,7 +46,7 @@ fun HomeHeader(
                 Icon(
                     imageVector = Icons.Outlined.Menu,
                     contentDescription = stringResource(R.string.txt_menu),
-                    tint = ClicksGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -60,7 +59,7 @@ fun HomeHeader(
                 text = stringResource(R.string.txt_clicks),
                 fontSize = 35.sp,
                 fontWeight = FontWeight.W800,
-                color = ClicksGreen,
+                color = MaterialTheme.colorScheme.primary,
                 letterSpacing = 0.5.sp
             )
         }
@@ -74,7 +73,7 @@ fun HomeHeader(
                 Icon(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = stringResource(R.string.txt_search),
-                    tint = ClicksGreen
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -85,7 +84,7 @@ fun HomeHeader(
                     Icon(
                         imageVector = Icons.Outlined.Notifications,
                         contentDescription = stringResource(R.string.txt_notifications),
-                        tint = ClicksGreen
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 if (unreadNotificationCount > 0) {
@@ -95,7 +94,7 @@ fun HomeHeader(
                             .offset(x = (-4).dp, y = 4.dp)
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFEF4444))
+                            .background(MaterialTheme.colorScheme.error)
                     )
                 }
             }

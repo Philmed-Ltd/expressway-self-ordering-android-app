@@ -74,7 +74,7 @@ fun HomeScreen(
         ModalBottomSheet(
             onDismissRequest = { showNotificationsSheet = false },
             sheetState = sheetState,
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ) {
             Column(
                 modifier = Modifier
@@ -98,7 +98,7 @@ fun HomeScreen(
                         Text(
                             text = stringResource(R.string.txt_mark_all_read),
                             fontSize = 13.sp,
-                            color = ClicksGreen,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
                         )
                     }
@@ -110,7 +110,7 @@ fun HomeScreen(
                     Card(
                         shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (notification.isRead) Color(0xFFF9FAFB) else ClicksMint
+                            containerColor = if (notification.isRead) MaterialTheme.colorScheme.surfaceVariant else ClicksMint
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -126,7 +126,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
-                                    .background(if (notification.isRead) Color(0xFFE5E7EB) else ClicksGreen),
+                                    .background(if (notification.isRead) MaterialTheme.colorScheme.surfaceVariant else ClicksGreen),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -171,7 +171,7 @@ fun HomeScreen(
                                     modifier = Modifier
                                         .size(8.dp)
                                         .clip(CircleShape)
-                                        .background(Color(0xFFEF4444))
+                                        .background(MaterialTheme.colorScheme.error)
                                 )
                             }
                         }
@@ -203,7 +203,7 @@ fun HomeScreen(
         }
     ) {
         Scaffold(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
                 ClicksBottomBar(
                     selectedTab = selectedTab,
@@ -225,7 +225,7 @@ fun HomeScreen(
                     .padding(innerPadding)
                     .statusBarsPadding()
                     .verticalScroll(rememberScrollState())
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Header
                 HomeHeader(
@@ -282,7 +282,7 @@ fun HomeScreen(
                                         ) {
                                             CircularProgressIndicator(
                                                 modifier = Modifier.size(20.dp),
-                                                color = ClicksGreen,
+                                                color = MaterialTheme.colorScheme.primary,
                                                 strokeWidth = 2.dp
                                             )
                                             Spacer(Modifier.width(12.dp))
@@ -390,7 +390,7 @@ fun HomeScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {

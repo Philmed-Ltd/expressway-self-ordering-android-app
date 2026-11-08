@@ -15,6 +15,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.clicks.app.lib.theme.ClicksGreen
-import com.clicks.app.lib.theme.ClicksGreenInactive
 import com.clicks.app.R
 
 enum class BottomTab(val labelRes: Int) {
@@ -51,7 +50,7 @@ fun ClicksBottomBar(
     )
 
     Surface(
-        color = Color.White,
+        color = MaterialTheme.colorScheme.surface,
         shadowElevation = 12.dp,
         modifier = modifier
     ) {
@@ -79,14 +78,15 @@ fun ClicksBottomBar(
                             .size(42.dp)
                             .clip(CircleShape)
                             .background(
-                                if (selected) ClicksGreen else Color.Transparent
+                                if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = if (selected) activeIcon else inactiveIcon,
                             contentDescription = label,
-                            tint = if (selected) Color.White else ClicksGreenInactive,
+                            tint = if (selected) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(23.dp)
                         )
                     }
@@ -94,7 +94,8 @@ fun ClicksBottomBar(
                     Text(
                         text = label,
                         fontSize = 11.sp,
-                        color = if (selected) ClicksGreen else ClicksGreenInactive,
+                        color = if (selected) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (selected) {
                             FontWeight.SemiBold
                         } else {

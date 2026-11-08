@@ -41,25 +41,7 @@ import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
-import com.clicks.app.lib.theme.SurfaceLight
 import com.clicks.app.lib.theme.SurfaceLightAlt
-
-private val ProfileColorScheme = lightColorScheme(
-    primary = ClicksGreen,
-    onPrimary = Color.White,
-    primaryContainer = SurfaceLight,
-    onPrimaryContainer = ClicksText,
-    background = Color.White,
-    onBackground = ClicksText,
-    surface = Color.White,
-    onSurface = ClicksText,
-    surfaceVariant = SurfaceLight,
-    onSurfaceVariant = ClicksMuted,
-    outline = BorderColor,
-    outlineVariant = BorderColor,
-    error = Error,
-    onError = Color.White
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +59,6 @@ fun ProfileScreen(
     var showingSettings by remember { mutableStateOf(false) }
     var showingFaq by remember { mutableStateOf(false) }
 
-    MaterialTheme(colorScheme = ProfileColorScheme) {
     Scaffold(
         containerColor = SurfaceLightAlt,
         topBar = {
@@ -119,7 +100,7 @@ fun ProfileScreen(
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = ClicksGreen)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -257,7 +238,6 @@ fun ProfileScreen(
             }
         )
     }
-    }
 }
 
 @Composable
@@ -334,7 +314,7 @@ private fun ProfileOverview(
                 Error.copy(alpha = 0.22f)
             ),
             colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 contentColor = Error
             )
         ) {
@@ -458,7 +438,7 @@ private fun ProfileSection(title: String, content: @Composable ColumnScope.() ->
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(21.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, BorderColor.copy(alpha = 0.7f), RoundedCornerShape(21.dp)),
             content = content
         )
@@ -489,7 +469,7 @@ private fun ProfileMenuItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = ClicksGreen,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(21.dp)
             )
         }
@@ -593,7 +573,7 @@ private fun AccountDetail(label: String, value: String?, verified: Boolean? = nu
             verified?.let {
                 Text(
                     text = stringResource(if (it) R.string.txt_verified else R.string.txt_not_verified),
-                    color = if (it) ClicksGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (it) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp
                 )
             }

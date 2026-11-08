@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -45,7 +44,6 @@ import com.clicks.app.lib.theme.WarmPeachBg
 
 private enum class VerificationMode {
     REGISTER,
-    LOGIN
 }
 
 @Composable
@@ -55,8 +53,7 @@ fun PhoneVerificationScreen(
     countryCode: String,
     phoneNumber: String,
     authMode: String, // "REGISTER" or "LOGIN"
-    onRegisterSuccess: () -> Unit,
-    onBackClick: () -> Unit = {}
+    onRegisterSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState
     val isRegistration = authMode == VerificationMode.REGISTER.name
@@ -71,7 +68,7 @@ fun PhoneVerificationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         uiState.errorMessage?.let { error ->
             ToastBanner(message = error, isError = true, onDismiss = viewModel::clearMessages)

@@ -166,7 +166,7 @@ private fun OrderCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(Modifier.padding(18.dp)) {
@@ -219,7 +219,7 @@ private fun OrderCard(
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
                         contentDescription = null,
-                        tint = ClicksGreen,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -260,7 +260,7 @@ private fun OrderCard(
                     onClick = onClick,
                     shape = RoundedCornerShape(14.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, ClicksGreen.copy(alpha = 0.35f)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ClicksGreen),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                     contentPadding = PaddingValues(start = 14.dp, end = 10.dp),
                     modifier = Modifier.height(44.dp)
                 ) {
@@ -299,7 +299,7 @@ private fun EmptyOrdersState(modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.padding(top = 18.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(
             modifier = Modifier
@@ -317,7 +317,7 @@ private fun EmptyOrdersState(modifier: Modifier = Modifier) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
                     contentDescription = stringResource(R.string.txt_empty),
-                    tint = ClicksGreen,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(34.dp)
                 )
             }
@@ -338,6 +338,7 @@ private fun EmptyOrdersState(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
 private fun statusColors(status: String): Pair<Color, Color> = when (status.lowercase()) {
     "delivered" -> ClicksMint to ClicksGreen
     "processing" -> WarningBg to Warning

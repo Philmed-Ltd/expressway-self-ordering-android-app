@@ -80,7 +80,7 @@ fun PhoneAuthScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         uiState.errorMessage?.let { error ->
             ToastBanner(message = error, isError = true, onDismiss = viewModel::clearMessages)
@@ -138,7 +138,7 @@ fun PhoneAuthScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF3F4F6), RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp))
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -240,7 +240,7 @@ fun PhoneAuthScreen(
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                                 shape = RoundedCornerShape(14.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = BrandGreen,
+                                    focusedBorderColor = MaterialTheme.colorScheme.primary,
                                     unfocusedBorderColor = BorderColor,
                                     focusedTextColor = TextDark,
                                     unfocusedTextColor = TextDark
@@ -251,7 +251,7 @@ fun PhoneAuthScreen(
                             ExposedDropdownMenu(
                                 expanded = expanded,
                                 onDismissRequest = { expanded = false },
-                                modifier = Modifier.background(Color.White)
+                                modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                             ) {
                                 commonCountryCodes.forEach { country ->
                                     DropdownMenuItem(
@@ -289,7 +289,7 @@ fun PhoneAuthScreen(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             shape = RoundedCornerShape(14.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = BrandGreen,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
                                 unfocusedBorderColor = BorderColor,
                                 focusedTextColor = TextDark,
                                 unfocusedTextColor = TextDark
@@ -316,7 +316,7 @@ fun PhoneAuthScreen(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         shape = RoundedCornerShape(14.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrandGreen,
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
                             unfocusedBorderColor = BorderColor,
                             focusedTextColor = TextDark,
                             unfocusedTextColor = TextDark
