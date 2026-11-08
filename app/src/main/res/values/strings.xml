@@ -74,6 +74,8 @@
     <string name="txt_mark_all_read">Mark all as read</string>
     <string name="txt_customer">Customer</string>
     <string name="txt_search_products">Search products...</string>
+    <string name="txt_search_loading">Searching menu...</string>
+    <string name="txt_no_search_results">No matching meals found</string>
     <string name="txt_categories">Categories</string>
     <string name="txt_view_all">View all</string>
     <string name="txt_combo_deals">Combo Deals</string>

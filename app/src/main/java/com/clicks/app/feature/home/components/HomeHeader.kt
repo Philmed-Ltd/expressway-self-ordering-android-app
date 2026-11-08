@@ -1,6 +1,5 @@
 package com.clicks.app.feature.home.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -58,14 +56,6 @@ fun HomeHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.image2),
-                contentDescription = stringResource(R.string.txt_clicks),
-                modifier = Modifier
-                    .size(35.dp)
-                    .clip(CircleShape)
-            )
-            Spacer(modifier = Modifier.width(5.dp))
             Text(
                 text = stringResource(R.string.txt_clicks),
                 fontSize = 35.sp,

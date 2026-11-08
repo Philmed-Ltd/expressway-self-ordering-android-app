@@ -2,7 +2,10 @@ package com.clicks.app.feature.home.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,13 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import com.clicks.app.R
 import com.clicks.app.feature.home.components.*
+import com.clicks.app.feature.menu.model.StoreProduct
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.feature.profile.ProfileViewModel
 import com.clicks.app.lib.components.ClicksBottomBar
@@ -55,6 +61,7 @@ fun HomeScreen(
 
     var searchText by remember { mutableStateOf("") }
     var isSearchOpen by remember { mutableStateOf(false) }
+    var showSearchResults by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableStateOf(BottomTab.HOME) }
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -225,18 +232,101 @@ fun HomeScreen(
                     onMenuClick = { scope.launch { drawerState.open() } },
                     onSearchToggle = {
                         isSearchOpen = !isSearchOpen
-                        if (!isSearchOpen) searchText = ""
+                        if (!isSearchOpen) {
+                            searchText = ""
+                            showSearchResults = false
+                        }
                     },
                     onNotificationClick = { showNotificationsSheet = true },
                     unreadNotificationCount = unreadNotifications
                 )
 
                 AnimatedVisibility(visible = isSearchOpen) {
-                    SearchBar(
-                        query = searchText,
-                        onQueryChange = { searchText = it },
-                        placeholder = stringResource(R.string.txt_search_products)
-                    )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        SearchBar(
+                            query = searchText,
+                            onQueryChange = {
+                                searchText = it
+                                showSearchResults = it.isNotBlank()
+                            },
+                            placeholder = stringResource(R.string.txt_search_products)
+                        )
+
+                        val matchingProducts = remember(searchText, storeViewModel.products.size) {
+                            if (searchText.isBlank()) {
+                                emptyList()
+                            } else {
+                                storeViewModel.products.filter { product ->
+                                    product.matchesSearch(searchText)
+                                }
+                            }
+                        }
+
+                        if (showSearchResults && searchText.isNotBlank()) {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                color = Color.White,
+                                shadowElevation = 8.dp,
+                                tonalElevation = 2.dp
+                            ) {
+                                when {
+                                    storeViewModel.isProductsLoading && matchingProducts.isEmpty() -> {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(20.dp),
+                                                color = ClicksGreen,
+                                                strokeWidth = 2.dp
+                                            )
+                                            Spacer(Modifier.width(12.dp))
+                                            Text(
+                                                text = stringResource(R.string.txt_search_loading),
+                                                color = ClicksMuted,
+                                                fontSize = 14.sp
+                                            )
+                                        }
+                                    }
+
+                                    matchingProducts.isEmpty() -> {
+                                        Text(
+                                            text = stringResource(R.string.txt_no_search_results),
+                                            color = ClicksMuted,
+                                            fontSize = 14.sp,
+                                            modifier = Modifier.padding(16.dp)
+                                        )
+                                    }
+
+                                    else -> {
+                                        LazyColumn(
+                                            modifier = Modifier.heightIn(max = 360.dp)
+                                        ) {
+                                            items(
+                                                items = matchingProducts.take(7),
+                                                key = { it.id }
+                                            ) { product ->
+                                                ProductSearchResult(
+                                                    product = product,
+                                                    onClick = {
+                                                        showSearchResults = false
+                                                        searchText = ""
+                                                        isSearchOpen = false
+                                                        onProductClick(product.id)
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(14.dp))
@@ -327,8 +417,59 @@ fun HomeScreen(
                             Text(stringResource(R.string.txt_retry), color = Color.White)
                         }
                     }
+
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ProductSearchResult(
+    product: StoreProduct,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = product.imageUrl,
+            contentDescription = product.name,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(ClicksMint)
+        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = product.name,
+                color = ClicksText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1
+            )
+            if (product.category.isNotBlank()) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = product.category,
+                    color = ClicksMuted,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+private fun StoreProduct.matchesSearch(query: String): Boolean {
+    val normalizedQuery = query.trim()
+    return name.contains(normalizedQuery, ignoreCase = true) ||
+        category.contains(normalizedQuery, ignoreCase = true) ||
+        description.contains(normalizedQuery, ignoreCase = true)
 }
