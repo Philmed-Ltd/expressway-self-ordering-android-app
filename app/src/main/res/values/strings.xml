@@ -73,12 +73,14 @@
     <string name="txt_notifications">Notifications</string>
     <string name="txt_mark_all_read">Mark all as read</string>
     <string name="txt_customer">Customer</string>
-    <string name="txt_search_products">Search products...</string>
-    <string name="txt_search_loading">Searching menu...</string>
+    <string name="txt_search_products">Search products…</string>
+    <string name="txt_search_loading">Searching menu…</string>
     <string name="txt_no_search_results">No matching meals found</string>
     <string name="txt_categories">Categories</string>
     <string name="txt_view_all">View all</string>
     <string name="txt_combo_deals">Combo Deals</string>
+    <string name="txt_featured_meals">Featured meals</string>
+    <string name="txt_order_now">Order now</string>
     <string name="txt_popular">Popular</string>
     <string name="txt_discover">Discover</string>
     <string name="txt_category_burgers">Burgers</string>
@@ -171,10 +173,8 @@
     <string name="txt_total_items">Total (%1$d items)</string>
     <string name="txt_proceed_to_buy">Proceed to Buy</string>
     <string name="txt_shopping_cart">Shopping Cart</string>
-    <string name="txt_items_in_cart">%1$d items in your cart</string>
+    <string name="txt_items_in_cart">(%1$d items)</string>
     <string name="txt_subtotal">Subtotal</string>
-    <string name="txt_eligible">Eligible</string>
-    <string name="txt_free_delivery_eligible">Your order is eligible for free Delivery</string>
     <string name="txt_cart_empty">Your cart is empty</string>
     <string name="txt_start_shopping">Start Shopping</string>
     <string name="txt_rating">Rating</string>
@@ -187,7 +187,7 @@
     <string name="txt_favorite_add">Add to favorites</string>
     <string name="txt_product_review_count">%1$s (%2$d Reviews)</string>
     <string name="txt_product_count">%1$d products</string>
-    <string name="txt_search_in_category">Search in %1$s...</string>
+    <string name="txt_search_in_category">Search in %1$s…</string>
     <string name="txt_sort">Sort</string>
     <string name="txt_sort_products">Sort products</string>
     <string name="txt_sort_recommended">Recommended</string>
@@ -285,7 +285,7 @@
     <string name="txt_empty_cart_items">0 items</string>
     <string name="txt_empty_cart_title_hungry">Your Cart is Hungry!</string>
     <string name="txt_empty_cart_subtitle_gourmet">Looks like you haven\'t added any dishes to your cart yet. Explore our delicious menu!</string>
-    <string name="txt_explore_gourmet_menu">Explore Gourmet Menu</string>
+    <string name="txt_explore_gourmet_menu">Explore Our Menu</string>
     <string name="txt_empty_favorites_title">No Favorites Saved Yet!</string>
     <string name="txt_empty_favorites_subtitle">Tap the heart icon on any dish you love to save it here.</string>
     <string name="txt_browse_popular_dishes">Browse Popular Dishes</string>

@@ -170,6 +170,10 @@ fun NavGraph() {
                 onProductClick = { productId ->
                     navController.navigate(Routes.ProductDetails.createRoute(productId))
                 },
+                onOrderNowClick = { productId ->
+                    storeViewModel.addToCart(productId)
+                    navController.navigate(Routes.Cart.route)
+                },
                 onFavoritesClick = {
                     navController.navigate(Routes.Favorites.route)
                 },

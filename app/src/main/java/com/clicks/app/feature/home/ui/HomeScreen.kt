@@ -52,7 +52,7 @@ fun HomeScreen(
     onProductClick: (String) -> Unit = {},
     onCategoryClick: (String) -> Unit = {},
     onViewAllClick: () -> Unit = {},
-    onDiscoverClick: () -> Unit = {}
+    onOrderNowClick: (String) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
         storeViewModel.loadProducts()
@@ -349,18 +349,22 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                SectionHeading(
-                    title = stringResource(R.string.txt_combo_deals),
-                    action = stringResource(R.string.txt_view_all),
-                    onActionClick = onViewAllClick,
-                    modifier = Modifier.padding(horizontal = 22.dp)
-                )
+                val featuredProducts = storeViewModel.products.take(5)
+                if (featuredProducts.isNotEmpty()) {
+                    SectionHeading(
+                        title = stringResource(R.string.txt_featured_meals),
+                        action = stringResource(R.string.txt_view_all),
+                        onActionClick = onViewAllClick,
+                        modifier = Modifier.padding(horizontal = 22.dp)
+                    )
 
-                Spacer(Modifier.height(14.dp))
+                    Spacer(Modifier.height(14.dp))
 
-                HomePromoCarousel(
-                    onDiscoverClick = onDiscoverClick
-                )
+                    HomePromoCarousel(
+                        products = featuredProducts,
+                        onOrderNowClick = onOrderNowClick
+                    )
+                }
 
                 Spacer(Modifier.height(28.dp))
 

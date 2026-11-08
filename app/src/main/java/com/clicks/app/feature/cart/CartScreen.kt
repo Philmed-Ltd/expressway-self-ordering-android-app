@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Star
@@ -64,26 +63,6 @@ fun CartScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.txt_total_items, totalItems),
-                                fontSize = 14.sp,
-                                color = ClicksMuted
-                            )
-                            Text(
-                                text = "$ " + "%.2f".format(subtotal),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = ClicksText
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
                         Button(
                             onClick = onProceedToBuy,
                             modifier = Modifier
@@ -135,11 +114,6 @@ fun CartScreen(
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
                     )
-                    Text(
-                        text = stringResource(R.string.txt_items_in_cart, totalItems),
-                        fontSize = 12.sp,
-                        color = ClicksMuted
-                    )
                 }
             }
 
@@ -164,7 +138,6 @@ fun CartScreen(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -172,29 +145,18 @@ fun CartScreen(
                             fontSize = 15.sp,
                             color = ClicksMuted
                         )
+                        Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "$ " + "%.2f".format(subtotal),
+                            text = stringResource(R.string.txt_items_in_cart, totalItems),
+                            fontSize = 15.sp,
+                            color = ClicksMuted
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            text = "Ksh " + "%.2f".format(subtotal),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = ClicksText
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = stringResource(R.string.txt_eligible),
-                            tint = ClicksGreen,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.txt_free_delivery_eligible),
-                            fontSize = 13.sp,
-                            color = ClicksGreen,
-                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
