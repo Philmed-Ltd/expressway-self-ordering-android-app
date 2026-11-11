@@ -36,6 +36,7 @@ import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.StarGold
+    import com.clicks.app.lib.theme.WarmPeachBg
 
 
 @Composable
@@ -76,7 +77,7 @@ fun ProductCard(
                     .padding(12.dp)
                     .size(28.dp)
                     .background(
-                        Color.White.copy(alpha = 0.84f),
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.84f),
                         shape = SquircleShape(radius = 10.dp)
                     )
             ) {
@@ -131,7 +132,7 @@ fun ProductCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "$ " + "%.2f".format(product.price),
+                text = "KSh " + "%.2f".format(product.price),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -149,7 +150,7 @@ fun ProductCard(
                     modifier = Modifier
                         .size(21.dp)
                         .background(
-                            if (isInCart) MaterialTheme.colorScheme.primaryContainer else ClicksGreen,
+                            if (isInCart) WarmPeachBg else ClicksGreen,
                             CircleShape
                         )
                 )

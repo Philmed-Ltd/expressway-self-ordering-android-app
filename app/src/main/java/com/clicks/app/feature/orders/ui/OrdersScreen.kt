@@ -1,5 +1,6 @@
-package com.clicks.app.feature.orders
+package com.clicks.app.feature.orders.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,18 +14,20 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.R
-import com.clicks.app.feature.menu.viewmodel.OrderItem
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.orders.model.OrderItem
+import com.clicks.app.feature.orders.viewmodel.OrdersViewModel
 import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
@@ -35,14 +38,19 @@ import com.clicks.app.lib.theme.InfoText
 import com.clicks.app.lib.theme.SurfaceLightAlt
 import com.clicks.app.lib.theme.Warning
 import com.clicks.app.lib.theme.WarningBg
+import coil.compose.AsyncImage
 
 @Composable
 fun OrdersScreen(
-    storeViewModel: StoreViewModel,
+    ordersViewModel: OrdersViewModel,
     onBackClick: () -> Unit = {},
     onOrderClick: (String) -> Unit = {}
 ) {
-    val orders = storeViewModel.orders
+    LaunchedEffect(ordersViewModel) {
+        ordersViewModel.loadOrders()
+    }
+
+    val orders = ordersViewModel.orders
 
     Scaffold(containerColor = SurfaceLightAlt) { innerPadding ->
         LazyColumn(
@@ -60,7 +68,40 @@ fun OrdersScreen(
                 )
             }
 
-            if (orders.isEmpty()) {
+            if (ordersViewModel.isOrdersLoading && orders.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
+            ordersViewModel.ordersError?.let { error ->
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 22.dp, vertical = 18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        TextButton(onClick = ordersViewModel::loadOrders) {
+                            Text(stringResource(R.string.txt_retry))
+                        }
+                    }
+                }
+            }
+
+            if (orders.isEmpty() && !ordersViewModel.isOrdersLoading && ordersViewModel.ordersError == null) {
                 item {
                     EmptyOrdersState(
                         modifier = Modifier
@@ -68,7 +109,7 @@ fun OrdersScreen(
                             .padding(horizontal = 20.dp)
                     )
                 }
-            } else {
+            } else if (orders.isNotEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.txt_recent_orders),
@@ -201,38 +242,60 @@ private fun OrderCard(
             }
 
             Spacer(Modifier.height(16.dp))
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
                     .background(SurfaceLightAlt)
-                    .padding(13.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(ClicksMint),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                if (order.items.isEmpty()) {
+                    Text(
+                        text = order.itemsSummary,
+                        color = ClicksText,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
+                } else {
+                    order.items.take(2).forEach { item ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AsyncImage(
+                                model = item.product.imageUrl,
+                                contentDescription = item.product.name,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(ClicksMint)
+                            )
+                            Spacer(Modifier.width(11.dp))
+                            Text(
+                                text = item.product.name,
+                                color = ClicksText,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                text = "×${item.quantity}",
+                                color = ClicksMuted,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    if (order.items.size > 2) {
+                        Text(
+                            text = stringResource(R.string.txt_more_order_items, order.items.size - 2),
+                            color = ClicksMuted,
+                            fontSize = 12.sp
+                        )
+                    }
                 }
-                Spacer(Modifier.width(11.dp))
-                Text(
-                    text = order.itemsSummary,
-                    color = ClicksText,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
             }
 
             Spacer(Modifier.height(16.dp))
@@ -250,7 +313,7 @@ private fun OrderCard(
                     )
                     Spacer(Modifier.height(3.dp))
                     Text(
-                        text = "$ " + "%.2f".format(order.total),
+                        text = "KSh " + "%.2f".format(order.total),
                         color = ClicksText,
                         fontSize = 19.sp,
                         fontWeight = FontWeight.Bold
@@ -259,7 +322,7 @@ private fun OrderCard(
                 OutlinedButton(
                     onClick = onClick,
                     shape = RoundedCornerShape(14.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, ClicksGreen.copy(alpha = 0.35f)),
+                    border = BorderStroke(1.dp, ClicksGreen.copy(alpha = 0.35f)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                     contentPadding = PaddingValues(start = 14.dp, end = 10.dp),
                     modifier = Modifier.height(44.dp)

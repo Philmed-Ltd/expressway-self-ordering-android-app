@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.clicks.app.feature.location.ui.DeliveryLocation
+import com.clicks.app.feature.location.viewmodel.DeliveryLocation
 import com.clicks.app.R
 import com.clicks.app.feature.location.ui.MAP_STYLE_URL
 import com.clicks.app.feature.location.ui.rememberMapViewWithLifecycle

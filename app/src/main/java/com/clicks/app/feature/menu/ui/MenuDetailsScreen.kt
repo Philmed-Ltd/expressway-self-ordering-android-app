@@ -29,27 +29,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
 import coil.compose.AsyncImage
 import com.clicks.app.R
-import com.clicks.app.feature.cart.MAX_CART_QUANTITY
+import com.clicks.app.feature.cart.data.MAX_CART_QUANTITY
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.ProductBgLight
 import com.clicks.app.lib.theme.StarGold
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.menu.viewmodel.MenuViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
 import com.clicks.app.lib.components.QuantityPill
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProductDetailsScreen(
     productId: String = "1",
-    storeViewModel: StoreViewModel,
+    menuViewModel: MenuViewModel,
+    cartViewModel: CartViewModel,
+    favoritesViewModel: FavoritesViewModel,
     onBackClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onAddToCartClick: () -> Unit = {},
     onSimilarProductClick: (String) -> Unit = {},
 ) {
-    val product = storeViewModel.products.firstOrNull { it.id == productId }
+    val product = menuViewModel.products.firstOrNull { it.id == productId }
 
     if (product == null) {
         Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
@@ -63,16 +67,16 @@ fun ProductDetailsScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = storeViewModel.productsError
+                    text = menuViewModel.productsError
                         ?: stringResource(R.string.txt_no_products_found),
                     color = ClicksMuted
                 )
-                if (storeViewModel.isProductsLoading) {
+                if (menuViewModel.isProductsLoading) {
                     Spacer(Modifier.height(16.dp))
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                } else if (storeViewModel.productsError != null) {
+                } else if (menuViewModel.productsError != null) {
                     Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
+                    TextButton(onClick = { menuViewModel.loadProducts(force = true) }) {
                         Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                     }
                 }
@@ -86,10 +90,10 @@ fun ProductDetailsScreen(
     }
 
     var quantity by rememberSaveable(productId) { mutableIntStateOf(1) }
-    val isFavorite = storeViewModel.isFavorite(productId)
-    val cartCount = storeViewModel.cartItemCount
-    val inCart = storeViewModel.isInCart(productId)
-    val cartQty = storeViewModel.cartQuantityOf(productId)
+    val isFavorite = favoritesViewModel.isFavorite(productId)
+    val cartCount = cartViewModel.cartItemCount
+    val inCart = cartViewModel.isInCart(productId)
+    val cartQty = cartViewModel.cartQuantityOf(productId)
     val shownQuantity = if (inCart) cartQty else quantity
     val addedToCartMessage = stringResource(R.string.txt_added_to_cart)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -112,7 +116,7 @@ fun ProductDetailsScreen(
                     Button(
                         onClick = {
                             if (!inCart) {
-                                storeViewModel.addToCart(productId, quantity)
+                                cartViewModel.addToCart(product, quantity)
                                 onAddToCartClick()
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
@@ -222,7 +226,9 @@ fun ProductDetailsScreen(
                 )
 
                 IconButton(
-                    onClick = { storeViewModel.toggleFavorite(productId) },
+                    onClick = {
+                        favoritesViewModel.toggleFavorite(productId, menuViewModel.products)
+                    },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(16.dp)
@@ -299,7 +305,7 @@ fun ProductDetailsScreen(
                     Text(text = stringResource(R.string.txt_price), fontSize = 12.sp, color = ClicksMuted)
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = "$ " + "%.2f".format(product.price),
+                        text = "Ksh " + "%.2f".format(product.price),
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
@@ -313,7 +319,7 @@ fun ProductDetailsScreen(
                     onDecrease = {
                         if (inCart) {
                             if (shownQuantity > 1) {
-                                storeViewModel.updateQuantity(productId, -1)
+                                cartViewModel.updateQuantity(productId, -1)
                             }
                         } else {
                             if (quantity > 1) {
@@ -324,7 +330,7 @@ fun ProductDetailsScreen(
                     onIncrease = {
                         if (inCart) {
                             if (shownQuantity < MAX_CART_QUANTITY) {
-                                storeViewModel.updateQuantity(productId, 1)
+                                cartViewModel.updateQuantity(productId, 1)
                             }
                         } else {
                             if (quantity < MAX_CART_QUANTITY) {
@@ -352,7 +358,7 @@ fun ProductDetailsScreen(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                storeViewModel.allProducts.filter { it.id != product.id }.take(4).forEach { similar ->
+                menuViewModel.allProducts.filter { it.id != product.id }.take(4).forEach { similar ->
                     Column(
                         modifier = Modifier
                             .width(140.dp)
@@ -382,7 +388,7 @@ fun ProductDetailsScreen(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = "$ " + "%.2f".format(similar.price),
+                            text = "Ksh " + "%.2f".format(similar.price),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary

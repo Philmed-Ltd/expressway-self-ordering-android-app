@@ -6,12 +6,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.clicks.app.feature.menu.model.StoreProduct
 import com.clicks.app.feature.menu.ui.components.ProductCard
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
 
 @Composable
 fun HomePopularSection(
     products: List<StoreProduct>,
-    storeViewModel: StoreViewModel,
+    cartViewModel: CartViewModel,
+    favoritesViewModel: FavoritesViewModel,
     onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -27,10 +29,12 @@ fun HomePopularSection(
                 rowProducts.forEach { product ->
                     ProductCard(
                         product = product,
-                        isFavorite = storeViewModel.isFavorite(product.id),
-                        isInCart = storeViewModel.isInCart(product.id),
-                        onCartClick = { storeViewModel.toggleCart(product.id) },
-                        onFavoriteClick = { storeViewModel.toggleFavorite(product.id) },
+                        isFavorite = favoritesViewModel.isFavorite(product.id),
+                        isInCart = cartViewModel.isInCart(product.id),
+                        onCartClick = { cartViewModel.toggleCart(product) },
+                        onFavoriteClick = {
+                            favoritesViewModel.toggleFavorite(product.id, products)
+                        },
                         onClick = { onProductClick(product.id) },
                         modifier = Modifier.weight(1f)
                     )

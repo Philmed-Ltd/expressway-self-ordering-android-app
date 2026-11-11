@@ -1,4 +1,4 @@
-package com.clicks.app.feature.profile
+package com.clicks.app.feature.profile.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

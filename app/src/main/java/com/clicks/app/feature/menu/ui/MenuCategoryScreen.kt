@@ -30,8 +30,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.clicks.app.R
 import com.clicks.app.feature.menu.ui.components.ProductCard
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.menu.viewmodel.MenuViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
 import com.clicks.app.lib.components.SearchBar
+import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
@@ -40,14 +43,19 @@ import com.clicks.app.lib.theme.ProductCategoryBg
 @Composable
 fun CategoryProductsScreen(
     categoryKey: String? = null,
-    storeViewModel: StoreViewModel,
+    menuViewModel: MenuViewModel,
+    cartViewModel: CartViewModel,
+    favoritesViewModel: FavoritesViewModel,
     onBackClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
     onProductClick: (String) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-        storeViewModel.loadProducts()
-        storeViewModel.loadCategories()
+        menuViewModel.loadProducts()
+        menuViewModel.loadCategories()
+    }
+    LaunchedEffect(menuViewModel.products.toList(), favoritesViewModel.isFavoritesLoading) {
+        favoritesViewModel.refreshFavoriteSnapshots(menuViewModel.products)
     }
 
     var selectedCategory by remember(categoryKey) { mutableStateOf(categoryKey) }
@@ -55,16 +63,16 @@ fun CategoryProductsScreen(
     var isSearchOpen by remember { mutableStateOf(false) }
     var sortOption by remember { mutableStateOf("Recommended") }
     var sortMenuExpanded by remember { mutableStateOf(false) }
-    val cartCount = storeViewModel.cartItemCount
+    val cartCount = cartViewModel.cartItemCount
 
-    val categories = storeViewModel.categories
+    val categories = menuViewModel.categories
     val categoryTitle = selectedCategory?.let { key ->
         categories.firstOrNull {
             it.categoryId == key || it.name.equals(key, ignoreCase = true)
         }?.name ?: key
     } ?: stringResource(R.string.txt_all_meals_dishes)
 
-    val filteredProducts = storeViewModel.allProducts.filter { product ->
+    val filteredProducts = menuViewModel.allProducts.filter { product ->
         val selected = categories.firstOrNull {
             it.categoryId == selectedCategory || it.name.equals(selectedCategory, ignoreCase = true)
         }
@@ -183,8 +191,8 @@ fun CategoryProductsScreen(
                             .clip(CircleShape)
                             .clickable { selectedCategory = key },
                         shape = CircleShape,
-                        color = if (selected) MaterialTheme.colorScheme.onPrimary else Color.White,
-                        border = if (selected) null else BorderStroke(1.dp, ProductCategoryBg)
+                        color = if (selected) ClicksGreen else ProductCategoryBg,
+                        border = if (selected) null else BorderStroke(2.dp, ProductCategoryBg)
                     ) {
                         Text(
                             text = label,
@@ -254,13 +262,13 @@ fun CategoryProductsScreen(
             Spacer(Modifier.height(12.dp))
 
             when {
-                storeViewModel.isProductsLoading && storeViewModel.allProducts.isEmpty() -> {
+                menuViewModel.isProductsLoading && menuViewModel.allProducts.isEmpty() -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                storeViewModel.productsError != null && storeViewModel.products.isEmpty() &&
-                    storeViewModel.allProducts.isEmpty() -> {
+                menuViewModel.productsError != null && menuViewModel.products.isEmpty() &&
+                    menuViewModel.allProducts.isEmpty() -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -269,16 +277,16 @@ fun CategoryProductsScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = storeViewModel.productsError.orEmpty(),
+                            text = menuViewModel.productsError.orEmpty(),
                             color = ClicksMuted
                         )
                         Spacer(Modifier.height(12.dp))
-                        TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
+                        TextButton(onClick = { menuViewModel.loadProducts(force = true) }) {
                             Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
-                displayedProducts.isEmpty() && storeViewModel.productsError != null -> {
+                displayedProducts.isEmpty() && menuViewModel.productsError != null -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -286,9 +294,9 @@ fun CategoryProductsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(storeViewModel.productsError.orEmpty(), color = ClicksMuted)
+                        Text(menuViewModel.productsError.orEmpty(), color = ClicksMuted)
                         Spacer(Modifier.height(12.dp))
-                        TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
+                        TextButton(onClick = { menuViewModel.loadProducts(force = true) }) {
                             Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                         }
                     }
@@ -320,10 +328,12 @@ fun CategoryProductsScreen(
                         items(displayedProducts, key = { it.id }) { product ->
                             ProductCard(
                                 product = product,
-                                isFavorite = storeViewModel.isFavorite(product.id),
-                                isInCart = storeViewModel.isInCart(product.id),
-                                onCartClick = { storeViewModel.toggleCart(product.id) },
-                                onFavoriteClick = { storeViewModel.toggleFavorite(product.id) },
+                                isFavorite = favoritesViewModel.isFavorite(product.id),
+                                isInCart = cartViewModel.isInCart(product.id),
+                                onCartClick = { cartViewModel.toggleCart(product) },
+                                onFavoriteClick = {
+                                    favoritesViewModel.toggleFavorite(product.id, menuViewModel.products)
+                                },
                                 onClick = { onProductClick(product.id) }
                             )
                         }

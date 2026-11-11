@@ -1,5 +1,6 @@
-package com.clicks.app.feature.profile
+package com.clicks.app.feature.profile.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.feature.auth.data.dto.CustomerView
 import com.clicks.app.R
+import com.clicks.app.feature.profile.viewmodel.ProfileViewModel
 import com.clicks.app.lib.theme.AppThemeMode
 import com.clicks.app.lib.theme.AppThemePreferences
 import com.clicks.app.lib.theme.BorderColor
@@ -309,7 +311,7 @@ private fun ProfileOverview(
                 .fillMaxWidth()
                 .height(54.dp),
             shape = RoundedCornerShape(17.dp),
-            border = androidx.compose.foundation.BorderStroke(
+            border = BorderStroke(
                 1.dp,
                 Error.copy(alpha = 0.22f)
             ),

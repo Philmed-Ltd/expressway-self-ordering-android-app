@@ -8,9 +8,9 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.clicks.app.feature.cart.data.CartItemDao
-import com.clicks.app.feature.cart.data.CartItemEntity
+import com.clicks.app.feature.cart.model.CartItemEntity
 import com.clicks.app.feature.favorites.data.FavoriteProductDao
-import com.clicks.app.feature.favorites.data.FavoriteProductEntity
+import com.clicks.app.feature.favorites.model.FavoriteProductEntity
 import com.clicks.app.feature.auth.model.Authentication
 import com.clicks.app.feature.auth.model.VerificationCode
 import com.clicks.app.feature.auth.repository.AuthenticationDao

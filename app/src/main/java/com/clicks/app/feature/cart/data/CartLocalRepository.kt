@@ -1,7 +1,8 @@
 package com.clicks.app.feature.cart.data
 
 import android.content.Context
-import com.clicks.app.feature.menu.viewmodel.CartItem
+import com.clicks.app.feature.cart.model.CartItemEntity
+import com.clicks.app.feature.cart.model.CartItem
 import com.clicks.app.lib.db.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -1,4 +1,4 @@
-package com.clicks.app.feature.onboarding
+package com.clicks.app.feature.onboarding.ui
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState

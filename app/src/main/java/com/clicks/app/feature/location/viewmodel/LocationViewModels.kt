@@ -1,4 +1,4 @@
-package com.clicks.app.feature.location.ui
+package com.clicks.app.feature.location.viewmodel
 
 import android.app.Application
 import android.app.PendingIntent
@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 // ---------------------------------------------------------------------------
 // Shared between Checkout and the picker. Create ONE instance at NavGraph level
-// (next to StoreViewModel) so both screens see the same value.
+// Shared by the location picker and checkout screens.
 // ---------------------------------------------------------------------------
 
 data class DeliveryLocation(

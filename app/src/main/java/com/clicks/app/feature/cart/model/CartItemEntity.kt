@@ -1,9 +1,8 @@
-package com.clicks.app.feature.cart.data
+package com.clicks.app.feature.cart.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.clicks.app.feature.menu.model.StoreProduct
-import com.clicks.app.feature.menu.viewmodel.CartItem
 
 @Entity(tableName = "cart_items")
 data class CartItemEntity(
