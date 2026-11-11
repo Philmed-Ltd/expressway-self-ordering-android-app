@@ -32,7 +32,6 @@ import com.clicks.app.R
 import com.clicks.app.feature.menu.ui.components.ProductCard
 import com.clicks.app.feature.menu.viewmodel.StoreViewModel
 import com.clicks.app.lib.components.SearchBar
-import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
@@ -85,13 +84,13 @@ fun CategoryProductsScreen(
         else -> filteredProducts
     }
 
-    Scaffold(containerColor = Color.White) { innerPadding ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .statusBarsPadding()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             Row(
                 modifier = Modifier
@@ -184,7 +183,7 @@ fun CategoryProductsScreen(
                             .clip(CircleShape)
                             .clickable { selectedCategory = key },
                         shape = CircleShape,
-                        color = if (selected) ClicksGreen else Color.White,
+                        color = if (selected) MaterialTheme.colorScheme.onPrimary else Color.White,
                         border = if (selected) null else BorderStroke(1.dp, ProductCategoryBg)
                     ) {
                         Text(
@@ -219,14 +218,14 @@ fun CategoryProductsScreen(
                         Text(
                             text = stringResource(R.string.txt_sort),
                             fontSize = 14.sp,
-                            color = ClicksGreen,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(Modifier.width(6.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.Sort,
                             contentDescription = stringResource(R.string.txt_sort_products),
-                            tint = ClicksGreen,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(19.dp)
                         )
                     }
@@ -257,7 +256,7 @@ fun CategoryProductsScreen(
             when {
                 storeViewModel.isProductsLoading && storeViewModel.allProducts.isEmpty() -> {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = ClicksGreen)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 storeViewModel.productsError != null && storeViewModel.products.isEmpty() &&
@@ -275,7 +274,7 @@ fun CategoryProductsScreen(
                         )
                         Spacer(Modifier.height(12.dp))
                         TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
-                            Text(stringResource(R.string.txt_retry), color = ClicksGreen)
+                            Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -290,7 +289,7 @@ fun CategoryProductsScreen(
                         Text(storeViewModel.productsError.orEmpty(), color = ClicksMuted)
                         Spacer(Modifier.height(12.dp))
                         TextButton(onClick = { storeViewModel.loadProducts(force = true) }) {
-                            Text(stringResource(R.string.txt_retry), color = ClicksGreen)
+                            Text(stringResource(R.string.txt_retry), color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }

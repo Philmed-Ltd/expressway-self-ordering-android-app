@@ -5,10 +5,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -16,12 +19,16 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.clicks.app.R
@@ -37,7 +44,6 @@ import com.clicks.app.lib.theme.WarmPeachBg
 
 private enum class VerificationMode {
     REGISTER,
-    LOGIN
 }
 
 @Composable
@@ -47,8 +53,7 @@ fun PhoneVerificationScreen(
     countryCode: String,
     phoneNumber: String,
     authMode: String, // "REGISTER" or "LOGIN"
-    onRegisterSuccess: () -> Unit,
-    onBackClick: () -> Unit = {}
+    onRegisterSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState
     val isRegistration = authMode == VerificationMode.REGISTER.name
@@ -63,7 +68,7 @@ fun PhoneVerificationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         uiState.errorMessage?.let { error ->
             ToastBanner(message = error, isError = true, onDismiss = viewModel::clearMessages)
@@ -149,22 +154,20 @@ fun PhoneVerificationScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // 5-Digit Code Field
-                OutlinedTextField(
+                OtpCodeInput(
                     value = code,
-                    onValueChange = { code = it.filter(Char::isDigit).take(5) },
-                    label = { Text(stringResource(R.string.txt_verification_code)) },
-                    placeholder = { Text(stringResource(R.string.txt_otp_placeholder)) },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BrandGreen,
-                        unfocusedBorderColor = BorderColor,
-                        focusedTextColor = TextDark,
-                        unfocusedTextColor = TextDark
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    onValueChange = { input ->
+                        val enteredCode = input.filter(Char::isDigit).take(5)
+                        code = enteredCode
+                        if (!isRegistration && enteredCode.length == 5) {
+                            viewModel.completeLogin(
+                                verificationCodeId = verificationCodeId,
+                                code = enteredCode,
+                                onSuccess = onRegisterSuccess
+                            )
+                        }
+                    },
+                    label = stringResource(R.string.txt_verification_code)
                 )
 
                 if (isRegistration) {
@@ -207,14 +210,11 @@ fun PhoneVerificationScreen(
 
                 Spacer(modifier = Modifier.height(36.dp))
 
-                ClicksButton(
-                    text = stringResource(
-                        if (isRegistration) R.string.txt_register_action
-                        else R.string.txt_verify_sign_in
-                    ),
-                    isLoading = uiState.isLoading,
-                    onClick = {
-                        if (isRegistration) {
+                if (isRegistration) {
+                    ClicksButton(
+                        text = stringResource(R.string.txt_register_action),
+                        isLoading = uiState.isLoading,
+                        onClick = {
                             viewModel.verifyAndRegister(
                                 verificationCodeId = verificationCodeId,
                                 countryCode = countryCode,
@@ -226,16 +226,78 @@ fun PhoneVerificationScreen(
                                 password = password,
                                 onSuccess = onRegisterSuccess
                             )
-                        } else {
-                            viewModel.completeLogin(
-                                verificationCodeId = verificationCodeId,
-                                code = code,
-                                onSuccess = onRegisterSuccess
-                            )
+                        }
+                    )
+                } else if (uiState.isLoading) {
+                    CircularProgressIndicator(color = BrandGreen)
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun OtpCodeInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String
+) {
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = label,
+            color = TextMuted,
+            fontSize = 12.sp
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged { isFocused = it.isFocused },
+            decorationBox = { innerTextField ->
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { focusRequester.requestFocus() },
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        repeat(5) { index ->
+                            val isCurrentBox = isFocused && index == value.length.coerceAtMost(4)
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(56.dp)
+                                    .border(
+                                        width = if (isCurrentBox) 2.dp else 1.dp,
+                                        color = if (isCurrentBox) BrandGreen else BorderColor,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = value.getOrNull(index)?.toString().orEmpty(),
+                                    color = TextDark,
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
-                )
+                    Box(modifier = Modifier.size(1.dp).alpha(0f)) {
+                        innerTextField()
+                    }
+                }
             }
-        }
+        )
     }
 }

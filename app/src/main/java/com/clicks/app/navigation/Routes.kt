@@ -50,5 +50,9 @@ sealed class Routes(val route: String) {
 
     data object Orders : Routes("orders")
 
+    data object OrderDetails : Routes("order_details/{orderId}") {
+        fun createRoute(orderId: String) = "order_details/${Uri.encode(orderId)}"
+    }
+
     data object LocationPicker : Routes("location_picker")
 }

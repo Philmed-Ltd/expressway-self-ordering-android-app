@@ -129,7 +129,7 @@ fun LocationPickerScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
         // ---------------- Map area (pin is exactly at the map centre) ----------------
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
@@ -175,7 +175,7 @@ fun LocationPickerScreen(
             Icon(
                 imageVector = Icons.Filled.LocationOn,
                 contentDescription = stringResource(R.string.txt_delivery_pin),
-                tint = ClicksGreen,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .offset(y = (-24).dp - pinLift)
@@ -188,7 +188,7 @@ fun LocationPickerScreen(
                     .align(Alignment.TopStart)
                     .padding(12.dp)
                     .size(44.dp)
-                    .background(Color.White, CircleShape)
+                    .background(MaterialTheme.colorScheme.surface, CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
@@ -200,7 +200,7 @@ fun LocationPickerScreen(
 
         // ---------------- Bottom card ----------------
         Surface(
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 16.dp,
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         ) {
@@ -220,7 +220,7 @@ fun LocationPickerScreen(
                 if (uiState.isLocating || uiState.isResolvingAddress) {
                     LinearProgressIndicator(
                         modifier = Modifier.fillMaxWidth(),
-                        color = ClicksGreen,
+                        color = MaterialTheme.colorScheme.primary,
                         trackColor = ClicksMint
                     )
                 }
@@ -284,11 +284,11 @@ fun LocationPickerScreen(
                         Icon(
                             imageVector = Icons.Outlined.MyLocation,
                             contentDescription = null,
-                            tint = ClicksGreen,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.txt_my_location), color = ClicksGreen, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.txt_my_location), color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
                     }
 
                     Button(
@@ -329,7 +329,7 @@ private fun InfoBanner(
             modifier = Modifier.weight(1f)
         )
         TextButton(onClick = onAction) {
-            Text(actionLabel, color = ClicksGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text(actionLabel, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
         }
     }
 }

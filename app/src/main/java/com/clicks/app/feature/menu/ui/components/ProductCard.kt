@@ -13,6 +13,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -51,7 +52,7 @@ fun ProductCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(17.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
     ) {
         Box(
@@ -104,7 +105,7 @@ fun ProductCard(
                         .clip(CircleShape)
                         .background(ClicksMint)
                         .padding(horizontal = 10.dp, vertical = 5.dp),
-                    color = ClicksGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -133,7 +134,7 @@ fun ProductCard(
                 text = "$ " + "%.2f".format(product.price),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
-                color = ClicksGreen,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(horizontal = 5.dp)
             )
             IconButton(
@@ -148,7 +149,7 @@ fun ProductCard(
                     modifier = Modifier
                         .size(21.dp)
                         .background(
-                            if (isInCart) Color(0xFFF2C299) else ClicksGreen,
+                            if (isInCart) MaterialTheme.colorScheme.primaryContainer else ClicksGreen,
                             CircleShape
                         )
                 )

@@ -50,13 +50,13 @@ fun MpesaPaymentSection(
             if (isPaymentConfirmed) {
                 Surface(
                     shape = CircleShape,
-                    color = ClicksGreen.copy(alpha = 0.12f)
+                    color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Text(
                         text = stringResource(R.string.txt_paid),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = ClicksGreen,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                     )
                 }
@@ -70,7 +70,7 @@ fun MpesaPaymentSection(
             colors = CardDefaults.cardColors(
                 containerColor = if (isPaymentConfirmed) ClicksGreen.copy(alpha = 0.08f) else SurfaceLight
             ),
-            border = if (isPaymentConfirmed) BorderStroke(1.5.dp, ClicksGreen) else BorderStroke(1.dp, BorderColor),
+            border = if (isPaymentConfirmed) BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else BorderStroke(1.dp, BorderColor),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -88,13 +88,13 @@ fun MpesaPaymentSection(
                             modifier = Modifier
                                 .size(42.dp)
                                 .clip(CircleShape)
-                                .background(ClicksGreen.copy(alpha = 0.15f)),
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.PhoneAndroid,
                                 contentDescription = stringResource(R.string.txt_mpesa),
-                                tint = ClicksGreen,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -118,7 +118,7 @@ fun MpesaPaymentSection(
                         Text(
                             text = stringResource(R.string.txt_edit),
                             fontSize = 13.sp,
-                            color = ClicksGreen,
+                            color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -126,7 +126,7 @@ fun MpesaPaymentSection(
 
                 if (isPaymentConfirmed) {
                     Spacer(Modifier.height(12.dp))
-                    HorizontalDivider(color = ClicksGreen.copy(alpha = 0.2f), thickness = 1.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), thickness = 1.dp)
                     Spacer(Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -137,13 +137,13 @@ fun MpesaPaymentSection(
                             text = stringResource(R.string.txt_transaction_reference, transactionCode),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
-                            color = ClicksGreen
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = stringResource(R.string.txt_confirmed),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ClicksGreen
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 } else {

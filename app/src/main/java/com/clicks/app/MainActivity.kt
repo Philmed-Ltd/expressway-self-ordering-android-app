@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import com.clicks.app.network.ApiClient
 import com.clicks.app.navigation.NavGraph
 import com.clicks.app.feature.onboarding.splash.SplashState
@@ -40,7 +42,14 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            ClicksTheme(darkTheme = AppThemePreferences.darkTheme(isSystemInDarkTheme())) {
+            val darkTheme = AppThemePreferences.darkTheme(isSystemInDarkTheme())
+            SideEffect {
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = !darkTheme
+                    isAppearanceLightNavigationBars = !darkTheme
+                }
+            }
+            ClicksTheme(darkTheme = darkTheme) {
                 Surface(Modifier.fillMaxSize()) {
                     Box(Modifier.windowInsetsPadding(WindowInsets.systemBars)) {
                         NavGraph()

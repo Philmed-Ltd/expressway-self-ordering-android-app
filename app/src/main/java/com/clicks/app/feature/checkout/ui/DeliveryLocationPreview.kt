@@ -27,7 +27,6 @@ import com.clicks.app.feature.location.ui.DeliveryLocation
 import com.clicks.app.R
 import com.clicks.app.feature.location.ui.MAP_STYLE_URL
 import com.clicks.app.feature.location.ui.rememberMapViewWithLifecycle
-import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
@@ -72,7 +71,7 @@ fun DeliveryLocationPreview(
                         Icon(
                             imageVector = Icons.Outlined.LocationOn,
                             contentDescription = null,
-                            tint = ClicksGreen,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(36.dp)
                         )
                         Spacer(Modifier.height(6.dp))
@@ -125,7 +124,7 @@ fun DeliveryLocationPreview(
                     text = stringResource(if (location == null) R.string.txt_set else R.string.txt_change),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ClicksGreen
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -151,7 +150,7 @@ private fun StaticMapPreview(location: DeliveryLocation) {
             }
         )
 
-        // Re-centre whenever the confirmed location changes.
+        // Re-center whenever the confirmed location changes.
         LaunchedEffect(map, location.latitude, location.longitude) {
             map?.moveCamera(
                 CameraUpdateFactory.newLatLngZoom(
@@ -164,10 +163,10 @@ private fun StaticMapPreview(location: DeliveryLocation) {
         Icon(
             imageVector = Icons.Filled.LocationOn,
             contentDescription = stringResource(R.string.txt_delivery_location),
-            tint = ClicksGreen,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .align(Alignment.Center)
-                .offset(y = (-18).dp) // pin tip on the map centre
+                .offset(y = (-18).dp) // pin tip on the map center
                 .size(36.dp)
         )
     }

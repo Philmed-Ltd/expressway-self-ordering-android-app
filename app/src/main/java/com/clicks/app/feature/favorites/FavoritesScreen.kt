@@ -7,12 +7,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,14 +32,14 @@ fun FavoritesScreen(
     val favoriteProducts = storeViewModel.favoriteProducts
 
     Scaffold(
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .statusBarsPadding()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             // Top Bar
             Row(
@@ -81,34 +79,9 @@ fun FavoritesScreen(
                     CircularProgressIndicator()
                 }
             } else if (favoriteProducts.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Outlined.FavoriteBorder,
-                            contentDescription = stringResource(R.string.txt_empty),
-                            tint = ClicksMuted,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.txt_no_favorite_items),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ClicksText
-                        )
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(R.string.txt_favorites_empty_hint),
-                            fontSize = 14.sp,
-                            color = ClicksMuted
-                        )
-                    }
-                }
+                com.clicks.app.lib.components.EmptyFavoritesGraphic(
+                    onExploreClick = onBackClick
+                )
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),

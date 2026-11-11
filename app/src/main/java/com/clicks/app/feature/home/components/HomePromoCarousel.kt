@@ -8,67 +8,46 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.clicks.app.R
-import com.clicks.app.lib.theme.ClicksCream
+import com.clicks.app.feature.menu.model.StoreProduct
+import com.clicks.app.lib.theme.ClicksGreen
+import com.clicks.app.lib.theme.ClicksGreenPrimary
 import com.clicks.app.lib.theme.ClicksText
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
-data class PromoBanner(
-    val tagRes: Int,
-    val titleRes: Int,
-    val image: String
-)
-
-val defaultPromoBanners = listOf(
-    PromoBanner(
-        tagRes = R.string.txt_promo_chefs_specials,
-        titleRes = R.string.txt_promo_fresh_meals,
-        image = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200"
-    ),
-    PromoBanner(
-        tagRes = R.string.txt_promo_combo_deals,
-        titleRes = R.string.txt_promo_family_packs,
-        image = "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200"
-    ),
-    PromoBanner(
-        tagRes = R.string.txt_promo_bakery,
-        titleRes = R.string.txt_promo_pastries,
-        image = "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1200"
-    ),
-    PromoBanner(
-        tagRes = R.string.txt_promo_happy_hour,
-        titleRes = R.string.txt_promo_drinks,
-        image = "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=1200"
-    )
-)
-
 @Composable
 fun HomePromoCarousel(
-    banners: List<PromoBanner> = defaultPromoBanners,
-    onDiscoverClick: () -> Unit,
+    products: List<StoreProduct>,
+    onOrderNowClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(pageCount = { banners.size })
+    if (products.isEmpty()) return
 
-    LaunchedEffect(pagerState) {
-        while (true) {
-            delay(4000L.milliseconds)
-            val nextPage = (pagerState.currentPage + 1) % banners.size
-            pagerState.animateScrollToPage(nextPage)
+    val pagerState = rememberPagerState(pageCount = { products.size })
+
+    LaunchedEffect(pagerState, products.size) {
+        if (products.size > 1) {
+            while (true) {
+                delay(4500L.milliseconds)
+                pagerState.animateScrollToPage((pagerState.currentPage + 1) % products.size)
+            }
         }
     }
 
@@ -80,85 +59,119 @@ fun HomePromoCarousel(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(178.dp)
                 .clip(RoundedCornerShape(22.dp))
+                .background(ClicksGreen)
         ) {
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { page ->
-                val banner = banners[page]
-                Box(modifier = Modifier.fillMaxSize()) {
+                val product = products[page]
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(ClicksGreen)
+                ) {
                     AsyncImage(
-                        model = banner.image,
-                        contentDescription = stringResource(banner.tagRes),
+                        model = product.imageUrl,
+                        contentDescription = product.name,
                         contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     )
 
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color(0x55333D32))
+                            .background(
+                                Brush.horizontalGradient(
+                                    colorStops = arrayOf(
+                                        0f to ClicksGreen,
+                                        0.25f to ClicksGreen.copy(alpha = 0.96f),
+                                        0.48f to ClicksGreen.copy(alpha = 0.66f),
+                                        0.72f to ClicksGreen.copy(alpha = 0.16f),
+                                        1f to Color.Transparent
+                                    )
+                                )
+                            )
                     )
 
                     Column(
                         modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(22.dp)
+                            .align(Alignment.CenterStart)
+                            .fillMaxWidth(0.62f)
+                            .padding(start = 16.dp, top = 14.dp, bottom = 14.dp)
                     ) {
                         Text(
-                            text = stringResource(banner.tagRes),
-                            fontSize = 10.sp,
-                            letterSpacing = 3.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
+                            text = product.category.uppercase(),
+                            color = Color.White.copy(alpha = 0.76f),
+                            fontSize = 9.sp,
+                            letterSpacing = 1.2.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(5.dp))
                         Text(
-                            text = stringResource(banner.titleRes),
-                            fontSize = 25.sp,
-                            lineHeight = 31.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White
+                            text = product.name,
+                            color = Color.White,
+                            fontSize = 19.sp,
+                            lineHeight = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.height(18.dp))
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = product.description.ifBlank { "$ " + "%.2f".format(product.price) },
+                            color = Color.White.copy(alpha = 0.82f),
+                            fontSize = 10.sp,
+                            lineHeight = 13.sp,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(Modifier.height(9.dp))
                         Button(
-                            onClick = onDiscoverClick,
+                            onClick = { onOrderNowClick(product.id) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = ClicksCream,
-                                contentColor = ClicksText
+                                containerColor = Color.White,
+                                contentColor = ClicksGreenPrimary
                             ),
-                            shape = RoundedCornerShape(4.dp),
-                            contentPadding = PaddingValues(
-                                horizontal = 24.dp,
-                                vertical = 12.dp
-                            )
+                            shape = RoundedCornerShape(50),
+                            contentPadding = PaddingValues(horizontal = 15.dp, vertical = 0.dp),
+                            modifier = Modifier.height(34.dp)
                         ) {
                             Text(
-                                stringResource(R.string.txt_discover),
-                                fontWeight = FontWeight.SemiBold
+                                text = stringResource(R.string.txt_order_now),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                letterSpacing = 0.sp
                             )
                         }
                     }
-                }
-            }
 
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                repeat(banners.size) { iteration ->
-                    val indicatorColor = if (pagerState.currentPage == iteration) Color.White else Color.White.copy(alpha = 0.5f)
-                    Box(
-                        modifier = Modifier
-                            .size(if (pagerState.currentPage == iteration) 8.dp else 6.dp)
-                            .clip(CircleShape)
-                            .background(indicatorColor)
-                    )
+                    if (products.size > 1) {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 14.dp, bottom = 12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            repeat(products.size) { index ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(if (pagerState.currentPage == index) 7.dp else 5.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (pagerState.currentPage == index) Color.White
+                                            else Color.White.copy(alpha = 0.55f)
+                                        )
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

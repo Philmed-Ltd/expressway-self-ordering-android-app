@@ -5,13 +5,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
@@ -63,6 +64,7 @@ fun ClicksTextField(
                 }
             },
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
             visualTransformation = visualTransformation,
             trailingIcon = trailingIcon,
             singleLine = singleLine,
@@ -73,9 +75,9 @@ fun ClicksTextField(
                 unfocusedContainerColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent,
                 errorContainerColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                errorBorderColor = Color.Transparent,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = BorderColor,
+                errorBorderColor = Error,
                 focusedTextColor = TextDark,
                 unfocusedTextColor = TextDark
             ),
@@ -84,11 +86,6 @@ fun ClicksTextField(
                 fontWeight = FontWeight.Medium,
                 color = TextDark
             )
-        )
-
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = if (isError) Error else BorderColor
         )
 
         if (!errorMessage.isNullOrBlank()) {

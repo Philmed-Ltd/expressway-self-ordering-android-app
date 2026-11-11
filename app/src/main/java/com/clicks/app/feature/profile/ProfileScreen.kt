@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,28 +35,13 @@ import com.clicks.app.R
 import com.clicks.app.lib.theme.AppThemeMode
 import com.clicks.app.lib.theme.AppThemePreferences
 import com.clicks.app.lib.theme.BorderColor
+import com.clicks.app.lib.theme.BrandGreen
 import com.clicks.app.lib.theme.ClicksGreen
+import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 import com.clicks.app.lib.theme.Error
-import com.clicks.app.lib.theme.SurfaceLight
-
-private val ProfileColorScheme = lightColorScheme(
-    primary = ClicksGreen,
-    onPrimary = Color.White,
-    primaryContainer = SurfaceLight,
-    onPrimaryContainer = ClicksText,
-    background = Color.White,
-    onBackground = ClicksText,
-    surface = Color.White,
-    onSurface = ClicksText,
-    surfaceVariant = SurfaceLight,
-    onSurfaceVariant = ClicksMuted,
-    outline = BorderColor,
-    outlineVariant = BorderColor,
-    error = Error,
-    onError = Color.White
-)
+import com.clicks.app.lib.theme.SurfaceLightAlt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,9 +59,8 @@ fun ProfileScreen(
     var showingSettings by remember { mutableStateOf(false) }
     var showingFaq by remember { mutableStateOf(false) }
 
-    MaterialTheme(colorScheme = ProfileColorScheme) {
     Scaffold(
-        containerColor = Color.White,
+        containerColor = SurfaceLightAlt,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -115,7 +100,7 @@ fun ProfileScreen(
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = ClicksGreen)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
@@ -129,7 +114,7 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = stringResource(R.string.txt_profile_load_error, uiState.errorMessage.orEmpty()),
+                        text = stringResource(R.string.txt_profile_load_error, uiState.errorMessage),
                         color = MaterialTheme.colorScheme.error,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold
@@ -253,7 +238,6 @@ fun ProfileScreen(
             }
         )
     }
-    }
 }
 
 @Composable
@@ -270,9 +254,10 @@ private fun ProfileOverview(
 ) {
     Column(
         modifier = modifier
+            .background(SurfaceLightAlt)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(18.dp)
+            .padding(horizontal = 18.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ProfileHeader(customer, onAccountClick)
 
@@ -318,24 +303,27 @@ private fun ProfileOverview(
             )
         }
 
-        TextButton(
+        OutlinedButton(
             onClick = onLogoutClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.Logout,
-                contentDescription = null,
-                tint = Error
+                .height(54.dp),
+            shape = RoundedCornerShape(17.dp),
+            border = androidx.compose.foundation.BorderStroke(
+                1.dp,
+                Error.copy(alpha = 0.22f)
+            ),
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = Error
             )
-            Spacer(Modifier.width(10.dp))
+        ) {
+            Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null)
+            Spacer(Modifier.width(9.dp))
             Text(
-                text = stringResource(R.string.txt_log_out),
-                color = Error,
+                stringResource(R.string.txt_log_out),
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
+                fontSize = 14.sp
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -344,75 +332,114 @@ private fun ProfileOverview(
 
 @Composable
 private fun ProfileHeader(customer: CustomerView?, onClick: () -> Unit) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(SurfaceLight)
-            .border(1.dp, BorderColor, RoundedCornerShape(20.dp))
+            .clip(RoundedCornerShape(26.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(ClicksGreen, BrandGreen)
+                )
+            )
             .clickable(onClick = onClick)
-            .padding(18.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(20.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .size(58.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = customer?.name?.take(2)?.uppercase().orEmpty().ifBlank {
-                    stringResource(R.string.txt_user_initial)
-                },
-                color = ClicksGreen,
-                fontWeight = FontWeight.Bold,
-                fontSize = 21.sp
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(62.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.18f))
+                    .border(1.dp, Color.White.copy(alpha = 0.45f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = customer?.name?.take(2)?.uppercase().orEmpty().ifBlank {
+                        stringResource(R.string.txt_user_initial)
+                    },
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 21.sp
+                )
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = customer?.name?.takeIf(String::isNotBlank)
+                        ?: stringResource(R.string.txt_your_profile),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 19.sp
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = customer?.email?.takeIf(String::isNotBlank)
+                        ?: customer?.phoneNumber.orEmpty().ifBlank {
+                            stringResource(R.string.txt_view_account_details)
+                        },
+                    color = Color.White.copy(alpha = 0.8f),
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
+            }
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = Color.White
             )
         }
-        Spacer(Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
+        Spacer(Modifier.height(20.dp))
+        HorizontalDivider(color = Color.White.copy(alpha = 0.24f))
+        Spacer(Modifier.height(13.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.16f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.AccountCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(17.dp)
+                )
+            }
+            Spacer(Modifier.width(9.dp))
             Text(
-                text = customer?.name?.takeIf(String::isNotBlank)
-                    ?: stringResource(R.string.txt_your_profile),
-                color = ClicksText,
-                fontWeight = FontWeight.Bold,
-                fontSize = 17.sp
-            )
-            Text(
-                text = customer?.email?.takeIf(String::isNotBlank)
-                    ?: customer?.phoneNumber.orEmpty().ifBlank {
-                        stringResource(R.string.txt_view_account_details)
-                    },
-                color = ClicksMuted,
+                text = stringResource(R.string.txt_view_account_information),
+                color = Color.White.copy(alpha = 0.9f),
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 13.sp
             )
+            Spacer(Modifier.weight(1f))
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = Color.White
+            )
         }
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = stringResource(R.string.txt_view_account_information),
-            tint = MaterialTheme.colorScheme.primary
-        )
     }
 }
 
 @Composable
 private fun ProfileSection(title: String, content: @Composable ColumnScope.() -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text(
             text = title,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 12.sp,
+            modifier = Modifier.padding(start = 3.dp),
+            color = ClicksText,
+            fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            letterSpacing = 0.8.sp
+            letterSpacing = 0.1.sp
         )
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(18.dp))
-                .background(Color.White)
-                .border(1.dp, BorderColor, RoundedCornerShape(18.dp)),
+                .clip(RoundedCornerShape(21.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(1.dp, BorderColor.copy(alpha = 0.7f), RoundedCornerShape(21.dp)),
             content = content
         )
     }
@@ -429,33 +456,42 @@ private fun ProfileMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(horizontal = 15.dp, vertical = 13.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = ClicksGreen,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(Modifier.width(14.dp))
+        Box(
+            modifier = Modifier
+                .size(42.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(ClicksMint),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(21.dp)
+            )
+        }
+        Spacer(Modifier.width(13.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = title,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp
+                fontSize = 14.sp
             )
             Text(
                 text = subtitle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 12.sp
+                fontSize = 11.sp
             )
         }
         Icon(
             imageVector = Icons.Outlined.ChevronRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = ClicksMuted,
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -537,7 +573,7 @@ private fun AccountDetail(label: String, value: String?, verified: Boolean? = nu
             verified?.let {
                 Text(
                     text = stringResource(if (it) R.string.txt_verified else R.string.txt_not_verified),
-                    color = if (it) ClicksGreen else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (it) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp
                 )
             }

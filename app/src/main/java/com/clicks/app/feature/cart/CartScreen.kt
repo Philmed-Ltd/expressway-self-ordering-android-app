@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.Star
@@ -52,7 +51,7 @@ fun CartScreen(
     val totalItems = storeViewModel.cartItemCount
 
     Scaffold(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         bottomBar = {
             if (cartItems.isNotEmpty()) {
                 Surface(
@@ -64,26 +63,6 @@ fun CartScreen(
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.txt_total_items, totalItems),
-                                fontSize = 14.sp,
-                                color = ClicksMuted
-                            )
-                            Text(
-                                text = "$ " + "%.2f".format(subtotal),
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = ClicksText
-                            )
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-
                         Button(
                             onClick = onProceedToBuy,
                             modifier = Modifier
@@ -135,11 +114,6 @@ fun CartScreen(
                         fontWeight = FontWeight.Bold,
                         color = ClicksText
                     )
-                    Text(
-                        text = stringResource(R.string.txt_items_in_cart, totalItems),
-                        fontSize = 12.sp,
-                        color = ClicksMuted
-                    )
                 }
             }
 
@@ -164,7 +138,6 @@ fun CartScreen(
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
@@ -172,29 +145,18 @@ fun CartScreen(
                             fontSize = 15.sp,
                             color = ClicksMuted
                         )
+                        Spacer(Modifier.width(4.dp))
                         Text(
-                            text = "$ " + "%.2f".format(subtotal),
+                            text = stringResource(R.string.txt_items_in_cart, totalItems),
+                            fontSize = 15.sp,
+                            color = ClicksMuted
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Text(
+                            text = "Ksh " + "%.2f".format(subtotal),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = ClicksText
-                        )
-                    }
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.CheckCircle,
-                            contentDescription = stringResource(R.string.txt_eligible),
-                            tint = ClicksGreen,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.txt_free_delivery_eligible),
-                            fontSize = 13.sp,
-                            color = ClicksGreen,
-                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
@@ -207,32 +169,12 @@ fun CartScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = ClicksGreen)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (cartItems.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = stringResource(R.string.txt_cart_empty),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ClicksText
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Button(
-                            onClick = onStartShopping,
-                            colors = ButtonDefaults
-                                .buttonColors(containerColor = ClicksGreen)
-                        ) {
-                            Text(text = stringResource(R.string.txt_start_shopping), color = Color.White)
-                        }
-                    }
-                }
+                com.clicks.app.lib.components.EmptyCartGraphic(
+                    onStartShopping = onStartShopping
+                )
             } else {
                 LazyColumn(
                     modifier = Modifier
@@ -268,7 +210,7 @@ private fun CartItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .border(1.dp, SurfaceLightAlt, RoundedCornerShape(16.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -305,7 +247,7 @@ private fun CartItemRow(
                 text = "$ " + "%.2f".format(product.price),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = ClicksGreen
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(4.dp))
             if (product.rating != null) {

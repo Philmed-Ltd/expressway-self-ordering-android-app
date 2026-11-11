@@ -11,7 +11,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
@@ -58,7 +57,7 @@ fun EditPhoneDialog(
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = ClicksText,
                         unfocusedTextColor = ClicksText,
-                        focusedBorderColor = ClicksGreen,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = BorderColor
                     ),
                     modifier = Modifier.fillMaxWidth()
@@ -74,7 +73,7 @@ fun EditPhoneDialog(
                     onDismiss()
                 }
             ) {
-                Text(stringResource(R.string.txt_save), fontWeight = FontWeight.Bold, color = ClicksGreen)
+                Text(stringResource(R.string.txt_save), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
             }
         },
         dismissButton = {
@@ -82,7 +81,7 @@ fun EditPhoneDialog(
                 Text(stringResource(R.string.txt_cancel), color = ClicksMuted)
             }
         },
-        containerColor = Color.White
+        containerColor = MaterialTheme.colorScheme.surface
     )
 }
 
@@ -94,7 +93,7 @@ fun ProcessingPaymentDialog(
     Dialog(onDismissRequest = {}) {
         Surface(
             shape = RoundedCornerShape(20.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -103,7 +102,7 @@ fun ProcessingPaymentDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator(color = ClicksGreen, modifier = Modifier.size(48.dp))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(20.dp))
                 Text(
                     text = stringResource(R.string.txt_mpesa_stk_sent),
@@ -131,7 +130,7 @@ fun SuccessOrderDialog(
     Dialog(onDismissRequest = {}) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -150,7 +149,7 @@ fun SuccessOrderDialog(
                     Icon(
                         imageVector = Icons.Outlined.CheckCircle,
                         contentDescription = stringResource(R.string.txt_success),
-                        tint = ClicksGreen,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(44.dp)
                     )
                 }
@@ -179,7 +178,7 @@ fun SuccessOrderDialog(
                         text = stringResource(R.string.txt_mpesa_reference, transactionCode),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.SemiBold,
-                        color = ClicksGreen
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
 
