@@ -67,6 +67,7 @@
     <string name="txt_error_enter_5_digit_otp">Please enter the 5-digit OTP</string>
     <string name="txt_password_changed_success">Password has successfully been changed.</string>
     <string name="txt_error_auth_token_missing">The server did not return an authentication token. Please try again.</string>
+    <string name="txt_error_auth_expiry_missing">The server did not return a valid future authentication expiry time. Please try again.</string>
     <string name="txt_error_session_save">Could not save your session. Please try signing in again.</string>
     <string name="txt_menu">Menu</string>
     <string name="txt_search">Search</string>
@@ -159,7 +160,6 @@
     <string name="txt_ordered_items">Ordered Items</string>
     <string name="txt_order_item_quantity">Quantity: %1$d</string>
     <string name="txt_payment_reference">Payment Reference</string>
-    <string name="txt_reorder">Reorder</string>
     <string name="txt_empty">Empty</string>
     <string name="txt_no_orders_placed">No orders placed yet</string>
     <string name="txt_completed_orders_appear">Your completed orders will appear here</string>

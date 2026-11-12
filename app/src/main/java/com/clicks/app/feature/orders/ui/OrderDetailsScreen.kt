@@ -3,7 +3,6 @@ package com.clicks.app.feature.orders.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
@@ -14,14 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.clicks.app.R
 import com.clicks.app.feature.orders.model.OrderItem
 import com.clicks.app.feature.orders.components.InfoCard
 import com.clicks.app.feature.orders.components.ItemsCard
 import com.clicks.app.feature.orders.components.OrderDetailsHeader
 import com.clicks.app.feature.orders.components.TrackingCard
-import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.SurfaceLightAlt
 
@@ -29,30 +26,9 @@ import com.clicks.app.lib.theme.SurfaceLightAlt
 fun OrderDetailsScreen(
     order: OrderItem?,
     onBackClick: () -> Unit,
-    onReorder: (OrderItem) -> Unit
 ) {
     Scaffold(
         containerColor = SurfaceLightAlt,
-        bottomBar = {
-            if (order != null && order.items.isNotEmpty()) {
-                Surface(
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 12.dp
-                ) {
-                    ClicksButton(
-                        text = stringResource(R.string.txt_reorder),
-                        onClick = { onReorder(order) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .padding(horizontal = 22.dp, vertical = 14.dp),
-                        height = 56.dp,
-                        shape = RoundedCornerShape(18.dp),
-                        letterSpacing = 0.2.sp
-                    )
-                }
-            }
-        }
     ) { innerPadding ->
         if (order == null) {
             Box(

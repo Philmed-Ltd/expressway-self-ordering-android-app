@@ -11,7 +11,6 @@ import com.clicks.app.feature.cart.data.CartLocalRepository
 import com.clicks.app.feature.cart.data.MAX_CART_QUANTITY
 import com.clicks.app.feature.cart.model.CartItem
 import com.clicks.app.feature.menu.model.StoreProduct
-import com.clicks.app.feature.orders.model.OrderItem
 import com.clicks.app.network.ApiClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -129,30 +128,6 @@ class CartViewModel : ViewModel() {
     }
 
     fun clearSession() = clearCart()
-
-    fun reorder(order: OrderItem): Boolean {
-        if (order.items.isEmpty()) return false
-        order.items.forEach { item ->
-            val productId = item.product.id
-            markEdited(productId)
-            val index = cartItems.indexOfFirst { it.product.id == productId }
-            if (index >= 0) {
-                cartItems[index] = cartItems[index].copy(
-                    quantity = (cartItems[index].quantity + item.quantity)
-                        .coerceAtMost(MAX_CART_QUANTITY)
-                )
-            } else {
-                cartItems.add(
-                    CartItem(
-                        product = item.product,
-                        quantity = item.quantity.coerceAtMost(MAX_CART_QUANTITY)
-                    )
-                )
-            }
-        }
-        persist()
-        return cartItems.isNotEmpty()
-    }
 
     private fun markEdited(productId: String) {
         if (!ready.isCompleted) editsBeforeRestore.add(productId)

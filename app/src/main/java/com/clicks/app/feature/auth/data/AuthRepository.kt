@@ -12,6 +12,7 @@ import com.clicks.app.feature.auth.data.dto.VerificationCodeData
 import com.clicks.app.feature.auth.data.dto.VerificationCodeRequest
 import com.clicks.app.feature.auth.data.dto.ResetPasswordRequest
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
+import com.clicks.app.lib.session.SessionManager
 import com.clicks.app.network.ApiClient
 import com.clicks.app.network.ApiErrorType
 import com.clicks.app.network.ApiResult
@@ -95,6 +96,7 @@ class AuthRepository(
     }
 
     fun logout() {
+        SessionManager.cancelSessionExpiry()
         authLocalSrc.delete()
     }
 
@@ -111,10 +113,17 @@ class AuthRepository(
             )
         }
 
+        val authentication = result.data.toAuthentication()
+            ?: return ApiResult.Error(
+                message = ApiClient.appContext.getString(R.string.txt_error_auth_expiry_missing),
+                type = ApiErrorType.Server
+            )
+
         return try {
             withContext(Dispatchers.IO) {
-                authLocalSrc.insertSync(result.data.toAuthentication())
+                authLocalSrc.insertSync(authentication)
             }
+            SessionManager.scheduleSessionExpiry(authentication.expiryTime, authLocalSrc)
             result
         } catch (exception: Exception) {
             Log.e(TAG, "Failed to save session token after $operation", exception)

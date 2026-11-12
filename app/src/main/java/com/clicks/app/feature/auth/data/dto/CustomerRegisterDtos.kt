@@ -30,11 +30,13 @@ data class CustomerRegisterData(
     val createdAt: String? = null,
     val updatedAt: String? = null
 ) {
-    fun toAuthentication(): Authentication {
+    fun toAuthentication(): Authentication? {
+        val parsedExpiryTime = Authentication.parseIsoDate(expiryTime) ?: return null
+        if (parsedExpiryTime.time <= System.currentTimeMillis()) return null
         return Authentication().apply {
             id = 1
             this.authToken = this@CustomerRegisterData.authToken.orEmpty()
-            this.expiryTime = Authentication.parseIsoDate(this@CustomerRegisterData.expiryTime)
+            this.expiryTime = parsedExpiryTime
         }
     }
 }

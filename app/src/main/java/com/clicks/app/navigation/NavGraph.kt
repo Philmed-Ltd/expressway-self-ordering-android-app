@@ -4,9 +4,13 @@ import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,12 +45,12 @@ import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
 import com.clicks.app.feature.home.viewmodel.HomeViewModel
 import com.clicks.app.feature.checkout.viewmodel.CheckoutViewModel
 import com.clicks.app.feature.orders.viewmodel.OrdersViewModel
-import com.clicks.app.feature.location.viewmodel.DeliveryLocation
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val sessionRepository = remember { SessionRepository(context) }
     val menuViewModel: MenuViewModel = viewModel()
     val cartViewModel: CartViewModel = viewModel()
@@ -83,6 +87,22 @@ fun NavGraph() {
         SessionManager.sessionExpiredEvent.collect {
             performLogout()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        sessionRepository.getExpiryTime()?.let { expiryTime ->
+            SessionManager.scheduleSessionExpiry(expiryTime)
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                sessionRepository.checkSessionExpiryNow()
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
     }
 
     NavHost(
@@ -331,23 +351,8 @@ fun NavGraph() {
             val orderId = Uri.decode(backStackEntry.arguments?.getString("orderId") ?: "")
             val order = ordersViewModel.orderById(orderId)
             OrderDetailsScreen(
-                order = order,
-                onBackClick = { navController.popBackStack() },
-                onReorder = { selectedOrder ->
-                    if (cartViewModel.reorder(selectedOrder)) {
-                        checkoutViewModel.startNewCheckout()
-                        val address = selectedOrder.deliveryAddress
-                        val latitude = selectedOrder.deliveryLatitude
-                        val longitude = selectedOrder.deliveryLongitude
-                        if (address != null && latitude != null && longitude != null) {
-                            deliveryLocationViewModel.confirm(
-                                DeliveryLocation(latitude, longitude, address)
-                            )
-                        }
-                        navController.navigate(Routes.Checkout.route)
-                    }
-                }
-            )
+                order = order
+            ) { navController.popBackStack() }
         }
     }
 }
