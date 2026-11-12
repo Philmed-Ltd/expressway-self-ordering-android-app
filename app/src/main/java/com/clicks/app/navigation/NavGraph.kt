@@ -4,9 +4,13 @@ import android.net.Uri
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +19,7 @@ import androidx.navigation.navArgument
 import androidx.navigation.NavType
 import com.clicks.app.lib.session.SessionManager
 import com.clicks.app.lib.session.SessionRepository
-import com.clicks.app.feature.onboarding.OnboardingContainerScreen
+import com.clicks.app.feature.onboarding.ui.OnboardingContainerScreen
 import com.clicks.app.feature.auth.ui.PhoneAuthScreen
 import com.clicks.app.feature.auth.viewmodel.PhoneAuthViewModel
 import com.clicks.app.feature.auth.ui.PhoneVerificationScreen
@@ -25,25 +29,35 @@ import com.clicks.app.feature.auth.viewmodel.ForgotPasswordViewModel
 import com.clicks.app.feature.home.ui.HomeScreen
 import com.clicks.app.feature.menu.ui.CategoryProductsScreen
 import com.clicks.app.feature.menu.ui.ProductDetailsScreen
-import com.clicks.app.feature.cart.CartScreen
-import com.clicks.app.feature.favorites.FavoritesScreen
+import com.clicks.app.feature.cart.ui.CartScreen
+import com.clicks.app.feature.favorites.ui.FavoritesScreen
 import com.clicks.app.feature.checkout.ui.CheckoutScreen
-import com.clicks.app.feature.location.ui.DeliveryLocationViewModel
+import com.clicks.app.feature.location.viewmodel.DeliveryLocationViewModel
 import com.clicks.app.feature.location.ui.LocationPickerScreen
-import com.clicks.app.feature.location.ui.LocationPickerViewModel
-import com.clicks.app.feature.profile.ProfileScreen
-import com.clicks.app.feature.profile.ProfileViewModel
-import com.clicks.app.feature.orders.OrdersScreen
-import com.clicks.app.feature.orders.OrderDetailsScreen
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
-import com.clicks.app.feature.location.ui.DeliveryLocation
+import com.clicks.app.feature.location.viewmodel.LocationPickerViewModel
+import com.clicks.app.feature.profile.ui.ProfileScreen
+import com.clicks.app.feature.profile.viewmodel.ProfileViewModel
+import com.clicks.app.feature.orders.ui.OrdersScreen
+import com.clicks.app.feature.orders.ui.OrderDetailsScreen
+import com.clicks.app.feature.menu.viewmodel.MenuViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
+import com.clicks.app.feature.home.viewmodel.HomeViewModel
+import com.clicks.app.feature.checkout.viewmodel.CheckoutViewModel
+import com.clicks.app.feature.orders.viewmodel.OrdersViewModel
 
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val sessionRepository = remember { SessionRepository(context) }
-    val storeViewModel: StoreViewModel = viewModel()
+    val menuViewModel: MenuViewModel = viewModel()
+    val cartViewModel: CartViewModel = viewModel()
+    val favoritesViewModel: FavoritesViewModel = viewModel()
+    val homeViewModel: HomeViewModel = viewModel()
+    val checkoutViewModel: CheckoutViewModel = viewModel()
+    val ordersViewModel: OrdersViewModel = viewModel()
     val deliveryLocationViewModel: DeliveryLocationViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
 
@@ -60,7 +74,10 @@ fun NavGraph() {
     }
 
     val performLogout = {
-        storeViewModel.clearSession()
+        cartViewModel.clearSession()
+        favoritesViewModel.clearSession()
+        ordersViewModel.clearSession()
+        checkoutViewModel.clearSession()
         profileViewModel.clearSession()
         sessionRepository.clearSession()
         goToAuth()
@@ -70,6 +87,22 @@ fun NavGraph() {
         SessionManager.sessionExpiredEvent.collect {
             performLogout()
         }
+    }
+
+    LaunchedEffect(Unit) {
+        sessionRepository.getExpiryTime()?.let { expiryTime ->
+            SessionManager.scheduleSessionExpiry(expiryTime)
+        }
+    }
+
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                sessionRepository.checkSessionExpiryNow()
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
     }
 
     NavHost(
@@ -158,7 +191,10 @@ fun NavGraph() {
         composable(Routes.Home.route) {
             LaunchedEffect(Unit) { profileViewModel.loadProfile() }
             HomeScreen(
-                storeViewModel = storeViewModel,
+                menuViewModel = menuViewModel,
+                homeViewModel = homeViewModel,
+                cartViewModel = cartViewModel,
+                favoritesViewModel = favoritesViewModel,
                 profileViewModel = profileViewModel,
                 onCategoryClick = { categoryKey ->
                     navController.navigate(Routes.Products.createRoute(categoryKey))
@@ -170,7 +206,9 @@ fun NavGraph() {
                     navController.navigate(Routes.ProductDetails.createRoute(productId))
                 },
                 onOrderNowClick = { productId ->
-                    storeViewModel.addToCart(productId)
+                    menuViewModel.products.firstOrNull { it.id == productId }?.let {
+                        cartViewModel.addToCart(it)
+                    }
                     navController.navigate(Routes.Cart.route)
                 },
                 onFavoritesClick = {
@@ -203,7 +241,9 @@ fun NavGraph() {
         ) { backStackEntry ->
             CategoryProductsScreen(
                 categoryKey = backStackEntry.arguments?.getString("categoryKey"),
-                storeViewModel = storeViewModel,
+                menuViewModel = menuViewModel,
+                cartViewModel = cartViewModel,
+                favoritesViewModel = favoritesViewModel,
                 onBackClick = { navController.popBackStack() },
                 onCartClick = {
                     navController.navigate(Routes.Cart.route)
@@ -218,7 +258,9 @@ fun NavGraph() {
             val productId = Uri.decode(backStackEntry.arguments?.getString("productId") ?: "")
             ProductDetailsScreen(
                 productId = productId,
-                storeViewModel = storeViewModel,
+                menuViewModel = menuViewModel,
+                cartViewModel = cartViewModel,
+                favoritesViewModel = favoritesViewModel,
                 onBackClick = { navController.popBackStack() },
                 onCartClick = {
                     navController.navigate(Routes.Cart.route)
@@ -230,9 +272,10 @@ fun NavGraph() {
 
         composable(Routes.Cart.route) {
             CartScreen(
-                storeViewModel = storeViewModel,
+                cartViewModel = cartViewModel,
                 onBackClick = { navController.popBackStack() },
                 onProceedToBuy = {
+                    checkoutViewModel.startNewCheckout()
                     navController.navigate(Routes.Checkout.route)
                 },
                 onStartShopping = {
@@ -245,7 +288,9 @@ fun NavGraph() {
 
         composable(Routes.Checkout.route) {
             CheckoutScreen(
-                storeViewModel = storeViewModel,
+                checkoutViewModel = checkoutViewModel,
+                cartViewModel = cartViewModel,
+                ordersViewModel = ordersViewModel,
                 deliveryLocationViewModel = deliveryLocationViewModel,
                 onBackClick = { navController.popBackStack() },
                 onPickLocation = { navController.navigate(Routes.LocationPicker.route) },
@@ -269,7 +314,9 @@ fun NavGraph() {
 
         composable(Routes.Favorites.route) {
             FavoritesScreen(
-                storeViewModel = storeViewModel,
+                favoritesViewModel = favoritesViewModel,
+                menuViewModel = menuViewModel,
+                cartViewModel = cartViewModel,
                 onBackClick = { navController.popBackStack() },
                 onProductClick = { productId ->
                     navController.navigate(Routes.ProductDetails.createRoute(productId))
@@ -292,7 +339,7 @@ fun NavGraph() {
 
         composable(Routes.Orders.route) {
             OrdersScreen(
-                storeViewModel = storeViewModel,
+                ordersViewModel = ordersViewModel,
                 onBackClick = { navController.popBackStack() },
                 onOrderClick = { orderId ->
                     navController.navigate(Routes.OrderDetails.createRoute(orderId))
@@ -302,24 +349,10 @@ fun NavGraph() {
 
         composable(Routes.OrderDetails.route) { backStackEntry ->
             val orderId = Uri.decode(backStackEntry.arguments?.getString("orderId") ?: "")
-            val order = storeViewModel.orderById(orderId)
+            val order = ordersViewModel.orderById(orderId)
             OrderDetailsScreen(
-                order = order,
-                onBackClick = { navController.popBackStack() },
-                onReorder = { selectedOrder ->
-                    if (storeViewModel.reorder(selectedOrder.orderId)) {
-                        val address = selectedOrder.deliveryAddress
-                        val latitude = selectedOrder.deliveryLatitude
-                        val longitude = selectedOrder.deliveryLongitude
-                        if (address != null && latitude != null && longitude != null) {
-                            deliveryLocationViewModel.confirm(
-                                DeliveryLocation(latitude, longitude, address)
-                            )
-                        }
-                        navController.navigate(Routes.Checkout.route)
-                    }
-                }
-            )
+                order = order
+            ) { navController.popBackStack() }
         }
     }
 }

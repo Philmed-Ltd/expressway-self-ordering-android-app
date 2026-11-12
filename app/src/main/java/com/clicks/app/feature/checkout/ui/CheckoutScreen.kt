@@ -12,51 +12,42 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.clicks.app.feature.checkout.ui.components.*
 import com.clicks.app.R
-import com.clicks.app.feature.checkout.model.OrderDeliveryAddress
-import com.clicks.app.feature.checkout.model.OrderRequest
-import com.clicks.app.feature.checkout.model.OrderRequestItem
-import com.clicks.app.feature.location.ui.DeliveryLocationViewModel
+import com.clicks.app.feature.checkout.data.dto.OrderDeliveryAddress
+import com.clicks.app.feature.checkout.data.dto.OrderRequest
+import com.clicks.app.feature.checkout.data.dto.OrderRequestItem
+import com.clicks.app.feature.checkout.viewmodel.CheckoutViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.location.viewmodel.DeliveryLocationViewModel
 import com.clicks.app.lib.components.ClicksButton
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMuted
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
-import kotlinx.coroutines.delay
-import java.util.UUID
-import kotlin.time.Duration.Companion.milliseconds
+import com.clicks.app.feature.orders.viewmodel.OrdersViewModel
+import com.clicks.app.network.ApiResult
+import kotlinx.coroutines.launch
 
 @Composable
 fun CheckoutScreen(
     deliveryLocationViewModel: DeliveryLocationViewModel,
     onPickLocation: () -> Unit = {},
-    storeViewModel: StoreViewModel,
+    checkoutViewModel: CheckoutViewModel,
+    cartViewModel: CartViewModel,
+    ordersViewModel: OrdersViewModel,
     onBackClick: () -> Unit = {},
     onOrderPlaced: (String) -> Unit = {}
 ) {
-    val subtotal = storeViewModel.cartSubtotal
-    val shippingFee = if (subtotal > 0) 80.0 else 0.0
+    val subtotal = cartViewModel.cartSubtotal
+    val displayedShippingFee = 0.0
     val vat = 0.0
-    val total = subtotal + shippingFee + vat
 
-    var mpesaPhone by remember { mutableStateOf("+254 712 345 678") }
-    var showEditPhoneDialog by remember { mutableStateOf(false) }
-    var isProcessingPayment by remember { mutableStateOf(false) }
-    var isPaymentConfirmed by remember { mutableStateOf(false) }
-    var transactionCode by remember { mutableStateOf("") }
-    var showSuccessDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(isProcessingPayment) {
-        if (isProcessingPayment) {
-            delay(2500.milliseconds)
-            transactionCode = "MP${(10000000..99999999).random()}"
-            isPaymentConfirmed = true
-            isProcessingPayment = false
-        }
-    }
+    val displayedSubtotal = checkoutViewModel.placedSubtotal ?: subtotal
+    val displayedTotal = displayedSubtotal + displayedShippingFee + vat
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         bottomBar = {
-            Surface(
+            if (checkoutViewModel.placedOrderId == null) Surface(
                 color = MaterialTheme.colorScheme.surface,
                 shadowElevation = 16.dp
             ) {
@@ -67,13 +58,59 @@ fun CheckoutScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
                     val isLocationSet = deliveryLocationViewModel.location != null
-                    val canPlaceOrder = isLocationSet && isPaymentConfirmed
+                    val canPlaceOrder = !checkoutViewModel.isPlacingOrder &&
+                        cartViewModel.cartItems.isNotEmpty()
 
                     ClicksButton(
                         text = stringResource(
-                            if (!isLocationSet) R.string.txt_select_delivery_location else R.string.txt_place_order
+                            when {
+                                checkoutViewModel.isPlacingOrder -> R.string.txt_placing_order
+                                !isLocationSet -> R.string.txt_select_delivery_location
+                                else -> R.string.txt_place_order
+                            }
                         ),
-                        onClick = { showSuccessDialog = true },
+                        onClick = {
+                            if (!isLocationSet) {
+                                onPickLocation()
+                            } else {
+                                coroutineScope.launch {
+                                    val location = deliveryLocationViewModel.location
+                                        ?: return@launch
+                                    val cartSnapshot = cartViewModel.cartItems.toList()
+                                    val request = OrderRequest(
+                                        deliveryAddress = OrderDeliveryAddress(
+                                            address = location.addressLine,
+                                            latitude = location.latitude.toString(),
+                                            longitude = location.longitude.toString(),
+                                            instructions = ""
+                                        ),
+                                        items = cartSnapshot.map { cartItem ->
+                                            OrderRequestItem(
+                                                productItemEntityId = cartItem.product.id,
+                                                quantity = cartItem.quantity
+                                            )
+                                        }
+                                    )
+                                    val result = checkoutViewModel.placeOrder(request, subtotal)
+                                    when (result) {
+                                        is ApiResult.Success -> {
+                                            ordersViewModel.addPlacedOrderPreview(
+                                                orderId = result.data,
+                                                productsAndQuantities = cartSnapshot.map {
+                                                    it.product to it.quantity
+                                                },
+                                                total = subtotal,
+                                                address = location.addressLine,
+                                                latitude = location.latitude.toString(),
+                                                longitude = location.longitude.toString()
+                                            )
+                                            cartViewModel.clearCart()
+                                        }
+                                        is ApiResult.Error -> Unit
+                                    }
+                                }
+                            }
+                        },
                         enabled = canPlaceOrder,
                         height = 56.dp,
                         shape = RoundedCornerShape(28.dp),
@@ -90,6 +127,7 @@ fun CheckoutScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .statusBarsPadding()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
@@ -103,76 +141,69 @@ fun CheckoutScreen(
                 onClick = onPickLocation
             )
 
-            Spacer(Modifier.height(24.dp))
-
-            MpesaPaymentSection(
-                mpesaPhone = mpesaPhone,
-                isPaymentConfirmed = isPaymentConfirmed,
-                transactionCode = transactionCode,
-                total = total,
-                onEditPhone = { showEditPhoneDialog = true },
-                onPayClicked = { isProcessingPayment = true }
-            )
-
             Spacer(Modifier.height(28.dp))
 
             OrderSummarySection(
-                subtotal = subtotal,
+                subtotal = displayedSubtotal,
                 vat = vat,
-                shippingFee = shippingFee,
-                total = total
+                shippingFee = displayedShippingFee,
+                total = displayedTotal,
+                expanded = checkoutViewModel.isOrderSummaryExpanded,
+                onExpandedChange = { checkoutViewModel.isOrderSummaryExpanded = it }
             )
+
+            checkoutViewModel.orderError?.let { message ->
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            if (checkoutViewModel.isPlacingOrder) {
+                Spacer(Modifier.height(16.dp))
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
+
+            checkoutViewModel.placedOrderId?.let {
+
+                Spacer(Modifier.height(20.dp))
+                MpesaPaymentSection(
+                    mpesaPhone = checkoutViewModel.mpesaPhone,
+                    onMpesaPhoneChange = { checkoutViewModel.mpesaPhone = it },
+                    isPaymentConfirmed = checkoutViewModel.isPaymentConfirmed,
+                    transactionCode = checkoutViewModel.transactionCode,
+                    total = displayedTotal,
+                    onPhoneFieldFocus = { checkoutViewModel.isOrderSummaryExpanded = false },
+                    isProcessing = checkoutViewModel.isProcessingPayment,
+                    errorMessage = checkoutViewModel.paymentError,
+                    onPayClicked = {
+                        if (checkoutViewModel.placedOrderId == null) return@MpesaPaymentSection
+                        coroutineScope.launch {
+                            checkoutViewModel.initializePayment(displayedTotal)
+                        }
+                    }
+                )
+            }
 
             Spacer(Modifier.height(32.dp))
         }
     }
 
-    if (showEditPhoneDialog) {
-        EditPhoneDialog(
-            initialPhone = mpesaPhone,
-            onDismiss = { showEditPhoneDialog = false },
-            onSave = { newPhone -> mpesaPhone = newPhone }
-        )
-    }
-
-    if (isProcessingPayment) {
+    if (checkoutViewModel.isProcessingPayment) {
         ProcessingPaymentDialog(
-            mpesaPhone = mpesaPhone,
-            total = total
+            mpesaPhone = checkoutViewModel.mpesaPhone,
+            total = displayedTotal
         )
     }
 
-    if (showSuccessDialog) {
+    if (checkoutViewModel.showSuccessDialog) {
         SuccessOrderDialog(
-            transactionCode = transactionCode,
+            transactionCode = checkoutViewModel.transactionCode,
             onTrackOrder = {
-                showSuccessDialog = false
-                val location = deliveryLocationViewModel.location
-                if (location != null) {
-                    val orderId = storeViewModel.placeOrder(
-                        OrderRequest(
-                            orderId = UUID.randomUUID().toString(),
-                            deliveryAddress = OrderDeliveryAddress(
-                                address = location.addressLine,
-                                latitude = location.latitude,
-                                longitude = location.longitude,
-                                instructions = ""
-                            ),
-                            items = storeViewModel.cartItems.map { cartItem ->
-                                OrderRequestItem(
-                                    productItemEntityId = cartItem.product.id,
-                                    quantity = cartItem.quantity,
-                                    unitPrice = cartItem.product.price
-                                )
-                            },
-                            paymentMethod = "MPESA"
-                        ),
-                        paymentReference = transactionCode
-                    )
-                    if (orderId != null) {
-                        onOrderPlaced(orderId)
-                    }
-                }
+                checkoutViewModel.showSuccessDialog = false
+                checkoutViewModel.placedOrderId?.let(onOrderPlaced)
             }
         )
     }

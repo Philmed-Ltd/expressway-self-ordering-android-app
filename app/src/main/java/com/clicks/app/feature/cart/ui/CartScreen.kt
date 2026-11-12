@@ -1,4 +1,4 @@
-package com.clicks.app.feature.cart
+package com.clicks.app.feature.cart.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.clicks.app.R
+import com.clicks.app.feature.cart.data.MAX_CART_QUANTITY
+import com.clicks.app.feature.cart.model.CartItem
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
 import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.lib.theme.ClicksMint
@@ -36,19 +39,18 @@ import com.clicks.app.lib.theme.Error
 import com.clicks.app.lib.theme.StarGold
 import com.clicks.app.lib.theme.SurfaceLight
 import com.clicks.app.lib.theme.SurfaceLightAlt
-import com.clicks.app.feature.menu.viewmodel.CartItem
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.lib.components.EmptyCartGraphic
 
 @Composable
 fun CartScreen(
-    storeViewModel: StoreViewModel,
+    cartViewModel: CartViewModel,
     onBackClick: () -> Unit = {},
     onProceedToBuy: () -> Unit = {},
     onStartShopping: () -> Unit
 ) {
-    val cartItems = storeViewModel.cartItems
-    val subtotal = storeViewModel.cartSubtotal
-    val totalItems = storeViewModel.cartItemCount
+    val cartItems = cartViewModel.cartItems
+    val subtotal = cartViewModel.cartSubtotal
+    val totalItems = cartViewModel.cartItemCount
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -56,7 +58,7 @@ fun CartScreen(
             if (cartItems.isNotEmpty()) {
                 Surface(
                     shadowElevation = 12.dp,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.surface
                 ) {
                     Column(
                         modifier = Modifier
@@ -119,7 +121,7 @@ fun CartScreen(
 
             HorizontalDivider(color = BorderColor, thickness = 1.dp)
 
-            storeViewModel.cartPersistenceError?.let { error ->
+            cartViewModel.cartPersistenceError?.let { error ->
                 Text(
                     text = error,
                     color = Error,
@@ -164,7 +166,7 @@ fun CartScreen(
             }
 
             // Cart Items List
-            if (storeViewModel.isCartLoading && cartItems.isEmpty()) {
+            if (cartViewModel.isCartLoading && cartItems.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -172,7 +174,7 @@ fun CartScreen(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else if (cartItems.isEmpty()) {
-                com.clicks.app.lib.components.EmptyCartGraphic(
+                EmptyCartGraphic(
                     onStartShopping = onStartShopping
                 )
             } else {
@@ -186,9 +188,9 @@ fun CartScreen(
                     items(cartItems, key = { it.product.id }) { cartItem ->
                         CartItemRow(
                             cartItem = cartItem,
-                            onIncrement = { storeViewModel.updateQuantity(cartItem.product.id, 1) },
-                            onDecrement = { storeViewModel.updateQuantity(cartItem.product.id, -1) },
-                            onRemove = { storeViewModel.removeFromCart(cartItem.product.id) }
+                            onIncrement = { cartViewModel.updateQuantity(cartItem.product.id, 1) },
+                            onDecrement = { cartViewModel.updateQuantity(cartItem.product.id, -1) },
+                            onRemove = { cartViewModel.removeFromCart(cartItem.product.id) }
                         )
                     }
                 }
@@ -244,7 +246,7 @@ private fun CartItemRow(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "$ " + "%.2f".format(product.price),
+                text = "KSh " + "%.2f".format(product.price),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

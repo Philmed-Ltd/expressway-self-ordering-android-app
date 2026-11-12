@@ -2,7 +2,6 @@ package com.clicks.app.lib.session
 
 import android.content.Context
 import androidx.core.content.edit
-import com.clicks.app.feature.auth.model.Authentication
 import com.clicks.app.feature.auth.service.AuthenticationLocalSrc
 import java.util.Date
 
@@ -13,20 +12,16 @@ class SessionRepository(
 
     private val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    fun saveToken(token: String, expiryTime: Date = Date(System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000)) {
-        val auth = Authentication().apply {
-            id = 1
-            authToken = token
-            this.expiryTime = expiryTime
-        }
-        authLocalSrc.insertSync(auth)
-    }
+    fun getExpiryTime(): Date? = authLocalSrc.getStoredAuthentication()?.expiryTime
 
-    fun getToken(): String? = authLocalSrc.getToken()
+    fun checkSessionExpiryNow() {
+        SessionManager.checkSessionExpiryNow(authLocalSrc)
+    }
 
     fun isLoggedIn(): Boolean = authLocalSrc.exists()
 
     fun clearSession() {
+        SessionManager.cancelSessionExpiry()
         authLocalSrc.delete()
     }
 

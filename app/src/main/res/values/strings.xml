@@ -67,6 +67,7 @@
     <string name="txt_error_enter_5_digit_otp">Please enter the 5-digit OTP</string>
     <string name="txt_password_changed_success">Password has successfully been changed.</string>
     <string name="txt_error_auth_token_missing">The server did not return an authentication token. Please try again.</string>
+    <string name="txt_error_auth_expiry_missing">The server did not return a valid future authentication expiry time. Please try again.</string>
     <string name="txt_error_session_save">Could not save your session. Please try signing in again.</string>
     <string name="txt_menu">Menu</string>
     <string name="txt_search">Search</string>
@@ -146,6 +147,7 @@
     <string name="txt_order_history_eyebrow">YOUR EXPRESSWAY LOUNGE</string>
     <string name="txt_orders_header_subtitle">Your orders, all in one place.</string>
     <string name="txt_recent_orders">Recent orders</string>
+    <string name="txt_more_order_items">+%1$d more items</string>
     <string name="txt_order_number_label">ORDER NUMBER</string>
     <string name="txt_order_total_label">Order total</string>
     <string name="txt_view_details">View details</string>
@@ -158,7 +160,6 @@
     <string name="txt_ordered_items">Ordered Items</string>
     <string name="txt_order_item_quantity">Quantity: %1$d</string>
     <string name="txt_payment_reference">Payment Reference</string>
-    <string name="txt_reorder">Reorder and Pay</string>
     <string name="txt_empty">Empty</string>
     <string name="txt_no_orders_placed">No orders placed yet</string>
     <string name="txt_completed_orders_appear">Your completed orders will appear here</string>
@@ -202,6 +203,8 @@
     <string name="txt_change">Change</string>
     <string name="txt_delivery_location">Delivery location</string>
     <string name="txt_order_summary">Order Summary</string>
+    <string name="txt_collapse_order_summary">Collapse order summary</string>
+    <string name="txt_expand_order_summary">Expand order summary</string>
     <string name="txt_sub_total">Sub-total</string>
     <string name="txt_vat">VAT (%)</string>
     <string name="txt_shipping_fee">Shipping fee</string>
@@ -213,13 +216,14 @@
     <string name="txt_edit">Edit</string>
     <string name="txt_transaction_reference">Transaction Ref: %1$s</string>
     <string name="txt_confirmed">Confirmed</string>
-    <string name="txt_pay_via_mpesa">Pay $ %1$.2f via M-Pesa</string>
+    <string name="txt_pay_via_mpesa">Pay KSh %1$.2f via M-Pesa</string>
     <string name="txt_edit_mpesa_number">Edit M-Pesa Number</string>
     <string name="txt_enter_mpesa_phone">Enter your M-Pesa registered phone number:</string>
+    <string name="txt_mpesa_phone_placeholder">e.g. 0712 345 678</string>
     <string name="txt_save">Save</string>
     <string name="txt_cancel">Cancel</string>
     <string name="txt_mpesa_stk_sent">M-Pesa STK Push Sent</string>
-    <string name="txt_complete_mpesa_payment">Please enter your M-Pesa PIN on your phone (%1$s) to complete payment of $ %2$.2f</string>
+    <string name="txt_complete_mpesa_payment">Please enter your M-Pesa PIN on your phone (%1$s) to complete payment of KSh %2$.2f</string>
     <string name="txt_success">Success</string>
     <string name="txt_congratulations">Congratulations!</string>
     <string name="txt_order_placed_success">Your order has been placed successfully.</string>
@@ -227,6 +231,8 @@
     <string name="txt_track_order">Track Your Order</string>
     <string name="txt_select_delivery_location">Select Delivery Location</string>
     <string name="txt_place_order">Place Order</string>
+    <string name="txt_placing_order">Placing Order…</string>
+    <string name="txt_order_id">Order ID: %1$s</string>
     <string name="txt_checkout">Checkout</string>
     <string name="txt_notifications_description">Notifications</string>
     <string name="txt_onboarding_coffee_title">Let\'s meet our summer\ncoffee drinks</string>
@@ -283,14 +289,14 @@
     <string name="txt_empty_cart_title">Your cart is empty!</string>
     <string name="txt_empty_cart_subtitle">Tap the plus (+) icon on any product to add it to cart+</string>
     <string name="txt_empty_cart_items">0 items</string>
-    <string name="txt_empty_cart_title_hungry">Your Cart is Hungry!</string>
+    <string name="txt_empty_cart_title_hungry">Your Cart is Empty!</string>
     <string name="txt_empty_cart_subtitle_gourmet">Looks like you haven\'t added any dishes to your cart yet. Explore our delicious menu!</string>
     <string name="txt_explore_gourmet_menu">Explore Our Menu</string>
     <string name="txt_empty_favorites_title">No Favorites Saved Yet!</string>
     <string name="txt_empty_favorites_subtitle">Tap the heart icon on any dish you love to save it here.</string>
     <string name="txt_browse_popular_dishes">Browse Popular Dishes</string>
     <string name="txt_details">Details</string>
-    <string name="txt_add_to_cart_price">Add to cart · $ %1$.2f</string>
+    <string name="txt_add_to_cart_price">Add to cart · KSh %1$.2f</string>
     <plurals name="txt_view_cart_count">
         <item quantity="one">View cart · %1$d item</item>
         <item quantity="other">View cart · %1$d items</item>

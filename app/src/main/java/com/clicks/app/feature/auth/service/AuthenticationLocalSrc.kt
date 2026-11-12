@@ -13,7 +13,7 @@ class AuthenticationLocalSrc(context: Context) {
     }
 
     fun selectSync(): Authentication? {
-        val auth = dao.selectSync()
+        val auth = getStoredAuthentication()
         if ((auth == null) || auth.hasExpired()) {
             if (auth != null) {
                 dao.delete()
@@ -22,6 +22,8 @@ class AuthenticationLocalSrc(context: Context) {
         }
         return auth
     }
+
+    fun getStoredAuthentication(): Authentication? = dao.selectSync()
 
     fun getToken(): String? = selectSync()?.authToken
 

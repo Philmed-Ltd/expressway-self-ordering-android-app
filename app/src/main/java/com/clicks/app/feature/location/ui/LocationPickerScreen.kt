@@ -33,6 +33,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import com.clicks.app.lib.theme.ClicksGreen
 import com.clicks.app.R
+import com.clicks.app.feature.location.viewmodel.DeliveryLocation
+import com.clicks.app.feature.location.viewmodel.GeoPoint
+import com.clicks.app.feature.location.viewmodel.LocationPickerViewModel
 import com.clicks.app.lib.theme.ClicksMint
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText

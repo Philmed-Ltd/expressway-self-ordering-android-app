@@ -1,4 +1,4 @@
-package com.clicks.app.feature.favorites.data
+package com.clicks.app.feature.favorites.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

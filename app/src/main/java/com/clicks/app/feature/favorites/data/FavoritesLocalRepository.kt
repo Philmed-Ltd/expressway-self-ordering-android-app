@@ -1,6 +1,7 @@
 package com.clicks.app.feature.favorites.data
 
 import android.content.Context
+import com.clicks.app.feature.favorites.model.FavoriteProductEntity
 import com.clicks.app.feature.menu.model.StoreProduct
 import com.clicks.app.lib.db.AppDatabase
 import kotlinx.coroutines.Dispatchers

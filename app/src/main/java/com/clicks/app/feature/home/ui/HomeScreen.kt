@@ -27,9 +27,12 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import com.clicks.app.R
 import com.clicks.app.feature.home.components.*
+import com.clicks.app.feature.home.viewmodel.HomeViewModel
 import com.clicks.app.feature.menu.model.StoreProduct
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
-import com.clicks.app.feature.profile.ProfileViewModel
+import com.clicks.app.feature.menu.viewmodel.MenuViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
+import com.clicks.app.feature.profile.viewmodel.ProfileViewModel
 import com.clicks.app.lib.components.ClicksBottomBar
 import com.clicks.app.lib.components.BottomTab
 import com.clicks.app.lib.components.ClicksDrawerSheet
@@ -42,7 +45,10 @@ import com.clicks.app.lib.theme.ClicksText
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    storeViewModel: StoreViewModel,
+    menuViewModel: MenuViewModel,
+    homeViewModel: HomeViewModel,
+    cartViewModel: CartViewModel,
+    favoritesViewModel: FavoritesViewModel,
     profileViewModel: ProfileViewModel,
     onFavoritesClick: () -> Unit = {},
     onCartClick: () -> Unit = {},
@@ -55,8 +61,11 @@ fun HomeScreen(
     onOrderNowClick: (String) -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-        storeViewModel.loadProducts()
-        storeViewModel.loadCategories()
+        menuViewModel.loadProducts()
+        menuViewModel.loadCategories()
+    }
+    LaunchedEffect(menuViewModel.products.toList(), favoritesViewModel.isFavoritesLoading) {
+        favoritesViewModel.refreshFavoriteSnapshots(menuViewModel.products)
     }
 
     var searchText by remember { mutableStateOf("") }
@@ -69,7 +78,7 @@ fun HomeScreen(
 
     var showNotificationsSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
-    val unreadNotifications = storeViewModel.unreadNotificationCount
+    val unreadNotifications = homeViewModel.unreadNotificationCount
     if (showNotificationsSheet) {
         ModalBottomSheet(
             onDismissRequest = { showNotificationsSheet = false },
@@ -93,7 +102,7 @@ fun HomeScreen(
                         color = ClicksText
                     )
                     TextButton(
-                        onClick = { storeViewModel.markAllNotificationsRead() }
+                        onClick = { homeViewModel.markAllNotificationsRead() }
                     ) {
                         Text(
                             text = stringResource(R.string.txt_mark_all_read),
@@ -106,7 +115,7 @@ fun HomeScreen(
 
                 Spacer(Modifier.height(16.dp))
 
-                storeViewModel.notifications.forEach { notification ->
+                homeViewModel.notifications.forEach { notification ->
                     Card(
                         shape = RoundedCornerShape(14.dp),
                         colors = CardDefaults.cardColors(
@@ -252,11 +261,11 @@ fun HomeScreen(
                             placeholder = stringResource(R.string.txt_search_products)
                         )
 
-                        val matchingProducts = remember(searchText, storeViewModel.products.size) {
+                        val matchingProducts = remember(searchText, menuViewModel.products.size) {
                             if (searchText.isBlank()) {
                                 emptyList()
                             } else {
-                                storeViewModel.products.filter { product ->
+                                menuViewModel.products.filter { product ->
                                     product.matchesSearch(searchText)
                                 }
                             }
@@ -268,12 +277,12 @@ fun HomeScreen(
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp),
                                 shape = RoundedCornerShape(14.dp),
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.surface,
                                 shadowElevation = 8.dp,
                                 tonalElevation = 2.dp
                             ) {
                                 when {
-                                    storeViewModel.isProductsLoading && matchingProducts.isEmpty() -> {
+                                    menuViewModel.isProductsLoading && matchingProducts.isEmpty() -> {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -341,15 +350,15 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
 
                 HomeCategoriesSection(
-                    categories = storeViewModel.categories,
+                    categories = menuViewModel.categories,
                     onCategoryClick = onCategoryClick,
-                    isLoading = storeViewModel.isCategoriesLoading,
-                    error = storeViewModel.categoriesError
-                ) { storeViewModel.loadCategories(force = true) }
+                    isLoading = menuViewModel.isCategoriesLoading,
+                    error = menuViewModel.categoriesError
+                ) { menuViewModel.loadCategories(force = true) }
 
                 Spacer(Modifier.height(14.dp))
 
-                val featuredProducts = storeViewModel.products.take(5)
+                val featuredProducts = menuViewModel.products.take(5)
                 if (featuredProducts.isNotEmpty()) {
                     SectionHeading(
                         title = stringResource(R.string.txt_featured_meals),
@@ -378,15 +387,16 @@ fun HomeScreen(
                 Spacer(Modifier.height(14.dp))
 
                 HomePopularSection(
-                    products = storeViewModel.products.take(4),
-                    storeViewModel = storeViewModel,
+                    products = menuViewModel.products.take(4),
+                    cartViewModel = cartViewModel,
+                    favoritesViewModel = favoritesViewModel,
                     onProductClick = onProductClick
                 )
 
                 Spacer(Modifier.height(22.dp))
             }
 
-            if (storeViewModel.isHomeOffline) {
+            if (menuViewModel.isHomeOffline) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -413,8 +423,8 @@ fun HomeScreen(
                         Spacer(Modifier.height(16.dp))
                         Button(
                             onClick = {
-                                storeViewModel.loadProducts(force = true)
-                                storeViewModel.loadCategories(force = true)
+                                menuViewModel.loadProducts(force = true)
+                                menuViewModel.loadCategories(force = true)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = ClicksGreen)
                         ) {

@@ -1,4 +1,4 @@
-package com.clicks.app.feature.favorites
+package com.clicks.app.feature.favorites.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,18 +18,23 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.CircularProgressIndicator
 import com.clicks.app.R
 import com.clicks.app.feature.menu.ui.components.ProductCard
-import com.clicks.app.feature.menu.viewmodel.StoreViewModel
+import com.clicks.app.feature.cart.viewmodel.CartViewModel
+import com.clicks.app.feature.favorites.viewmodel.FavoritesViewModel
+import com.clicks.app.feature.menu.viewmodel.MenuViewModel
+import com.clicks.app.lib.components.EmptyFavoritesGraphic
 import com.clicks.app.lib.theme.BorderColor
 import com.clicks.app.lib.theme.ClicksMuted
 import com.clicks.app.lib.theme.ClicksText
 
 @Composable
 fun FavoritesScreen(
-    storeViewModel: StoreViewModel,
+    favoritesViewModel: FavoritesViewModel,
+    menuViewModel: MenuViewModel,
+    cartViewModel: CartViewModel,
     onBackClick: () -> Unit = {},
     onProductClick: (String) -> Unit = {}
 ) {
-    val favoriteProducts = storeViewModel.favoriteProducts
+    val favoriteProducts = favoritesViewModel.favoriteProducts
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -66,7 +71,7 @@ fun FavoritesScreen(
 
             HorizontalDivider(color = BorderColor, thickness = 1.dp)
 
-            storeViewModel.favoritePersistenceError?.let { error ->
+            favoritesViewModel.favoritePersistenceError?.let { error ->
                 Text(
                     text = error,
                     color = ClicksMuted,
@@ -74,12 +79,12 @@ fun FavoritesScreen(
                 )
             }
 
-            if (storeViewModel.isFavoritesLoading && favoriteProducts.isEmpty()) {
+            if (favoritesViewModel.isFavoritesLoading && favoriteProducts.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             } else if (favoriteProducts.isEmpty()) {
-                com.clicks.app.lib.components.EmptyFavoritesGraphic(
+                EmptyFavoritesGraphic(
                     onExploreClick = onBackClick
                 )
             } else {
@@ -94,9 +99,11 @@ fun FavoritesScreen(
                         ProductCard(
                             product = product,
                             isFavorite = true,
-                            isInCart = storeViewModel.isInCart(product.id),
-                            onCartClick = { storeViewModel.toggleCart(product.id) },
-                            onFavoriteClick = { storeViewModel.toggleFavorite(product.id) },
+                            isInCart = cartViewModel.isInCart(product.id),
+                            onCartClick = { cartViewModel.toggleCart(product) },
+                            onFavoriteClick = {
+                                favoritesViewModel.toggleFavorite(product.id, menuViewModel.products)
+                            },
                             onClick = { onProductClick(product.id) }
                         )
                     }

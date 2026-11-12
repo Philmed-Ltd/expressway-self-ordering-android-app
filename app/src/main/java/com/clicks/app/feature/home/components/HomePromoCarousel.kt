@@ -124,7 +124,7 @@ fun HomePromoCarousel(
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            text = product.description.ifBlank { "$ " + "%.2f".format(product.price) },
+                            text = product.description.ifBlank { "KSh " + "%.2f".format(product.price) },
                             color = Color.White.copy(alpha = 0.82f),
                             fontSize = 10.sp,
                             lineHeight = 13.sp,
